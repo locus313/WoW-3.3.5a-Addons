@@ -1,0 +1,128 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+	<Include file="MI2_TabFrame.xml" />
+	<Include file="MI2_GeneralOptions.xml" />
+	<Include file="MI2_TooltipOptions.xml" />
+	<Include file="MI2_TargetOptions.xml" />
+	<Include file="MI2_DatabaseOptions.xml" />
+	<Include file="MI2_SearchOptions.xml" />
+	<!-- ============================================================ -->
+	<!-- =              MobInfo-2 Options Window                    = -->
+	<!-- ============================================================ -->
+	<Frame name="MI2_OptionsFrame" parent="UIParent" enableMouse="true" movable="true" frameStrata="DIALOG" hidden="true" toplevel="true">
+		<!--..........................-->
+		<!--  dialog size & position -->
+		<Size>
+			<AbsDimension x="490" y="530" /></Size>
+		<Anchors>
+			<Anchor point="CENTER" /></Anchors>
+		<!--.........................-->
+		<!--  dialog box background  -->
+		<Backdrop name="bdMI" bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border"    tile="true">
+			<BackgroundInsets>
+				<AbsInset left="11" right="12" top="12" bottom="11" />
+				<Size>
+					<AbsDimension x="128" y="17" /></Size></BackgroundInsets>
+			<TileSize>
+				<AbsValue val="32" /></TileSize>
+			<EdgeSize>
+				<AbsValue val="32" /></EdgeSize></Backdrop>
+		<!--....................-->
+		<!--  dialog box title  -->
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture file="Interface\DialogFrame\UI-DialogBox-Header">
+					<Size>
+						<AbsDimension x="240" y="68" /></Size>
+					<Anchors>
+						<Anchor point="TOP">
+							<Offset>
+								<AbsDimension x="0" y="14" /></Offset></Anchor></Anchors></Texture>
+				<FontString name="MI2_TxtOptionsTitle" inherits="GameFontNormal" >
+					<Anchors>
+						<Anchor point="TOP" relativeTo="MI2_OptionsFrame">
+							<Offset>
+								<AbsDimension x="0" y="-2" /></Offset></Anchor></Anchors></FontString></Layer></Layers>
+		<Frames>
+			<!--....................................-->
+			<!--  subframe with the TAB buttons  -->
+			<Frame name="MI2_OptionsTabFrame" inherits="MI2_TabFrameTemplate">
+				<Frames>
+					<!--.............................................-->
+					<!--  subframe with the general MobInfo options  -->
+					<Frame name="MI2_GeneralOptionsFrame" inherits="MI2_GeneralOptionsTemplate" virtual="true">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="20" y="-20" /></Offset></Anchor></Anchors></Frame>
+					<!--.............................................-->
+					<!--  subframe with the MobInfo tooltip options  -->
+					<Frame name="MI2_TooltipOptionsFrame" inherits="MI2_TooltipOptionsTemplate" hidden="true">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="20" y="-20" /></Offset></Anchor></Anchors></Frame>
+					<!--.............................................-->
+					<!--  subframe with the MobInfo tooltip options  -->
+					<Frame name="MI2_TargetOptionsFrame" inherits="MI2_TargetOptionsTemplate" hidden="true">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="20" y="-20" /></Offset></Anchor></Anchors></Frame>
+					<!--.............................................-->
+					<!--  subframe with the MobInfo tooltip options  -->
+					<Frame name="MI2_DatabaseOptionsFrame" inherits="MI2_DatabaseOptionsTemplate" hidden="true">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="20" y="-20" /></Offset></Anchor></Anchors></Frame>
+					<!--.............................................-->
+					<!--  subframe with the MobInfo tooltip options  -->
+					<Frame name="MI2_SearchOptionsFrame" inherits="MI2_SearchOptionsTemplate" hidden="true">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="20" y="-20" /></Offset></Anchor></Anchors></Frame>
+				</Frames></Frame>
+					<!-- ================================================ -->
+					<!-- subframe with mob health disabled message		  -->
+					<Frame name="MI2_FrmHealthDisabledInfo"	inherits="MI2_OptionsBoxTemplate"	hidden="true" >
+						<Size> <AbsDimension x="350" y="240" />	</Size>
+						<Anchors>
+							<Anchor	point="TOPLEFT">
+								<Offset> <AbsDimension x="40" y="-40" /> </Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<FontString	name="$parentMessage" inherits="GameFontNormalLarge" text="MI_TXT_MH_DISABLED2">
+									<Size> <AbsDimension x="330" y="200" />	</Size>
+									<Color r="0.0" g="1.0" b="1.0"/> 
+									<Anchors>
+										<Anchor	point="TOPLEFT">
+											<Offset> <AbsDimension x="10" y="0"/> </Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+					</Frame>
+
+			<!--....................................-->
+			<!--  "Done" button for options dialog  -->
+			<Button name="MI2_OptBtnDone" inherits="MI2_PushButtonTemplate">
+				<Anchors>
+					<Anchor point="BOTTOM">
+						<Offset>
+							<AbsDimension x="0" y="20" /></Offset></Anchor></Anchors>
+				<Scripts>
+					<OnClick>MI2_DoneButton_OnClick()</OnClick>
+				</Scripts>
+			</Button></Frames>
+		<Scripts>
+			<OnLoad>MI2_OptionsFrameOnLoad()</OnLoad>
+			<OnShow>MI2_OptionsFrameOnShow()</OnShow>
+			<OnHide>MI2_TooltipAnchor:SetFrameStrata( "LOW" ) MI2_UpdateAnchor()</OnHide>
+			<OnMouseDown>miConfig_OnMouseDown()</OnMouseDown>
+			<OnMouseUp>miConfig_OnMouseUp()</OnMouseUp>
+		</Scripts>
+	</Frame></Ui>

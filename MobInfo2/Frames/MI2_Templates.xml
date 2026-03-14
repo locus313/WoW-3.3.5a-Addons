@@ -1,0 +1,254 @@
+<Ui	xmlns="http://www.blizzard.com/wow/ui/"	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+
+	<!-- =============================================================== -->
+	<!-- Various frame element templates used by MobInfo options frame   -->
+	<!-- =============================================================== -->
+
+	<!-- ============================================================ -->
+	<!-- Template for a tooltip entry       -->
+	<FontString name="MI2TT_InfoTemplate" inherits="GameFontNormal" justifyH="LEFT" justifyV="TOP" virtual="true">
+			<Color r="1.0" g="1.0" b="1.0"/>
+	</FontString>
+	<FontString name="MI2TT_TextTemplate" inherits="GameFontNormalSmall" justifyH="LEFT" justifyV="TOP" text="TXT" virtual="true">
+   	<Color r="1.0" g="0.8" b="0.0"/>
+	</FontString>
+	<FontString name="MI2TT_ValTemplate" inherits="GameFontNormalSmall" justifyH="LEFT" justifyV="TOP" text="VAL" virtual="true">
+   	<Color r="1.0" g="1.0" b="1.0"/>
+	</FontString>
+	<FontString name="MI2TT_ItemTemplate" inherits="GameFontNormalSmall" justifyH="LEFT" justifyV="TOP" text="ITEM" virtual="true">
+	</FontString>
+		
+	<!-- ============================================================ -->
+	<!-- Template for one line of the search result scroll list       -->
+	<Button name="MI2_SearchResultLineTemplate" virtual="true">
+		<Size> <AbsDimension x="360" y="14"/> </Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentHighlight" file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD" setAllPoints="true" hidden="true"/>
+			</Layer>
+			<Layer level="ARTWORK">
+				<FontString name="$parentIndex" inherits="GameFontNormalSmall" justifyH="RIGHT">
+					<Size> <AbsDimension x="30" y="12"/> </Size>
+					<Anchors>
+						<Anchor point="LEFT"> <Offset> <AbsDimension x="0" y="0"/> </Offset> </Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentValue" inherits="GameFontNormalSmall" justifyH="RIGHT">
+					<Size> <AbsDimension x="70" y="12"/> </Size>
+					<Anchors>
+						<Anchor point="LEFT"> <Offset> <AbsDimension x="35" y="0"/> </Offset> </Anchor>
+					</Anchors>
+				</FontString>
+				<FontString name="$parentName" inherits="GameFontNormalSmall" justifyH="LEFT">
+					<Size> <AbsDimension x="250" y="12"/> </Size>
+					<Anchors>
+						<Anchor point="LEFT"> <Offset> <AbsDimension x="115" y="0"/> </Offset> </Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter> getglobal(this:GetName().."Highlight"):Show() MI2_ShowSearchResultTooltip() </OnEnter>
+			<OnLeave> getglobal(this:GetName().."Highlight"):Hide() MI2_HideSearchResultTooltip() </OnLeave> 
+		</Scripts>
+		<NormalText name="$parentNormalText" inherits="GameFontNormalSmall" justifyH="LEFT"/>
+	</Button>
+
+	<!-- ============================================================ -->
+	<!-- Template for frame	around option groups + title above frame  -->
+	<Frame name="MI2_OptionsBoxTemplate" virtual="true">
+		<Backdrop name="$parentBD" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
+			<EdgeSize> <AbsValue val="16"/> </EdgeSize>
+		</Backdrop> 	
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentTitle" inherits="GameFontNormal" justifyH="LEFT">
+					<Anchors>
+						<Anchor point="TOPLEFT"> <Offset> <AbsDimension x="4" y="10"/> </Offset> </Anchor>
+					</Anchors>
+					<Color r="1.0" g="1.0" b="1.0"/> 
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad> getglobal(this:GetName().."Title"):SetText(MI2_FRAME_TEXTS[this:GetName()]) </OnLoad>
+		</Scripts>
+	</Frame>
+
+	<!-- ============================================================ -->
+	<!-- Template for all checkboxes used in options dialog			  -->
+	<!-- defines size, text	and	all	otherevent related actions		  -->
+	<CheckButton name="MI2_CheckboxTemplate" inherits="UICheckButtonTemplate" virtual="true">
+		<Size> <AbsDimension x="20"	y="20" /> </Size>
+		<HitRectInsets>	<AbsInset left="0" right="-20"	top="0"	bottom="0"/> </HitRectInsets>
+		<Scripts>
+			<OnLoad> local opt=MI2_OPTIONS[this:GetName()] getglobal(this:GetName().."Text"):SetText(opt.opt or opt.text) </OnLoad>
+			<OnClick> MI2_SlashParse(this:GetName()) </OnClick>
+			<OnEnter> MI2_ShowOptionHelpTooltip() </OnEnter>
+			<OnLeave> GameTooltip:Hide() </OnLeave>
+		</Scripts>
+	</CheckButton>
+	<CheckButton name="MI2_BigCheckboxTemplate" inherits="MI2_CheckboxTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>  getglobal(this:GetName().."Text"):SetText(MI2_OPTIONS[this:GetName()].text)
+			this:SetScale( 1.2 ) </OnLoad>
+		</Scripts>
+	</CheckButton>
+
+	<!-- ==============================================================	-->
+	<!-- Template for all search options checkboxes						-->
+	<CheckButton name="MI2_SearchCheckboxTemplate" inherits="UICheckButtonTemplate" virtual="true">
+		<Size> <AbsDimension x="24"	y="24" /> </Size>
+		<HitRectInsets>	<AbsInset left="0" right="-40"	top="0"	bottom="0"/> </HitRectInsets>
+		<Scripts>
+			<OnLoad>  getglobal(this:GetName().."Text"):SetText(MI2_OPTIONS[this:GetName()].text) </OnLoad>
+			<OnClick> MI2_SearchCheckboxClicked()	</OnClick>
+			<OnEnter> MI2_ShowOptionHelpTooltip() </OnEnter>
+			<OnLeave> GameTooltip:Hide() </OnLeave>
+		</Scripts>
+	</CheckButton>
+
+	<!-- ============================================================ -->
+	<!-- Template for all push buttons options dialog				  -->
+	<!-- defines text and all other	event related actions			  -->
+	<Button	name="MI2_PushButtonTemplate" inherits="OptionsButtonTemplate" virtual="true">
+		<Size> <AbsDimension x="100" y="22"/> </Size>
+		<Scripts>
+			<OnLoad>  getglobal(this:GetName()):SetText(MI2_OPTIONS[this:GetName()].text) </OnLoad>
+			<OnClick> MI2_SlashParse(this:GetName()) </OnClick>
+			<OnEnter> MI2_ShowOptionHelpTooltip() </OnEnter>
+			<OnLeave> GameTooltip:Hide() </OnLeave>
+		</Scripts>
+	</Button>
+
+	<!-- ============================================================ -->
+	<!-- Template for all sliders in options dialog					  -->
+	<!-- defines text and all other	event related actions			  -->
+	<Slider	name="MI2_SliderTemplate" inherits="OptionsSliderTemplate" virtual="true">
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentValueText" inherits="GameFontNormalSmall">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativePoint="TOPRIGHT">
+							<Offset> <AbsDimension x="2" y="-4"/> </Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>  
+				getglobal(this:GetName().."Text"):SetText(MI2_OPTIONS[this:GetName()].text); 
+				getglobal(this:GetName().."Low"):Hide();
+				getglobal(this:GetName().."High"):Hide();
+				this:SetValueStep( 1 );
+				MI2_OPTIONS[this:GetName()].val = 1
+			</OnLoad>
+			<OnEnter> MI2_ShowOptionHelpTooltip(); </OnEnter>
+			<OnLeave> GameTooltip:Hide(); </OnLeave>
+			<OnValueChanged> 
+				MI2_SlashParse(this:GetName().." "..math.floor(this:GetValue()))
+				local valTxtFrame = getglobal( this:GetName().."ValueText" )
+				valTxtFrame:SetText( tostring(math.floor(this:GetValue())) )
+			</OnValueChanged>
+		</Scripts>
+	</Slider>
+
+	<Button	name="MI2_DropDownTemplate" inherits="UIDropDownMenuTemplate" virtual="true">
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString	name="$parentTitle"	inherits="GameFontNormalSmall" text="Font">
+					<Anchors>
+						<Anchor	point="BOTTOMLEFT" relativePoint="TOPLEFT">
+							<Offset> <AbsDimension x="20" y="0"/> </Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				UIDropDownMenu_SetWidth(self, 120 )
+				getglobal(this:GetName().."Title"):SetText( MI2_OPTIONS[this:GetName()].text )
+				UIDropDownMenu_Initialize( this, MI2_DropDown_Initialize )
+				MI2_OPTIONS[this:GetName()].dd = 1
+			</OnLoad>
+			<OnShow> MI2_DropDown_OnShow(self) </OnShow>
+			<OnEnter> MI2_ShowOptionHelpTooltip() </OnEnter>
+			<OnLeave> GameTooltip:Hide() </OnLeave>
+		</Scripts>
+	</Button>
+
+	<!-- ============================================================ -->
+	<!-- Template for value edit boxes in search options dialog		  -->
+	<!-- the edit box is prefixed with a description text			  -->
+	<EditBox name="MI2_EditBox_Template" autoFocus="false" inherits="InputBoxTemplate" virtual="true">
+		<Size> <AbsDimension x="26" y="24"/> </Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString	name="$parentDesc" inherits="GameFontNormalSmall" justifyH="RIGHT">
+					<Anchors> <Anchor	point="BOTTOMRIGHT"	relativePoint="BOTTOMLEFT">
+						<Offset> <AbsDimension x="-6" y="5"/> </Offset>
+					</Anchor> </Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnterPressed>	this:ClearFocus();	</OnEnterPressed>
+			<OnEscapePressed>	this:ClearFocus();	</OnEscapePressed>
+			<OnLoad>	getglobal(this:GetName().."Desc"):SetText(MI2_OPTIONS[this:GetName()].text); </OnLoad>
+			<OnEnter>	MI2_ShowOptionHelpTooltip(); </OnEnter>
+			<OnLeave>	GameTooltip:Hide();			</OnLeave>
+		</Scripts>
+	</EditBox>
+
+	<!-- ============================================================ -->
+	<!-- Template for value edit boxes in search options dialog		  -->
+	<!-- the edit box is prefixed with a description text			  -->
+	<EditBox name="MI2_ValueEditBox_Template" letters="2" numeric="true" inherits="MI2_EditBox_Template" virtual="true">
+		<Scripts>
+			<OnTextChanged>	MI2_SearchValueChanged(); </OnTextChanged>
+		</Scripts>
+	</EditBox>
+
+	<!-- ============================================================ -->
+	<!-- Template for text edit boxes in search options dialog		  -->
+	<!-- the edit box is prefixed with a description text			  -->
+	<EditBox name="MI2_TextEditBox_Template" letters="28" inherits="MI2_EditBox_Template" virtual="true">
+		<Size> <AbsDimension x="135" y="24"/> </Size>
+		<Scripts>
+			<OnTextChanged>	MI2_SearchTextChanged() </OnTextChanged>
+		</Scripts>
+	</EditBox>
+
+	<!-- ============================================================ -->
+	<!-- Template for text edit boxes in options dialog		          -->
+	<!-- the edit box is prefixed with a description text			  -->
+	<EditBox name="MI2_OptionsEditBox_Template" letters="28" inherits="MI2_EditBox_Template" virtual="true">
+		<Scripts>
+			<OnLoad>
+				getglobal(this:GetName().."Desc"):ClearAllPoints()
+				getglobal(this:GetName().."Desc"):SetPoint( "TOPLEFT", 0, 10 )
+				getglobal(this:GetName().."Desc"):SetText(MI2_OPTIONS[this:GetName()].text)
+				MI2_OPTIONS[this:GetName()].txt = 1
+			</OnLoad>
+			<OnTextChanged>	MI2_SlashParse(this:GetName().." "..this:GetText()) </OnTextChanged>
+		</Scripts>
+	</EditBox>
+
+	<!-- ============================================================ -->
+	<!-- Template for TAB button in the options dialog				  -->
+	<!-- TAB buttons select the options page to display				  -->
+	<Button	name="MI2_TabButtonTemplate" inherits="TabButtonTemplate" virtual="true">
+		<Scripts>
+			<OnClick> MI2_TabButton_OnClick( self	)</OnClick>
+			<OnEnter> MI2_ShowOptionHelpTooltip(); </OnEnter>
+			<OnLeave> GameTooltip:Hide(); </OnLeave>
+			<OnLoad>  
+				getglobal(self:GetName()):SetText(MI2_OPTIONS[self:GetName()].text);
+				PanelTemplates_TabResize(self, 0)
+			</OnLoad>
+		</Scripts>
+	</Button>
+</Ui>

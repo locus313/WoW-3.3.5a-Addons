@@ -1,0 +1,188 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Script file="FishingWatcher.lua"/>
+    <FontString name="FishingWatchFontTemplate" inherits="GameFontNormal" virtual="true" justifyH="LEFT">
+	<Size>
+	    <AbsDimension x="0" y="13"/>
+	</Size>
+    </FontString>
+
+	<Frame name="FishingBuddy_WatchTimeFrame" hidden="true">
+		<Scripts>
+			<OnUpdate>
+				FishingBuddy.WatchUpdate(1);
+			</OnUpdate>
+		</Scripts>
+	</Frame>
+
+    <Button name="FishingWatchDrag" frameStrata="LOW" toplevel="true" enableMouse="false" movable="true" parent="UIParent" hidden="true">
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentBackground" file="Interface\ChatFrame\ChatFrameBackground">
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+						<Anchor point="TOPRIGHT"/>
+						<Anchor point="BOTTOMLEFT"/>
+						<Anchor point="BOTTOMRIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("RightButtonUp");
+			</OnLoad>
+			<OnClick>
+				FishingBuddy.WatchFrame.OnClick(self);
+			</OnClick>
+		</Scripts>
+    </Button>
+
+    <Button name="FishingWatchTab" frameStrata="LOW" parent="UIParent" hidden="true">
+		<Size>
+			<AbsDimension x="64" y="32"/>
+		</Size>
+		<Anchors>
+			<Anchor point="BOTTOMLEFT" relativeTo="FishingWatchDrag" relativePoint="TOPLEFT">
+				<AbsDimension x="0" y="2"/>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentLeft" file="Interface\ChatFrame\ChatFrameTab">
+					<Size>
+						<AbsDimension x="16" y="32"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+					<TexCoords left="0.0" right="0.25" top="0.0" bottom="1.0"/>
+				</Texture>
+				<Texture name="$parentMiddle" file="Interface\ChatFrame\ChatFrameTab">
+					<Size>
+						<AbsDimension x="44" y="32"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentLeft" relativePoint="RIGHT"/>
+					</Anchors>
+					<TexCoords left="0.25" right="0.75" top="0.0" bottom="1.0"/>
+				</Texture>
+				<Texture name="$parentRight" file="Interface\ChatFrame\ChatFrameTab">
+					<Size>
+						<AbsDimension x="16" y="32"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentMiddle" relativePoint="RIGHT"/>
+					</Anchors>
+					<TexCoords left="0.75" right="1.0" top="0.0" bottom="1.0"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="$parentFlash" hidden="true">
+				<Size>
+					<AbsDimension x="5" y="32"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentLeft">
+						<Offset>
+							<AbsDimension x="0" y="-7"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="RIGHT" relativeTo="$parentRight">
+						<Offset>
+							<AbsDimension x="0" y="-7"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\PaperDollInfoFrame\UI-Character-Tab-Highlight" alphaMode="ADD" setAllPoints="true"/>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Frame name="FishingBuddyWatcherMenu" inherits="UIDropDownMenuTemplate">
+				<Scripts>
+					<OnLoad>
+						UIDropDownMenu_SetWidth(self, 180);
+					</OnLoad>
+				</Scripts>
+			</Frame>
+		</Frames>
+		<ButtonText name="$parentText">
+			<Size>
+				<AbsDimension x="50" y="8"/>
+			</Size>
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentLeft" relativePoint="RIGHT">
+					<Offset>
+						<AbsDimension x="0" y="-5"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</ButtonText>
+		<NormalFont style="GameFontNormalSmall"/>
+		<HighlightTexture file="Interface\PaperDollInfoFrame\UI-Character-Tab-Highlight" alphaMode="ADD">
+			<Anchors>
+				<Anchor point="LEFT" relativeTo="$parentLeft">
+					<Offset>
+						<AbsDimension x="0" y="-7"/>
+					</Offset>
+				</Anchor>
+				<Anchor point="RIGHT" relativeTo="$parentRight">
+					<Offset>
+						<AbsDimension x="0" y="-7"/>
+					</Offset>
+				</Anchor>
+			</Anchors>
+		</HighlightTexture>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("RightButtonUp");
+				self:RegisterForDrag("LeftButton");
+			</OnLoad>
+			<OnClick>
+				FishingBuddy.WatchFrame.OnClick(self);
+			</OnClick>
+			<OnDragStart>
+				FishingBuddy.WatchFrame.OnDragStart(self);
+			</OnDragStart>
+			<OnDragStop>
+				FishingBuddy.WatchFrame.OnDragStop(self);
+			</OnDragStop>
+		</Scripts>
+    </Button>
+
+    <Frame name="FishingWatchFrame" frameStrata="LOW" toplevel="true" enableMouse="false" parent="UIParent" hidden="true">
+		<Size>
+			<AbsDimension x="280" y="20"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="FishingWatchDrag" relativePoint="TOPLEFT">
+				<Offset>
+					<AbsDimension x="0" y="0"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString name="FishingWatchLine1" inherits="FishingWatchFontTemplate" hidden="true">
+					<Size>
+						<AbsDimension x="0" y="13"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				FishingBuddy.WatchFrame.OnLoad(self);
+			</OnLoad>
+			<OnUpdate>
+				FishingBuddy.WatchFrame.OnUpdate(self, elapsed);
+			</OnUpdate>
+		</Scripts>
+    </Frame>
+</Ui>

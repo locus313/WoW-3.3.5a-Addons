@@ -1,0 +1,106 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+	<Frame name="MI2_TargetOptionsTemplate" virtual="true">
+		<!--Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" tile="true">
+			<TileSize>
+				<AbsValue val="16"/></TileSize></Backdrop-->
+		<Size>
+			<AbsDimension x="420" y="390" /></Size>
+		<Frames>
+			<Button name="MI2_OptTargetFont" inherits="MI2_DropDownTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-20" />
+						</Offset></Anchor></Anchors></Button>
+			<Slider name="MI2_OptTargetFontSize" inherits="MI2_SliderTemplate">
+				<Size>
+					<AbsDimension x="140" y="20" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="MI2_OptTargetFont" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="30" y="0" /></Offset></Anchor></Anchors></Slider>
+			<!-- ================================================ -->
+			<!-- health value options box        -->
+			<Frame name="MI2_FrmHealthValueOptions" inherits="MI2_OptionsBoxTemplate" >
+				<Size>
+					<AbsDimension x="400" y="80" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="MI2_OptTargetFont" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-25" />
+						</Offset></Anchor></Anchors>
+				<Frames>
+					<CheckButton name="MI2_OptTargetHealth" inherits="MI2_CheckboxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-10" />
+								</Offset></Anchor></Anchors></CheckButton>
+					<CheckButton name="MI2_OptHealthPercent" inherits="MI2_CheckboxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="MI2_OptTargetHealth" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-5" />
+								</Offset></Anchor></Anchors></CheckButton>
+					<Slider name="MI2_OptHealthPosX" inherits="MI2_SliderTemplate">
+						<Size>
+							<AbsDimension x="225" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" >
+								<Offset>
+									<AbsDimension x="150" y="-20" /></Offset></Anchor></Anchors></Slider>
+					<Slider name="MI2_OptHealthPosY" inherits="MI2_SliderTemplate">
+						<Size>
+							<AbsDimension x="225" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="MI2_OptHealthPosX" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-10" /></Offset></Anchor></Anchors></Slider></Frames></Frame>
+			<!-- ================================================ -->
+			<!-- mana value options box         -->
+			<Frame name="MI2_FrmManaValueOptions" inherits="MI2_OptionsBoxTemplate" >
+				<Size>
+					<AbsDimension x="400" y="80" />
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="MI2_FrmHealthValueOptions" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-35" />
+						</Offset></Anchor></Anchors>
+				<Frames>
+					<CheckButton name="MI2_OptTargetMana" inherits="MI2_CheckboxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-10" />
+								</Offset></Anchor></Anchors></CheckButton>
+					<CheckButton name="MI2_OptManaPercent" inherits="MI2_CheckboxTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="MI2_OptTargetMana" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-5" />
+								</Offset></Anchor></Anchors></CheckButton>
+					<Slider name="MI2_OptManaPosX" inherits="MI2_SliderTemplate">
+						<Size>
+							<AbsDimension x="225" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" >
+								<Offset>
+									<AbsDimension x="150" y="-20" /></Offset></Anchor></Anchors></Slider>
+					<Slider name="MI2_OptManaPosY" inherits="MI2_SliderTemplate">
+						<Size>
+							<AbsDimension x="225" y="20" />
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="MI2_OptManaPosX" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="-10" /></Offset></Anchor></Anchors></Slider></Frames></Frame></Frames>
+		<Scripts>
+			<OnLoad>MI2_OptHealthPosX:SetMinMaxValues( -50, 50 ) 		MI2_OptHealthPosY:SetMinMaxValues( -40, 80 ) 		MI2_OptManaPosX:SetMinMaxValues( -50, 50 ) 		MI2_OptManaPosY:SetMinMaxValues( -40, 80 ) 		MI2_OptTargetFontSize:SetMinMaxValues( 6, 20 )</OnLoad>
+		</Scripts>
+	</Frame></Ui>

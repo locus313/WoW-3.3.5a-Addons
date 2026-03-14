@@ -1,0 +1,24 @@
+<Bindings>
+	<!-- window commands -->
+	<Binding name="FISHINGBUDDY_TOGGLE" header="FISHINGBUDDY_BINDINGS">
+		if ( keystate == "down" ) then
+			FishingBuddy.Command("");
+		end
+	</Binding>
+	<Binding name="TOGGLEFISHINGBUDDY_LOC">
+		if ( keystate == "down" ) then
+			ToggleFishingBuddyFrame("FishingLocationsFrame");
+		end
+	</Binding>
+	<Binding name="TOGGLEFISHINGBUDDY_OPT">
+		if ( keystate == "down" ) then
+			ToggleFishingBuddyFrame("FishingOptionsFrame");
+		end
+	</Binding>
+	<!-- commands -->
+	<Binding name="FISHINGBUDDY_SWITCH">
+		if ( keystate == "down" ) then
+			FishingBuddy.Command(FBConstants.SWITCH);
+		end
+	</Binding>
+</Bindings>

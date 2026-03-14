@@ -1,0 +1,196 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+	<Frame name="MI2_SearchOptionsTemplate" virtual="true">
+		<!--Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" tile="true">
+		<TileSize>
+			<AbsValue val="16"/></TileSize></Backdrop-->
+	<Size>
+		<AbsDimension x="420" y="390" /></Size>
+	<Layers>
+		<Layer level="BACKGROUND">
+			<FontString name="MI2_TxtSearchLevel" inherits="GameFontNormal" text="MI_TXT_SEARCH_LEVEL">
+				<Anchors>
+					<Anchor point="TOPLEFT"/></Anchors></FontString>
+			<FontString name="MI2_TxtSearchLoots" inherits="GameFontNormal" text="MI_TXT_SEARCH_LOOTS">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="MI2_TxtSearchLevel" relativePoint="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="140" y="0"/></Offset></Anchor></Anchors></FontString>
+			<FontString name="MI2_TxtSearchMobType" inherits="GameFontNormal" text="MI_TXT_SEARCH_MOBTYPE">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="MI2_TxtSearchLevel" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-20"/></Offset></Anchor></Anchors></FontString></Layer></Layers>
+	<!-- ================================================ -->
+	<!-- controls within search options subframe    -->
+	<Frames>
+		<EditBox name="MI2_OptSearchMinLevel" inherits="MI2_ValueEditBox_Template">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_TxtSearchLevel" relativePoint="TOPRIGHT">
+					<Offset>
+						<AbsDimension x="36" y="6"/></Offset></Anchor></Anchors></EditBox>
+		<EditBox name="MI2_OptSearchMaxLevel" inherits="MI2_ValueEditBox_Template">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_OptSearchMinLevel" relativePoint="TOPRIGHT">
+					<Offset>
+						<AbsDimension x="38" y="0"/></Offset></Anchor></Anchors></EditBox>
+		<CheckButton name="MI2_OptSearchNormal" inherits="MI2_SearchCheckboxTemplate">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_TxtSearchMobType" relativePoint="TOPRIGHT">
+					<Offset>
+						<AbsDimension x="10" y="6" /></Offset></Anchor></Anchors></CheckButton>
+		<CheckButton name="MI2_OptSearchElite" inherits="MI2_SearchCheckboxTemplate">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_OptSearchNormal" relativePoint="TOPRIGHT">
+					<Offset>
+						<AbsDimension x="45" y="0" /></Offset></Anchor></Anchors></CheckButton>
+		<CheckButton name="MI2_OptSearchBoss" inherits="MI2_SearchCheckboxTemplate">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_OptSearchElite" relativePoint="TOPRIGHT">
+					<Offset>
+						<AbsDimension x="35" y="0" /></Offset></Anchor></Anchors></CheckButton>
+		<EditBox name="MI2_OptSearchMinLoots" inherits="MI2_ValueEditBox_Template">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_TxtSearchLoots" relativePoint="TOPRIGHT">
+					<Offset>
+						<AbsDimension x="36" y="6"/></Offset></Anchor></Anchors></EditBox>
+		<EditBox name="MI2_OptSearchMaxLoots" inherits="MI2_ValueEditBox_Template">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_OptSearchMinLoots" relativePoint="TOPRIGHT">
+					<Offset>
+						<AbsDimension x="38" y="0"/></Offset></Anchor></Anchors></EditBox>
+		<EditBox name="MI2_OptSearchMobName" inherits="MI2_TextEditBox_Template" letters="28">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_TxtSearchMobType" relativePoint="BOTTOMLEFT">
+					<Offset>
+						<AbsDimension x="70" y="-10"/></Offset></Anchor></Anchors></EditBox>
+		<EditBox name="MI2_OptSearchItemName" inherits="MI2_TextEditBox_Template">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_OptSearchMobName" relativePoint="TOPRIGHT">
+					<Offset>
+						<AbsDimension x="80" y="0"/></Offset></Anchor></Anchors></EditBox>
+		<Button name="MI2_OptSortByValue" inherits="MI2_PushButtonTemplate">
+			<Size>
+				<AbsDimension x="180" y="24" /></Size>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_TxtSearchMobType" relativePoint="BOTTOMLEFT">
+					<Offset>
+						<AbsDimension x="0" y="-50"/></Offset></Anchor></Anchors></Button>
+		<Button name="MI2_OptSortByItem" inherits="MI2_PushButtonTemplate">
+			<Size>
+				<AbsDimension x="180" y="24" /></Size>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_OptSortByValue" relativePoint="TOPRIGHT">
+					<Offset>
+						<AbsDimension x="20" y="0"/></Offset></Anchor></Anchors></Button>
+		<Frame name="MI2_SearchResultFrame" inherits="OptionFrameBoxTemplate">
+			<Size>
+				<AbsDimension x="410" y="230" /></Size>
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeTo="MI2_OptSortByValue"  relativePoint="BOTTOMLEFT">
+					<Offset>
+						<AbsDimension x="-5" y="-40"/></Offset></Anchor></Anchors>
+			<Scripts>
+				<OnLoad>this:SetBackdropColor(0,0,0)</OnLoad>
+			</Scripts>
+			<Layers>
+				<Layer level="BACKGROUND">
+					<FontString name="MI2_TxtSearchCount" inherits="GameFontNormalSmall">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="210" y="10"/></Offset></Anchor></Anchors></FontString></Layer></Layers>
+			<Frames>
+				<!-- ==================================================== -->
+				<!-- TAB buttons controlling search result list content   -->
+				<Button name="$parentTab1" inherits="MI2_TabButtonTemplate" id="1">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="5" y="30"/></Offset></Anchor></Anchors>
+					<Scripts>
+						<OnClick>MI2_SearchTab_OnClick( self );</OnClick>
+					</Scripts></Button>
+				<Button name="$parentTab2" inherits="MI2_TabButtonTemplate" id="2">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="$parentTab1" relativePoint="RIGHT">
+							<Offset>
+								<AbsDimension x="2" y="0"/></Offset></Anchor></Anchors>
+					<Scripts>
+						<OnClick>MI2_SearchTab_OnClick( self );</OnClick>
+					</Scripts></Button>
+				<Button name="MI2_OptDeleteSearch" inherits="MI2_PushButtonTemplate">
+					<Size>
+						<AbsDimension x="100" y="22" /></Size>
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
+							<Offset>
+								<AbsDimension x="0" y="24"/></Offset></Anchor></Anchors></Button>
+				<!-- ==================================================== -->
+				<!-- search result scroll slider                          -->
+				<ScrollFrame name="MI2_SearchResultSlider" inherits="FauxScrollFrameTemplate">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="10" y="-10"/></Offset></Anchor>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="-30" y="10"/></Offset></Anchor></Anchors>
+					<Scripts>
+						<OnVerticalScroll>FauxScrollFrame_OnVerticalScroll( self, offset, 14, MI2_SearchResult_Update );</OnVerticalScroll>
+					</Scripts>
+				</ScrollFrame>
+				<!-- ==================================================== -->
+				<!-- search result text lines                             -->
+				<Button name="MI2_SearchResult1" inherits="MI2_SearchResultLineTemplate" id="1">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResultSlider">
+							<Offset>
+								<AbsDimension x="0" y="0"/></Offset></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult2" inherits="MI2_SearchResultLineTemplate" id="2">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult1" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult3" inherits="MI2_SearchResultLineTemplate" id="3">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult2" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult4" inherits="MI2_SearchResultLineTemplate" id="4">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult3" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult5" inherits="MI2_SearchResultLineTemplate" id="5">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult4" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult6" inherits="MI2_SearchResultLineTemplate" id="6">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult5" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult7" inherits="MI2_SearchResultLineTemplate" id="7">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult6" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult8" inherits="MI2_SearchResultLineTemplate" id="8">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult7" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult9" inherits="MI2_SearchResultLineTemplate" id="9">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult8" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult10" inherits="MI2_SearchResultLineTemplate" id="10">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult9" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult11" inherits="MI2_SearchResultLineTemplate" id="11">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult10" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult12" inherits="MI2_SearchResultLineTemplate" id="12">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult11" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult13" inherits="MI2_SearchResultLineTemplate" id="13">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult12" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult14" inherits="MI2_SearchResultLineTemplate" id="14">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult13" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button>
+				<Button name="MI2_SearchResult15" inherits="MI2_SearchResultLineTemplate" id="15">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_SearchResult14" relativePoint="BOTTOMLEFT"></Anchor></Anchors></Button></Frames></Frame></Frames>
+	<Scripts>
+		<OnShow>MI2_SearchOptionsOnShow();</OnShow>
+		<OnLoad>PanelTemplates_SetNumTabs( MI2_SearchResultFrame, 2 ) 		MI2_SearchResultFrame.selectedTab = 1 		PanelTemplates_UpdateTabs( MI2_SearchResultFrame )</OnLoad>
+		<OnUpdate>MI2_SearchOnUpdate(arg1)</OnUpdate>
+	</Scripts>
+</Frame></Ui>

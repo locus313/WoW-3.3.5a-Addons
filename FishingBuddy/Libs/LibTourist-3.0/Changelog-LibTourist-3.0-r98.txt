@@ -1,0 +1,16 @@
+------------------------------------------------------------------------
+r98 | shefki | 2010-06-30 00:04:48 +0000 (Wed, 30 Jun 2010) | 2 lines
+Changed paths:
+   M /trunk/LibTourist-3.0.lua
+
+Add entry for The Ruby Sanctum.
+
+------------------------------------------------------------------------
+r97 | torhal | 2010-01-14 11:22:25 +0000 (Thu, 14 Jan 2010) | 3 lines
+Changed paths:
+   M /trunk/LibTourist-3.0.lua
+
+Corrected entrancePortal coordinates for the four Scarlet Monastery instances - they were all using identical incorrect coordinates.
+Scarlet Monastery is a complex, not a proper instance: Removed 'type = "Instance"' from its definition.
+
+------------------------------------------------------------------------

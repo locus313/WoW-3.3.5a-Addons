@@ -1,0 +1,37 @@
+## Interface: 30300
+## Title: BiS-Tooltip-3.3.5a
+## Author: Hellixoid
+## Author: Dweem
+## Author: Silver
+## Version: 1.0.0-3.3.5a
+## SavedVariables: BisTooltipDB
+## OptionalDeps: Ace3, DataStore, DataStore_Inventory
+
+Libs\LibStub\LibStub.lua
+Libs\LibParse\LibParse.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml 
+Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
+Libs\LibDataBroker\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+
+Loot_Sources.lua
+Bistooltip_classes.lua
+#Bistooltip_wowtbc_items.lua
+Bistooltip_wowtbc_bislists.lua
+#Bistooltip_wowtbc_items_old.lua
+Bistooltip_wowtbc_bislists_old.lua
+#Bistooltip_wh_items.lua
+#Bistooltip_wh_bislists.lua
+#Bistooltip_wh_items_old.lua
+#Bistooltip_wh_bislists_old.lua
+Bistooltip_horde_to_ali.lua
+Core.lua
+Config.lua
+Bistooltip.lua
+Bislist.lua

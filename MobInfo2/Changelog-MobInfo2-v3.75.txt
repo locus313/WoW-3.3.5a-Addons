@@ -1,0 +1,31 @@
+------------------------------------------------------------------------
+r18 | speeddymon | 2010-04-26 21:59:43 +0000 (Mon, 26 Apr 2010) | 1 line
+Changed paths:
+   A /tags/v3.75 (from /trunk:17)
+
+Tagging as v3.75
+------------------------------------------------------------------------
+r17 | speeddymon | 2010-04-26 21:58:59 +0000 (Mon, 26 Apr 2010) | 2 lines
+Changed paths:
+   M /trunk/MobInfo2.lua
+   M /trunk/MobInfo2.toc
+   M /trunk/ReadMe.txt
+
+Convert version variables to keywords and add change information to changelog in readme.txt
+Note: This will be the last update for MobInfo2 other than maintaining it if a future patch breaks it. I hope to rewrite this from scratch.
+------------------------------------------------------------------------
+r15 | speeddymon | 2010-04-26 14:55:19 +0000 (Mon, 26 Apr 2010) | 2 lines
+Changed paths:
+   M /trunk/MobInfo2.lua
+   M /trunk/MobInfo2.toc
+
+Amend 3.2 bugfix for GetQuestDifficultyColor() to work on all patches past 3.2
+Bump TOC
+------------------------------------------------------------------------
+r14 | speeddymon | 2009-09-26 23:02:19 +0000 (Sat, 26 Sep 2009) | 1 line
+Changed paths:
+   A /trunk/Localization/localization.ru.lua
+   M /trunk/MobInfo2.toc
+
+Add ruRU locale. Currently just a copy of enUS. Could use a translator.
+------------------------------------------------------------------------

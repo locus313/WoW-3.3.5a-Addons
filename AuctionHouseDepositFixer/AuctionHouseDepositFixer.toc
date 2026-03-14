@@ -1,0 +1,7 @@
+## Interface: 30300
+## Title: AH Deposit Fixer
+## Notes: Modifies the deposit displayed on items in the Auction House
+## LoadOnDemand: 1
+## LoadWith: Blizzard_AuctionUI
+
+AuctionHouseDepositFixer.lua

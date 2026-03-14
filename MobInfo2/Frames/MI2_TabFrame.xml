@@ -1,0 +1,30 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+	<!-- ================================================ -->
+	<!-- =  MobInfo options sub frame with TAB buttons  = -->
+	<!-- ================================================ -->
+	<Frame name="MI2_TabFrameTemplate" inherits="MI2_OptionsBoxTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="460" y="420" /></Size>
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="15" y="-60" /></Offset></Anchor></Anchors>
+		<Frames>
+			<Button name="$parentTab5" inherits="MI2_TabButtonTemplate" id="5">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="5" y="30"/></Offset></Anchor></Anchors></Button>
+			<Button name="$parentTab1" inherits="MI2_TabButtonTemplate" id="1">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentTab5" relativePoint="RIGHT"/></Anchors></Button>
+			<Button name="$parentTab2" inherits="MI2_TabButtonTemplate" id="2">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentTab1" relativePoint="RIGHT"/></Anchors></Button>
+			<Button name="$parentTab3" inherits="MI2_TabButtonTemplate" id="3">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentTab2" relativePoint="RIGHT"/></Anchors></Button>
+			<Button name="$parentTab4" inherits="MI2_TabButtonTemplate" id="4">
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parentTab3" relativePoint="RIGHT"/></Anchors></Button>
+</Frames></Frame></Ui>

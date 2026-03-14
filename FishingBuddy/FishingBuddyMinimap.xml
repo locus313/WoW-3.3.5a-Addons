@@ -1,0 +1,89 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Script file="FishingBuddyMinimap.lua"/>
+	<Frame name="FishingBuddyMinimapFrame" parent="Minimap" enableMouse="false" frameStrata="MEDIUM" hidden="true">
+		<Size>
+			<AbsDimension x="33" y="33"/>
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER" relativeTo="Minimap" relativePoint="CENTER"/>
+		</Anchors>
+		<Frames>
+			<Frame name="FishingBuddyMinimapMenu" inherits="UIDropDownMenuTemplate">
+				<Scripts>
+					<OnLoad>
+						self:SetFrameLevel(0);
+						UIDropDownMenu_SetWidth(self, 180);
+					</OnLoad>
+				</Scripts>
+			</Frame>
+			<Button name="FishingBuddyMinimapButton">
+				<Size>
+					<AbsDimension x="33" y="33"/>
+				</Size>
+				<Anchors>
+					<Anchor point="CENTER"/>
+				</Anchors>
+				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
+				<Layers>
+					<Layer level="ARTWORK">
+						<Texture name="FishingBuddyMinimapIcon" file="Interface\LootFrame\FishingLoot-Icon">
+							<Size>
+								<AbsDimension x="18" y="18"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="7" y="-6"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+					</Layer>
+					<Layer level="OVERLAY">
+						<Texture file="Interface\Minimap\MiniMap-TrackingBorder">
+							<Size>
+								<AbsDimension x="52" y="52"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						FishingBuddy.Minimap.Button_OnLoad(self);
+					</OnLoad>
+					<OnClick>
+						FishingBuddy.Minimap.Button_OnClick(self, button, down);
+					</OnClick>
+					<OnDragStart>
+						FishingBuddy.Minimap.Button_OnDragStart(self);
+					</OnDragStart>
+					<OnDragStop>
+						FishingBuddy.Minimap.Button_OnDragStop(self);
+					</OnDragStop>
+					<OnEvent>
+						FishingBuddy.Minimap.Button_OnEvent(self, event, ...);
+					</OnEvent>
+					<OnEnter>
+						FishingBuddy.Minimap.Button_OnEnter(self);
+					</OnEnter>
+					<OnLeave>
+						FishingBuddy.Minimap.Button_OnLeave(self);
+					</OnLeave>
+				</Scripts>
+			</Button>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				FishingBuddy.Minimap.OnLoad(self);
+			</OnLoad>
+			<OnEvent>
+				FishingBuddy.Minimap.OnEvent(self);
+			</OnEvent>
+		</Scripts>
+	</Frame>
+
+</Ui>

@@ -1,0 +1,41 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="FishingOutfitManager.lua"/>
+	<Frame name="FishingOutfitUpdateFrame" hidden="true">
+		<Scripts>
+			<OnUpdate>
+				FishingBuddy.OutfitManager.WaitForUpdate(self, arg1);
+			</OnUpdate>
+		</Scripts>
+	</Frame>
+	<Frame name="FishingBuddyOption_OutfitManager">
+		<Frames>
+			<Frame name="FishingBuddyOption_OutfitMenu" inherits="FishingBuddyDropDownMenuTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="FishingBuddyOption_OutfitManager" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="48" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Frame>
+			<SimpleHTML name="FishingBuddyOption_OutfitText">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="FishingBuddyOption_OutfitManager" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-4"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Size>
+					<AbsDimension x="210" y="16"/>
+				</Size>
+				<FontString name="$parentFontString" inherits="GameFontNormalSmall">
+					<Size>
+						<AbsDimension x="183" y="0"/>
+					</Size>
+				</FontString>
+			</SimpleHTML>
+		</Frames>
+	</Frame>
+</Ui>

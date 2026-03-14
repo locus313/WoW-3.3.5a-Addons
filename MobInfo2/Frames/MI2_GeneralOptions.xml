@@ -1,0 +1,86 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+	<Frame name="MI2_GeneralOptionsTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="420" y="390" />
+		</Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="MI2_PicMobPortrait" file="Interface\CharacterFrame\TemporaryPortrait-Monster">
+					<Size>
+						<AbsDimension x="58" y="58"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT"/></Anchors>
+				</Texture>
+				<Texture name="MI2_PicMobPortrait2" file="Interface\CharacterFrame\TemporaryPortrait-Monster">
+					<Size>
+						<AbsDimension x="58" y="58"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT"/></Anchors>
+				</Texture>
+				<FontString name="MI2_TxtGreeting" inherits="GameFontNormalLarge" text="MI_TXT_WELCOME">
+					<Anchors>
+						<Anchor point="LEFT" relativeTo="MI2_PicMobPortrait" relativePoint="RIGHT"/>
+						<Anchor point="RIGHT" relativeTo="MI2_PicMobPortrait2" relativePoint="LEFT"/></Anchors>
+				</FontString>
+				<FontString name="MI2_TxtIntro" inherits="GameFontNormal" text="MI_TXT_GENERAL_OPTIONS">
+					<Color r="1.0" g="1.0" b="1.0"/> 
+					<Anchors>
+						<Anchor point="TOP" relativeTo="MI2_TxtGreeting" relativePoint="BOTTOM">
+							<Offset>
+								<AbsDimension x="0" y="-40" /></Offset></Anchor>
+					</Anchors>
+					<Size>
+						<AbsDimension x="380" y="60"/>
+					</Size>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="MI2_GeneralOptionsBox1" inherits="MI2_OptionsBoxTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="MI2_PicMobPortrait" relativePoint="TOPLEFT">
+						<Offset>
+							<AbsDimension x="-2" y="4" /></Offset></Anchor>
+					<Anchor point="BOTTOMRIGHT" relativeTo="MI2_PicMobPortrait2" relativePoint="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="2" y="-2" /></Offset></Anchor></Anchors></Frame>
+			<CheckButton name="MI2_OptSaveBasicInfo" inherits="MI2_BigCheckboxTemplate">
+				<Anchors>
+					<Anchor	point="TOPLEFT" relativeTo="MI2_TxtIntro" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-20" /></Offset></Anchor></Anchors></CheckButton>
+			<CheckButton name="MI2_OptShowMobInfo" inherits="MI2_BigCheckboxTemplate">
+				<Anchors>
+					<Anchor	point="TOPLEFT" relativeTo="MI2_OptSaveBasicInfo" relativePoint="BOTTOMLEFT"/></Anchors></CheckButton>
+			<CheckButton name="MI2_OptUseGameTT" inherits="MI2_CheckboxTemplate">
+				<Anchors>
+					<Anchor	point="TOPLEFT" relativeTo="MI2_OptShowMobInfo" relativePoint="BOTTOMLEFT"><Offset>
+							<AbsDimension x="30" y="4" /></Offset></Anchor></Anchors></CheckButton>
+			<CheckButton name="MI2_OptShowItemInfo" inherits="MI2_BigCheckboxTemplate">
+				<Anchors>
+					<Anchor	point="TOPLEFT" relativeTo="MI2_OptShowMobInfo" relativePoint="BOTTOMLEFT"><Offset>
+							<AbsDimension x="0" y="-18" /></Offset></Anchor></Anchors></CheckButton>
+			<CheckButton name="MI2_OptShowTargetInfo" inherits="MI2_BigCheckboxTemplate">
+				<Anchors>
+					<Anchor	point="TOPLEFT" relativeTo="MI2_OptShowItemInfo" relativePoint="BOTTOMLEFT"/></Anchors></CheckButton>
+			<CheckButton name="MI2_OptShowMMButton" inherits="MI2_BigCheckboxTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="MI2_OptShowTargetInfo" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-30" /></Offset></Anchor>
+					</Anchors>
+					</CheckButton>
+			<Slider name="MI2_OptMMButtonPos" inherits="MI2_SliderTemplate">
+				<Size>
+					<AbsDimension x="300" y="20" />
+				</Size>
+				<Anchors>
+					<Anchor	point="BOTTOM" relativePoint="BOTTOM"/></Anchors></Slider>
+		</Frames>
+		<Scripts>
+			<OnLoad>MI2_OptMMButtonPos:SetMinMaxValues( 0, 360 )</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>

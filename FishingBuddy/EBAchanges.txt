@@ -1,0 +1,2 @@
+Version 0.9.4f EBA:
+- Multiple fan submitted fixes for tracking manager, thanks Saur!

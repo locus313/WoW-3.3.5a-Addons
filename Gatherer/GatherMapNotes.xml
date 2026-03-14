@@ -1,0 +1,118 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+<!--
+	Gatherer Addon for World of Warcraft(tm).
+	Version: 3.1.16 (<%codename%>)
+	Revision: $Id: GatherMapNotes.xml 877 2010-09-19 01:32:58Z Esamynn $
+
+	License:
+		This program is free software; you can redistribute it and/or
+		modify it under the terms of the GNU General Public License
+		as published by the Free Software Foundation; either version 2
+		of the License, or (at your option) any later version.
+
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+		GNU General Public License for more details.
+
+		You should have received a copy of the GNU General Public License
+		along with this program(see GPL.txt); if not, write to the Free Software
+		Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+	Note:
+		This AddOn's source code is specifically designed to work with
+		World of Warcraft's interpreted AddOn system.
+		You have an implicit licence to use this AddOn with these facilities
+		since that is it's designated purpose as per:
+		http://www.fsf.org/licensing/licenses/gpl-faq.html#InterpreterIncompat
+-->
+	<Script>Gatherer_RegisterRevision("$URL: http://svn.norganna.org/gatherer/trunk/Gatherer/GatherMapNotes.xml $", "$Rev: 877 $")</Script>
+	<Script file = "GatherMapNotes.lua"/>
+	
+	<!-- World Map Display Templates -->
+	<Frame name="GathererMapOverlayTemplate" hidden="true" virtual="true" setAllPoints="true">
+		<Scripts>
+			<OnLoad>
+				self:SetFrameLevel(self:GetParent():GetFrameLevel())
+				self:SetWidth(WorldMapButton:GetWidth())
+				self:SetHeight(WorldMapButton:GetHeight())
+			</OnLoad>
+			<OnHide>
+				Gatherer.MapNotes.MapOverlayFrame_OnHide(self)
+			</OnHide>
+		</Scripts>
+	</Frame>
+	<Button name="GatherMainTemplate" hidden="true" virtual="true">
+		<Size>
+			<AbsDimension x="12" y="12"/>
+		</Size>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Scripts>
+			<OnLoad>
+				self:SetFrameLevel(self:GetParent():GetFrameLevel() + 1)
+			</OnLoad>
+			<OnEnter>
+				Gatherer.MapNotes.MapNoteOnEnter(self)
+			</OnEnter>
+			<OnLeave>
+				Gatherer_WorldMapTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="$parentTexture" file="Interface\AddOns\Gatherer\Original\Test"/>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<GameTooltip name="Gatherer_WorldMapTooltip" frameStrata="TOOLTIP" hidden="true" parent="WorldMapFrame" inherits="GameTooltipTemplate">
+		<Scripts>
+			<OnLoad>
+				self:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b);
+				self:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b);
+				self.shoppingTooltips = { WorldMapCompareTooltip1, WorldMapCompareTooltip2, WorldMapCompareTooltip3 };
+			</OnLoad>
+		</Scripts>
+	</GameTooltip>
+
+	<!-- Parent Frame for all World Map Note Objects -->
+	<Frame name="GathererMapOverlayParent" inherits="GathererMapOverlayTemplate" parent="WorldMapButton">
+		<Scripts>
+			<OnShow>
+				Gatherer.MapNotes.MapDraw()
+			</OnShow>
+		</Scripts>
+	</Frame>
+
+	<!-- Button to show/hide icons on world map -->
+	<Button name="Gatherer_WorldMapDisplay" inherits="UIPanelButtonTemplate" text="Show items" parent="WorldMapFrame" toplevel="true">
+		<Size>
+			<AbsDimension x="100" y="25"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="WorldMapPositioningGuide" relativePoint="TOPLEFT">
+				<Offset>
+					<!-- this should be the same as the full size map numbers in the OnShow script -->
+					<AbsDimension x="4" y="-4"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Scripts>
+			<OnLoad>
+				self:SetScale(0.7)
+			</OnLoad>
+			<OnShow>
+				if not ( GetCVarBool("miniWorldMap") ) then
+					self:SetPoint("TOPLEFT", WorldMapPositioningGuide, "TOPLEFT", 4, -4);
+				else
+					self:SetPoint("TOPLEFT", WorldMapTitleButton, "TOPLEFT", 8, -3);
+				end
+			</OnShow>
+			<OnClick>
+				Gatherer.MapNotes.ToggleDisplay()
+			</OnClick>
+		</Scripts>
+	</Button>
+</Ui>

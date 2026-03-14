@@ -1,0 +1,126 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+	<Frame name="MI2_DatabaseOptionsTemplate" virtual="true">
+		<!--Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" tile="true">
+			<TileSize>
+				<AbsValue val="16"/>
+			</TileSize>
+		</Backdrop-->
+		<Size>
+			<AbsDimension x="420" y="390" />
+		</Size>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<FontString	name="MI2_TxtMobDbSize"	inherits="GameFontNormalSmall">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="0" y="-5"/></Offset></Anchor></Anchors></FontString>
+				<FontString	name="MI2_TxtHealthDbSize" inherits="GameFontNormalSmall">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_TxtMobDbSize" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="0" y="-15"/></Offset></Anchor></Anchors></FontString>
+				<FontString	name="MI2_TxtPlayerDbSize" inherits="GameFontNormalSmall">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_TxtHealthDbSize" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="0" y="-15"/></Offset></Anchor></Anchors></FontString>
+				<FontString	name="MI2_TxtTargetIndex" inherits="GameFontNormalSmall">
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="MI2_TxtPlayerDbSize" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="0" y="-15"/></Offset></Anchor></Anchors></FontString></Layer></Layers>
+		<!-- ================================================ -->
+		<!-- controls within database options subframe		  -->
+		<Frames>
+			<Button	name="MI2_OptClearMobDb" inherits="MI2_PushButtonTemplate">
+				<Size>
+					<AbsDimension x="150" y="20"/></Size>
+				<Anchors>
+					<Anchor	point="BOTTOMLEFT" relativeTo="MI2_TxtMobDbSize" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="220" y="-2" /></Offset></Anchor></Anchors></Button>
+			<Button	name="MI2_OptClearHealthDb" inherits="MI2_PushButtonTemplate">
+				<Size>
+					<AbsDimension x="150" y="20"/></Size>
+				<Anchors>
+					<Anchor	point="BOTTOMLEFT" relativeTo="MI2_TxtHealthDbSize" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="220" y="-2" /></Offset></Anchor></Anchors></Button>
+			<Button	name="MI2_OptClearPlayerDb" inherits="MI2_PushButtonTemplate">
+				<Size>
+					<AbsDimension x="150" y="20"/></Size>
+				<Anchors>
+					<Anchor	point="BOTTOMLEFT" relativeTo="MI2_TxtPlayerDbSize" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="220" y="-2" /></Offset></Anchor></Anchors></Button>
+			<Button	name="MI2_OptClearTarget" inherits="MI2_PushButtonTemplate">
+				<Size>
+					<AbsDimension x="150" y="20"/></Size>
+				<Anchors>
+					<Anchor	point="BOTTOMLEFT" relativeTo="MI2_TxtTargetIndex" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="220" y="-2" /></Offset></Anchor></Anchors></Button>
+			<CheckButton name="MI2_OptSaveCharData" inherits="MI2_CheckboxTemplate">
+				<Anchors>
+					<Anchor	point="TOPLEFT"	relativeTo="MI2_TxtTargetIndex">
+						<Offset>
+							<AbsDimension x="0" y="-15" /></Offset></Anchor></Anchors></CheckButton>
+			<CheckButton name="MI2_OptSaveResist" inherits="MI2_CheckboxTemplate">
+				<Anchors>
+					<Anchor	point="TOPLEFT"	relativeTo="MI2_OptSaveCharData">
+						<Offset>
+							<AbsDimension x="0" y="-20" /></Offset></Anchor></Anchors></CheckButton>
+			<CheckButton name="MI2_OptSaveItems" inherits="MI2_CheckboxTemplate">
+				<Anchors>
+					<Anchor	point="TOPLEFT"	relativeTo="MI2_OptSaveResist">
+						<Offset>
+							<AbsDimension x="0" y="-20" /></Offset></Anchor></Anchors></CheckButton>
+			<Button	name="MI2_OptItemsQuality" inherits="MI2_DropDownTemplate">
+				<Anchors>
+					<Anchor	point="TOPLEFT"	relativeTo="MI2_OptSaveItems" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="220" y="28"/>
+						</Offset></Anchor></Anchors></Button>
+			<CheckButton name="MI2_OptSavePlayerHp"	inherits="MI2_CheckboxTemplate">
+				<Anchors>
+					<Anchor	point="TOPLEFT"	relativeTo="MI2_OptSaveItems">
+						<Offset>
+							<AbsDimension x="0" y="-20" /></Offset></Anchor></Anchors></CheckButton>
+			<Button	name="MI2_OptTrimDownMobData" inherits="MI2_PushButtonTemplate">
+				<Size>
+					<AbsDimension x="220" y="24"/></Size>
+				<Anchors>
+					<Anchor	point="TOPLEFT" relativeTo="MI2_OptSavePlayerHp" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="80" y="-5" /></Offset></Anchor></Anchors></Button>
+			<Frame name="MI2_FrmImportDatabase" inherits="MI2_OptionsBoxTemplate" >
+				<Size>
+					<AbsDimension x="400" y="90"	/></Size>
+				<Anchors>
+					<Anchor	point="TOPLEFT"	relativeTo="MI2_OptSavePlayerHp" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-80" /></Offset></Anchor></Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<FontString	name="MI2_TxtImportStatus"	inherits="GameFontNormalSmall">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="10" y="-20"/></Offset></Anchor></Anchors></FontString></Layer></Layers>
+				<Frames>
+					<Button	name="MI2_OptImportMobData" inherits="MI2_PushButtonTemplate">
+						<Size>
+							<AbsDimension x="160" y="24"/></Size>
+						<Anchors>
+							<Anchor	point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-45" /></Offset></Anchor></Anchors></Button>
+					<CheckButton name="MI2_OptImportOnlyNew" inherits="MI2_CheckboxTemplate">
+						<Anchors>
+							<Anchor	point="TOPLEFT"	relativeTo="MI2_OptImportMobData" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="10" y="0" /></Offset></Anchor></Anchors></CheckButton></Frames></Frame></Frames>
+		<Scripts>
+			<OnShow>MI2_DbOptionsFrameOnShow();</OnShow></Scripts></Frame>
+</Ui>

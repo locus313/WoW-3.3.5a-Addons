@@ -1,0 +1,12 @@
+## Interface: 30300
+## Title: AdvancedTradeSkillWindow
+## Notes: An improved window for your tradeskills (v0.7.8)
+## RequiredDeps:
+## SavedVariables: atsw_orderby,atsw_bankitemlist,atsw_merchantlist,atsw_itemlist,atsw_customsorting,atsw_customheaders,atsw_disabled,atsw_savedqueue,atsw_savednecessaryitems
+## SavedVariablesPerCharacter: atsw_prescanned,atsw_multicount,atsw_considerbank,atsw_consideralts,atsw_considermerchants,atsw_autobuy,atsw_recipetooltip,atsw_displayshoppinglist,atsw_displayreagentlist,atsw_newrecipelinks
+## X-Curse-Packaged-Version: v0.7.8
+## X-Curse-Project-Name: Advanced Trade Skill Window
+## X-Curse-Project-ID: advanced-trade-skill-window
+## X-Curse-Repository-ID: wow/advanced-trade-skill-window/mainline
+atsw.xml
+atsw_customsorting.xml

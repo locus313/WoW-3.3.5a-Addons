@@ -1,0 +1,12 @@
+## Interface: 30300
+## Title: FeedbackUI
+## Version: 2.0.6
+## Author: stoneharry, Yehonal
+## Notes: Sends feedback to a WoW Server. The feedback is stored locally in the server database for administrators or developers to read.
+## SavedVariablesPerCharacter: g_FeedbackUI_feedbackVars, g_FeedbackUI_surveysTable
+
+Localization.lua
+FeedbackUITemplates.xml
+FeedbackUI.xml
+FeedbackUIPanels.lua
+FeedbackUIDropDown.lua
