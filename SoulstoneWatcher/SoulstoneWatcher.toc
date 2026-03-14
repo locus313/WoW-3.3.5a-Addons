@@ -1,0 +1,6 @@
+## Interface: 30300
+## Title: Soulstone Watcher 
+## Author: CWollinger
+## Version: 1.0.8
+## SavedVariablesPerCharacter: SoulstoneWatcherConfig
+SoulstoneWatcher.lua
