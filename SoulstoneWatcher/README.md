@@ -29,4 +29,6 @@ The following changes were made to ensure compatibility with the WotLK 3.3.5a cl
 ## Bugs
 Because this project is quite new, there can be hidden bugs in the code.
 
-To report them, please use the CurseForge issue tracker: https://www.curseforge.com/wow/addons/soulstone-watcher/issues/create
+To report bugs specific to the WotLK 3.3.5a version, please open an issue in this repository: https://github.com/locus313/WoW-3.3.5a-Addons/issues
+
+For issues with the original addon, you can also use the CurseForge issue tracker: https://www.curseforge.com/wow/addons/soulstone-watcher/issues/create
