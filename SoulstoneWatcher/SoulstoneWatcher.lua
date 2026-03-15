@@ -147,11 +147,11 @@ messageCheckBoxPartyText:SetPoint("LEFT", messageCheckBoxParty, "RIGHT", 5, 0)
 messageCheckBoxPartyText:SetText("Send cast message to Party")
 
 local markerOptionsTextButtons = SoulstoneWatcherOptions.panel:CreateFontString("markerOptionsTextButtons", "OVERLAY", "GameFontNormal")
-markerOptionsTextButtons:SetPoint("TOPLEFT", SoulstoneWatcherOptions.panel, "TOPLEFT",10,-270)
+markerOptionsTextButtons:SetPoint("TOPLEFT", SoulstoneWatcherOptions.panel, "TOPLEFT",10,-330)
 markerOptionsTextButtons:SetText("Castbutton options")
 
 local enableCheckBoxButtons = CreateFrame("CheckButton", "enableCheckBoxButtons", SoulstoneWatcherOptions.panel, "UICheckButtonTemplate")
-enableCheckBoxButtons:SetPoint("TOPLEFT", SoulstoneWatcherOptions.panel, "TOPLEFT",25, -290)
+enableCheckBoxButtons:SetPoint("TOPLEFT", SoulstoneWatcherOptions.panel, "TOPLEFT",25, -350)
 enableCheckBoxButtons:SetSize(20,20)
 enableCheckBoxButtons:SetScript("OnClick", set_option_show_cast_buttons)
 
@@ -163,8 +163,89 @@ local markerOptionsTextTarget = SoulstoneWatcherOptions.panel:CreateFontString("
 markerOptionsTextTarget:SetPoint("TOPLEFT", SoulstoneWatcherOptions.panel, "TOPLEFT",10,-210)
 markerOptionsTextTarget:SetText("Soulstone Main Target")
 
+local healerClasses = { PRIEST = true, DRUID = true, PALADIN = true, SHAMAN = true }
+
+local dropDownMainTarget = CreateFrame("Frame", "SWMainTargetDropDown", SoulstoneWatcherOptions.panel, "UIDropDownMenuTemplate")
+dropDownMainTarget:SetPoint("TOPLEFT", SoulstoneWatcherOptions.panel, "TOPLEFT", 0, -225)
+UIDropDownMenu_SetWidth(dropDownMainTarget, 120)
+UIDropDownMenu_Initialize(dropDownMainTarget, function(self)
+    local info = UIDropDownMenu_CreateInfo()
+    -- None option
+    info.text = "None"
+    info.checked = (SoulstoneWatcherConfig.main_target == "" or SoulstoneWatcherConfig.main_target == nil)
+    info.func = function()
+        SoulstoneWatcherConfig.main_target = ""
+        UIDropDownMenu_SetText(dropDownMainTarget, "None")
+        CloseDropDownMenus()
+    end
+    UIDropDownMenu_AddButton(info)
+
+    local healers = {}
+    local others = {}
+    if GetNumRaidMembers() > 0 then
+        for i = 1, MAX_RAID_MEMBERS do
+            local name, _, _, _, _, fileName = GetRaidRosterInfo(i)
+            if name then
+                if healerClasses[fileName] then
+                    table.insert(healers, name)
+                else
+                    table.insert(others, name)
+                end
+            end
+        end
+    else
+        local myName = UnitName("player")
+        local _, myClass = UnitClass("player")
+        if myName then
+            if healerClasses[myClass] then table.insert(healers, myName)
+            else table.insert(others, myName) end
+        end
+        for i = 1, GetNumPartyMembers() do
+            local name = UnitName("party"..i)
+            local _, memberClass = UnitClass("party"..i)
+            if name then
+                if healerClasses[memberClass] then table.insert(healers, name)
+                else table.insert(others, name) end
+            end
+        end
+    end
+
+    for _, name in ipairs(healers) do
+        local n = name
+        info = UIDropDownMenu_CreateInfo()
+        info.text = n .. " (Healer)"
+        info.checked = (SoulstoneWatcherConfig.main_target == n)
+        info.func = function()
+            SoulstoneWatcherConfig.main_target = n
+            UIDropDownMenu_SetText(dropDownMainTarget, n)
+            CloseDropDownMenus()
+        end
+        UIDropDownMenu_AddButton(info)
+    end
+    for _, name in ipairs(others) do
+        local n = name
+        info = UIDropDownMenu_CreateInfo()
+        info.text = n
+        info.checked = (SoulstoneWatcherConfig.main_target == n)
+        info.func = function()
+            SoulstoneWatcherConfig.main_target = n
+            UIDropDownMenu_SetText(dropDownMainTarget, n)
+            CloseDropDownMenus()
+        end
+        UIDropDownMenu_AddButton(info)
+    end
+end)
+
+local dropDownMainTargetText = SoulstoneWatcherOptions.panel:CreateFontString("dropDownMainTargetText", "OVERLAY", "GameFontWhite")
+dropDownMainTargetText:SetPoint("LEFT", dropDownMainTarget, "RIGHT", 1, 0)
+dropDownMainTargetText:SetText("Shown first in cast buttons (healers listed first)")
+
+local markerOptionsTextRank = SoulstoneWatcherOptions.panel:CreateFontString("markerOptionsTextRank", "OVERLAY", "GameFontNormal")
+markerOptionsTextRank:SetPoint("TOPLEFT", SoulstoneWatcherOptions.panel, "TOPLEFT",10,-258)
+markerOptionsTextRank:SetText("Soulstone Item Rank")
+
 local dropDownRaid = CreateFrame("Frame", "WPDemoDropDown", SoulstoneWatcherOptions.panel, "UIDropDownMenuTemplate")
-dropDownRaid:SetPoint("TOPLEFT", SoulstoneWatcherOptions.panel, "TOPLEFT", 0, -230)
+dropDownRaid:SetPoint("TOPLEFT", SoulstoneWatcherOptions.panel, "TOPLEFT", 0, -275)
 UIDropDownMenu_SetWidth(dropDownRaid, 80)
 UIDropDownMenu_Initialize(dropDownRaid, function(self)
     local info = UIDropDownMenu_CreateInfo()
@@ -320,7 +401,26 @@ local function get_player_buffs(player)
     button3Player = nil
     button4Player = nil
 
-    for index, playerName in ipairs(player) do
+    -- If a main target is configured, move them to the front of the list
+    local mainTarget = SoulstoneWatcherConfig.main_target
+    local orderedPlayers = {}
+    if mainTarget and mainTarget ~= "" then
+        for _, name in ipairs(player) do
+            if name == mainTarget then
+                table.insert(orderedPlayers, 1, name)
+            elseif name then
+                table.insert(orderedPlayers, name)
+            end
+        end
+    else
+        for _, name in ipairs(player) do
+            if name then
+                table.insert(orderedPlayers, name)
+            end
+        end
+    end
+
+    for index, playerName in ipairs(orderedPlayers) do
         if index == 1 then
             button1Player = playerName
         end
@@ -556,6 +656,12 @@ function load_options(self, event)
         castButton3:SetAttribute("item", "item:36895")
         castButton4:SetAttribute("item", "item:36895")
     end
+
+    if SoulstoneWatcherConfig.main_target == nil then
+        SoulstoneWatcherConfig.main_target = ""
+    end
+    local displayTarget = SoulstoneWatcherConfig.main_target ~= "" and SoulstoneWatcherConfig.main_target or "None"
+    UIDropDownMenu_SetText(dropDownMainTarget, displayTarget)
 
     triggerEventFrame = CreateFrame("Frame")
 
