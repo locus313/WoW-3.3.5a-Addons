@@ -369,17 +369,35 @@ end
 
 local function get_raid_players()
     raidPlayerList = {}
-    for i=1,MAX_RAID_MEMBERS do
-        name = GetRaidRosterInfo(i)
-        table.insert( raidPlayerList, name )
+    if GetNumRaidMembers() > 0 then
+        for i=1,MAX_RAID_MEMBERS do
+            local name = GetRaidRosterInfo(i)
+            if name then
+                table.insert(raidPlayerList, name)
+            end
+        end
+    else
+        -- In a party (not a raid), use party unit tokens
+        local numParty = GetNumPartyMembers()
+        for i=1,numParty do
+            local name = UnitName("party"..i)
+            if name then
+                table.insert(raidPlayerList, name)
+            end
+        end
+        local myName = UnitName("player")
+        if myName then
+            table.insert(raidPlayerList, myName)
+        end
     end
     return raidPlayerList
 end
 
 local function OnEvent(self, event)
-    startTime, duration, enable = GetItemCooldown(5232)
+    local itemID = SoulstoneWatcherConfig.soulstone_itemid or 36895
+    startTime, duration, enable = GetItemCooldown(itemID)
 
-    if duration == 0 and classIndex == 9 then
+    if (duration == nil or duration == 0) and classIndex == 9 then
         print("|cff8788EESoulstone Watcher: Your Soulstone is ready")
         player = get_raid_players()
         check = get_player_buffs(player)
@@ -389,9 +407,10 @@ end
 
 local function cooldownCheck(self, event)
     if msgSent == false then
-        startTime, duration, enable = GetItemCooldown(5232)
+        local itemID = SoulstoneWatcherConfig.soulstone_itemid or 36895
+        startTime, duration, enable = GetItemCooldown(itemID)
 
-        if duration == 0 and classIndex == 9 then
+        if (duration == nil or duration == 0) and classIndex == 9 then
             SendAddonMessage(prefix, versionNumber, "RAID")
             SendAddonMessage(prefix, versionNumber, "GUILD")        
             print("|cff8788EESoulstone Watcher: Your Soulstone is ready again !")

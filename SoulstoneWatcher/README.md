@@ -25,6 +25,8 @@ The following changes were made to ensure compatibility with the WotLK 3.3.5a cl
 - Rewrote `UNIT_SPELLCAST_SENT`/`UNIT_SPELLCAST_SUCCEEDED` handler to use WotLK event signatures `(unit, spellName, rank, target)` instead of modern cast GUIDs and spell IDs
 - Removed duplicate erroneous `UIDropDownMenu_Initialize` call referencing undefined `WPDropDownDemo_Menu`
 - Updated TOC interface version to `30300`
+- Fixed popup not appearing during ready check: `GetItemCooldown` was hardcoded to item ID `5232` (Minor Soulstone) instead of using the configured soulstone item. If that item wasn't in the player's bags, `GetItemCooldown` returned `nil`, causing `duration == 0` to evaluate to `false` and the popup block to never execute.
+- Fixed popup not appearing in party (non-raid) groups: `get_raid_players()` only queried the raid roster via `GetRaidRosterInfo`, which returns `nil` for all slots when not in a raid. It now falls back to party unit tokens (`party1`–`party4`) when not in a raid.
 
 ## Bugs
 Because this project is quite new, there can be hidden bugs in the code.
