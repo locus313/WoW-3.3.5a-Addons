@@ -27,6 +27,11 @@ The following changes were made to ensure compatibility with the WotLK 3.3.5a cl
 - Updated TOC interface version to `30300`
 - Fixed popup not appearing during ready check: `GetItemCooldown` was hardcoded to item ID `5232` (Minor Soulstone) instead of using the configured soulstone item. If that item wasn't in the player's bags, `GetItemCooldown` returned `nil`, causing `duration == 0` to evaluate to `false` and the popup block to never execute.
 - Fixed "Soulstone Main Target" option missing: replaced the unimplemented text input with a dynamic dropdown that populates with current party/raid members when opened. Healer classes (Priest, Druid, Paladin, Shaman) are listed first with a `(Healer)` label; the selection is saved to `SoulstoneWatcherConfig.main_target` and that player is placed first in the cast button list when the popup appears.
+- Fixed duplicate frame names: all five cast buttons (`castButton1`–`castButton4`, `castButtonClear`) were created with the same name `"myButton"`, causing WoW global namespace conflicts. Each button now has a unique name (`SWCastButton1`–`SWCastButton4`, `SWCastButtonClear`).
+- Fixed options panel frame name: `"Soulstone Watcher"` (with a space) is not a valid WoW global frame name; renamed to `"SoulstoneWatcherOptionsPanel"`.
+- Fixed nil concatenation crash: if `UNIT_SPELLCAST_SUCCEEDED` fires for Soulstone Resurrection before a `UNIT_SPELLCAST_SENT` is received, `castTargetPlayer` would be `nil`, causing a Lua runtime error. An early-return nil guard was added.
+- Fixed cast button unit targeting: `SecureActionButtonTemplate` requires a valid WoW unit token (`"raid1"`, `"party2"`, `"player"`, etc.) for its `"unit"` attribute — not a player name string. Added a `getUnitToken(name)` helper that resolves a player name to the correct unit token before setting the attribute, so clicking a cast button correctly targets the intended player.
+- Removed `SecureActionButtonTemplate` from `castButtonClear`: this button only hides the cast buttons and used `SetScript("OnClick")`, which conflicts with WoW's secure template protection model. It now uses only `UIPanelButtonTemplate`.
 
 ## Bugs
 Because this project is quite new, there can be hidden bugs in the code.

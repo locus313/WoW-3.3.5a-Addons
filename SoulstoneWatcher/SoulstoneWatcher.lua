@@ -85,7 +85,7 @@ local function set_option_show_cast_buttons(self, option, check)
 end
 
 local SoulstoneWatcherOptions = {};
-SoulstoneWatcherOptions.panel = CreateFrame( "Frame", "Soulstone Watcher", UIParent );
+SoulstoneWatcherOptions.panel = CreateFrame( "Frame", "SoulstoneWatcherOptionsPanel", UIParent );
 SoulstoneWatcherOptions.panel.name = "Soulstone Watcher";
 InterfaceOptions_AddCategory(SoulstoneWatcherOptions.panel);
 
@@ -276,31 +276,31 @@ local dropDownRaidText = SoulstoneWatcherOptions.panel:CreateFontString("dropDow
 dropDownRaidText:SetPoint("LEFT", dropDownRaid, "RIGHT", 1,0)
 dropDownRaidText:SetText("Select soulstone item (rank) for the cast bars.")
 
-local castButton1 = CreateFrame("Button", "myButton", UIParent, "SecureActionButtonTemplate,UIPanelButtonTemplate")
+local castButton1 = CreateFrame("Button", "SWCastButton1", UIParent, "SecureActionButtonTemplate,UIPanelButtonTemplate")
 castButton1:SetPoint("CENTER", 0, 100)
 castButton1:SetSize(100, 40)
 castButton1:SetAttribute("type", "item")
 castButton1:Hide()
 
-local castButton2 = CreateFrame("Button", "myButton", UIParent, "SecureActionButtonTemplate,UIPanelButtonTemplate")
+local castButton2 = CreateFrame("Button", "SWCastButton2", UIParent, "SecureActionButtonTemplate,UIPanelButtonTemplate")
 castButton2:SetPoint("CENTER", 0, 60)
 castButton2:SetSize(100, 40)
 castButton2:SetAttribute("type", "item")
 castButton2:Hide()
 
-local castButton3 = CreateFrame("Button", "myButton", UIParent, "SecureActionButtonTemplate,UIPanelButtonTemplate")
+local castButton3 = CreateFrame("Button", "SWCastButton3", UIParent, "SecureActionButtonTemplate,UIPanelButtonTemplate")
 castButton3:SetPoint("CENTER", 150, 100)
 castButton3:SetSize(100, 40)
 castButton3:SetAttribute("type", "item")
 castButton3:Hide()
 
-local castButton4 = CreateFrame("Button", "myButton", UIParent, "SecureActionButtonTemplate,UIPanelButtonTemplate")
+local castButton4 = CreateFrame("Button", "SWCastButton4", UIParent, "SecureActionButtonTemplate,UIPanelButtonTemplate")
 castButton4:SetPoint("CENTER", 150, 60)
 castButton4:SetSize(100, 40)
 castButton4:SetAttribute("type", "item")
 castButton4:Hide()
 
-local castButtonClear = CreateFrame("Button", "myButton", UIParent, "SecureActionButtonTemplate,UIPanelButtonTemplate")
+local castButtonClear = CreateFrame("Button", "SWCastButtonClear", UIParent, "UIPanelButtonTemplate")
 castButtonClear:SetPoint("CENTER", 75, 20)
 castButtonClear:SetSize(100, 40)
 castButtonClear:SetText("Hide Buttons")
@@ -394,6 +394,21 @@ local frame = CreateFrame("FRAME");
 frame:RegisterEvent("VARIABLES_LOADED");
 frame:SetScript("OnEvent", start_loading)
 
+local function getUnitToken(name)
+    if GetNumRaidMembers() > 0 then
+        for i = 1, MAX_RAID_MEMBERS do
+            local n = GetRaidRosterInfo(i)
+            if n == name then return "raid"..i end
+        end
+    else
+        for i = 1, GetNumPartyMembers() do
+            if UnitName("party"..i) == name then return "party"..i end
+        end
+        if UnitName("player") == name then return "player" end
+    end
+    return nil
+end
+
 local function get_player_buffs(player)
     buffList = {}
     button1Player = nil
@@ -438,29 +453,33 @@ local function get_player_buffs(player)
     if classIndex == 9 and SoulstoneWatcherConfig.show_cast_buttons then
 
         if button1Player ~= nil then
+            local unit1 = getUnitToken(button1Player)
             castButton1:SetText(button1Player)
-            castButton1:SetAttribute("unit", button1Player) 
+            if unit1 then castButton1:SetAttribute("unit", unit1) end
             castButton1:Show()
             castButtonClear:Show()
         end
 
         if button2Player ~= nil then
+            local unit2 = getUnitToken(button2Player)
             castButton2:SetText(button2Player)
-            castButton2:SetAttribute("unit", button2Player) 
+            if unit2 then castButton2:SetAttribute("unit", unit2) end
             castButton2:Show()
             castButtonClear:Show()
         end
 
         if button3Player ~= nil then
+            local unit3 = getUnitToken(button3Player)
             castButton3:SetText(button3Player)
-            castButton3:SetAttribute("unit", button3Player) 
+            if unit3 then castButton3:SetAttribute("unit", unit3) end
             castButton3:Show()
             castButtonClear:Show()
         end
 
         if button4Player ~= nil then
+            local unit4 = getUnitToken(button4Player)
             castButton4:SetText(button4Player)
-            castButton4:SetAttribute("unit", button4Player) 
+            if unit4 then castButton4:SetAttribute("unit", unit4) end
             castButton4:Show()
             castButtonClear:Show()
         end
@@ -714,6 +733,7 @@ if classIndex == 9 then
                 if (event == "UNIT_SPELLCAST_SENT" and arg1 == "player") then
                     castTargetPlayer = arg4;
                 elseif (event == "UNIT_SPELLCAST_SUCCEEDED" and arg1 == "player" and arg2 == "Soulstone Resurrection") then
+                    if castTargetPlayer == nil then return end
                     print("|cff8788EESoulstone Watcher: Casted Soulstone on "..castTargetPlayer)
                     msgSent = false
                     castButton1:Hide()
