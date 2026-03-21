@@ -13,6 +13,7 @@ local versionMsgSent = false;
 local versionNumber = 107;
 local prefix = "SoulstoneWatcher"
 local f
+local triggerEventFrame
 
 local function start_loading(self, event)
     load_options()
@@ -682,7 +683,13 @@ function load_options(self, event)
     local displayTarget = SoulstoneWatcherConfig.main_target ~= "" and SoulstoneWatcherConfig.main_target or "None"
     UIDropDownMenu_SetText(dropDownMainTarget, displayTarget)
 
-    triggerEventFrame = CreateFrame("Frame")
+    if not triggerEventFrame then
+        triggerEventFrame = CreateFrame("Frame")
+        triggerEventFrame:SetScript("OnEvent", OnEvent)
+    end
+
+    -- Unregister all events first to avoid duplicates
+    triggerEventFrame:UnregisterAllEvents()
 
     if SoulstoneWatcherConfig.enable_at_ready == nil then
         SoulstoneWatcherConfig.enable_at_ready = true
@@ -696,8 +703,6 @@ function load_options(self, event)
     if SoulstoneWatcherConfig.enable_at_join == true then
         triggerEventFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
     end
-
-    triggerEventFrame:SetScript("OnEvent", OnEvent)
 end
 
 cooldownEventFrame = CreateFrame("Frame")

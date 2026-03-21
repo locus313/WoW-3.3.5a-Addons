@@ -32,6 +32,7 @@ The following changes were made to ensure compatibility with the WotLK 3.3.5a cl
 - Fixed nil concatenation crash: if `UNIT_SPELLCAST_SUCCEEDED` fires for Soulstone Resurrection before a `UNIT_SPELLCAST_SENT` is received, `castTargetPlayer` would be `nil`, causing a Lua runtime error. An early-return nil guard was added.
 - Fixed cast button unit targeting: `SecureActionButtonTemplate` requires a valid WoW unit token (`"raid1"`, `"party2"`, `"player"`, etc.) for its `"unit"` attribute — not a player name string. Added a `getUnitToken(name)` helper that resolves a player name to the correct unit token before setting the attribute, so clicking a cast button correctly targets the intended player.
 - Removed `SecureActionButtonTemplate` from `castButtonClear`: this button only hides the cast buttons and used `SetScript("OnClick")`, which conflicts with WoW's secure template protection model. It now uses only `UIPanelButtonTemplate`.
+- Fixed ready check event registration: `triggerEventFrame` was declared as a local variable inside `load_options()`, causing it to potentially be garbage collected and preventing the `READY_CHECK` event from firing properly. The frame is now declared at module scope and initialized only once, with `UnregisterAllEvents()` called before re-registering events to avoid duplicates. This ensures the ready check prompt appears consistently during raid ready checks.
 
 ## Bugs
 Because this project is quite new, there can be hidden bugs in the code.
