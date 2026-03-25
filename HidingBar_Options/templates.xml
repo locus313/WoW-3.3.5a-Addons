@@ -1,0 +1,830 @@
+<Ui>
+	<!-- BackdropTemplate removed: all frames support SetBackdrop natively in WoW 3.3.5a -->
+	<Frame name="HidingBarAddonOptionsPanel" virtual="true">
+		<Scripts>
+			<OnLoad>
+				self:SetBackdrop(HidingBarConfigAddon.optionsPanelBackdrop)
+				self:SetBackdropColor(.1, .1, .1, .3)
+				self:SetBackdropBorderColor(.5, .5, .5)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+	<Button name="HidingBarAddonColorButton" virtual="true">
+		<Size x="25" y="18"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="color">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="2" y="-2"/>
+						<Anchor point="BOTTOMRIGHT" x="-2" y="2"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				self:SetBackdrop(HidingBarConfigAddon.colorButtonBackdrop)
+				self:SetBackdropBorderColor(.3, .3, .3, .8)
+			</OnLoad>
+			<OnEnter>self:SetBackdropBorderColor(.5, .5, .5, .8)</OnEnter>
+			<OnLeave>self:SetBackdropBorderColor(.3, .3, .3, .8)</OnLeave>
+		</Scripts>
+	</Button>
+
+	<CheckButton name="HidingBarAddonConfigButtonTemplate" inherits="HidingBarAddonButtonTemplate" movable="true" virtual="true">
+		<CheckedTexture file="Interface/BUTTONS/UI-GroupLoot-Pass-Up">
+			<Size x="20" y="20"/>
+			<Anchors>
+				<Anchor point="TOPRIGHT"/>
+			</Anchors>
+		</CheckedTexture>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+				self:RegisterForDrag("LeftButton")
+				self.updateChecked = function(self, checked)
+					if checked then
+						self.icon:SetVertexColor(1, 1, 1)
+					else
+						self.icon:SetVertexColor(unpack(self.color))
+					end
+					self.icon:SetDesaturated(checked or self.iconDesaturated)
+				end
+				hooksecurefunc(self, "SetChecked", self.updateChecked)
+			</OnLoad>
+			<OnEnter>
+				self.icon:SetSize(32, 32)
+			</OnEnter>
+			<OnLeave>
+				self.icon:SetSize(30, 30)
+				GameTooltip:Hide()
+			</OnLeave>
+			<OnClick>
+				self:updateChecked(self:GetChecked())
+			</OnClick>
+		</Scripts>
+	</CheckButton>
+
+	<CheckButton name="HidingBarAddonConfigMButtonTemplate" inherits="HidingBarAddonButtonTemplate" movable="true" virtual="true">
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="bg" file ="Interface/Minimap/UI-Minimap-Background">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="border" file ="Interface/Minimap/MiniMap-TrackingBorder">
+					<Size x="54" y="54"/>
+					<Anchors>
+						<Anchor point="TOPLEFT" x="-1"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="2">
+				<Texture parentKey="check" file="Interface/BUTTONS/UI-GroupLoot-Pass-Up">
+					<Size x="15" y="15"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<HighlightTexture parentKey="highlight" file="Interface/Minimap/UI-Minimap-ZoomButton-Highlight" alphaMode="ADD">
+			<Size x="32" y="32"/>
+			<Anchors>
+				<Anchor point="CENTER" y="-1"/>
+			</Anchors>
+		</HighlightTexture>
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+				self:RegisterForDrag("LeftButton")
+				self.icon:SetSize(18, 18)
+				self.updateChecked = function(self, checked)
+					if checked then
+						self.icon:SetVertexColor(1, 1, 1)
+					else
+						self.icon:SetVertexColor(unpack(self.color))
+					end
+					self.icon:SetDesaturated(checked)
+					self.bg:SetDesaturated(checked)
+					self.border:SetDesaturated(checked)
+					self.highlight:SetDesaturated(checked)
+					self.check:SetShown(checked)
+				end
+				hooksecurefunc(self, "SetChecked", self.updateChecked)
+			</OnLoad>
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
+			<OnClick>
+				self:updateChecked(self:GetChecked())
+			</OnClick>
+		</Scripts>
+	</CheckButton>
+
+	<CheckButton name="HidingBarAddonCheckButtonTemplate" virtual="true">
+		<Size x="27" y="26"/>
+		<HitRectInsets left="0" right="-100" top="0" bottom="0"/>
+		<NormalTexture file="Interface\Buttons\UI-CheckBox-Up">
+			<Size x="26" y="26"/>
+		</NormalTexture>
+		<PushedTexture file="Interface\Buttons\UI-CheckBox-Down">
+			<Size x="26" y="26"/>
+		</PushedTexture>
+		<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD">
+			<Anchors>
+				<Anchor point="TOPLEFT" x="-3" y="5"/>
+				<Anchor point="BOTTOMRIGHT" x="3" y="-7"/>
+			</Anchors>
+		</HighlightTexture>
+		<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check">
+			<Size x="24" y="24"/>
+		</CheckedTexture>
+		<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled">
+			<Size x="24" y="24"/>
+		</DisabledCheckedTexture>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString inherits="GameFontHighlightLeft" parentKey="Text">
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="1" y="-1"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnable>self.Text:SetTextColor(1,1,1,1)</OnEnable>
+			<OnDisable>self.Text:SetTextColor(.5,.5,.5,1)</OnDisable>
+			<OnEnter>
+				if self.tooltipText then
+					GameTooltip:SetOwner(self, self.tooltipOwnerPoint or "ANCHOR_RIGHT")
+					GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true)
+				end
+				if self.tooltipRequirement then
+					GameTooltip:AddLine(self.tooltipRequirement, 1, 1, 1, true)
+					GameTooltip:Show()
+				end
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+	</CheckButton>
+
+	<Button name="HidingBarAddonRadioButtonTemplate" virtual="true">
+		<Size x="22" y="22"/>
+		<HitRectInsets left="0" right="-100" top="0" bottom="0"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString inherits="GameFontHighlightLeft" parentKey="Text">
+					<Anchors>
+						<Anchor point="LEFT" relativePoint="RIGHT" x="1"/>
+					</Anchors>
+				</FontString>
+				<Texture parentKey="check" file="Interface/Common/UI-DropDownRadioChecks" hidden="true">
+					<Size x="20" y="20"/>
+					<Anchors>
+						<Anchor point="CENTER" x="1" y="1"/>
+					</Anchors>
+					<TexCoords left="0" right=".5" top=".5" bottom="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<NormalTexture file="Interface/Common/UI-DropDownRadioChecks">
+			<Size x="20" y="20"/>
+			<Anchors>
+				<Anchor point="CENTER" x="1" y="1"/>
+			</Anchors>
+			<TexCoords left=".5" right="1" top=".5" bottom="1"/>
+		</NormalTexture>
+		<HighlightTexture alphaMode="ADD" file="Interface/Minimap/UI-Minimap-ZoomButton-Highlight">
+			<Size x="16" y="16"/>
+			<Anchors>
+				<Anchor point="CENTER" y="-1"/>
+			</Anchors>
+		</HighlightTexture>
+	</Button>
+
+	<Frame name="HidingBarAddonSliderFrameTemplate" virtual="true">
+		<Size x="500" y="31"/>
+		<Frames>
+			<EditBox parentKey="edit" inherits="HidingBarAddonEditBoxTemplate" letters="3">
+				<Size x="28" y="17"/>
+				<Anchors>
+					<Anchor point="RIGHT" x="-1" y="-4"/>
+				</Anchors>
+				<Scripts>
+					<OnTextChanged>
+						if userInput then
+							local int, dec = self:GetText():gsub(",", "."):match("(%-?%d*)(%.?%d*)")
+							if int == "" and dec ~= "" then int = "0" end
+							self:SetText(int..dec)
+						end
+					</OnTextChanged>
+					<OnEnterPressed>
+						local parent = self:GetParent()
+						local slider = parent.slider
+						local value = tonumber(self:GetText()) or 0
+						if not parent.noLimit then
+							local min, max = slider:GetMinMaxValues()
+							if min > value then value = min
+							elseif value > max then value = max end
+						end
+						slider:GetScript("OnValueChanged")(slider, value, true)
+						self:ClearFocus()
+					</OnEnterPressed>
+					<OnEditFocusLost>
+						self:SetNumber(self.curValue)
+					</OnEditFocusLost>
+					<OnMouseWheel>
+						local parent = self:GetParent()
+						local slider = parent.slider
+						local value = (tonumber(self:GetText()) or 0) + parent.step * delta
+						if not parent.noLimit then
+							local min, max = slider:GetMinMaxValues()
+							if min > value then value = min
+							elseif value > max then value = max end
+						end
+						slider:GetScript("OnValueChanged")(slider, value, true)
+					</OnMouseWheel>
+				</Scripts>
+			</EditBox>
+			<!-- MinimalSliderTemplate replaced with a basic 3.3.5a-compatible slider -->
+			<Slider parentKey="slider" orientation="HORIZONTAL">
+				<Size y="17"/>
+				<ThumbTexture file="Interface\Buttons\UI-SliderBar-Button-Horizontal">
+					<Size x="32" y="18"/>
+				</ThumbTexture>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\Buttons\UI-SliderBar-Background">
+							<Anchors>
+								<Anchor point="LEFT" x="10"/>
+								<Anchor point="RIGHT" x="-10"/>
+							</Anchors>
+							<Size y="8"/>
+							<TexCoords left="0.0195313" right="0.953125" top="0.00390625" bottom="0.375"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Anchors>
+					<Anchor point="BOTTOMLEFT" x="0" y="2"/>
+					<Anchor point="RIGHT" relativeKey="$parent.edit" relativePoint="LEFT" x="-4"/>
+				</Anchors>
+				<HitRectInsets left="0" right="0" top="-4" bottom="-4"/>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString parentKey="text" inherits="GameFontNormalSmall">
+							<Anchors>
+								<Anchor point="BOTTOM" relativePoint="TOP" y="1"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnValueChanged>
+						if self._updating then return end
+						local parent = self:GetParent()
+						local step = 1 / parent.step
+						local v = math.floor(value * step + .5) / step
+						local edit = parent.edit
+						if edit then
+							edit.curValue = v
+							edit:SetNumber(v)
+							edit:SetCursorPosition(0)
+						end
+						self._updating = true
+						self:SetValue(v)
+						self._updating = nil
+						parent:onValueChanged(v)
+					</OnValueChanged>
+					<OnMouseWheel>
+						local edit = self:GetParent().edit
+						edit:GetScript("OnMouseWheel")(edit, delta)
+					</OnMouseWheel>
+					<OnDisable>
+						self.text:SetVertexColor(GRAY_FONT_COLOR:GetRGB())
+					</OnDisable>
+					<OnEnable>
+						self.text:SetVertexColor(NORMAL_FONT_COLOR:GetRGB())
+					</OnEnable>
+				</Scripts>
+			</Slider>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self.setOnChanged = function(self, func)
+					self.onValueChanged = func
+				end
+				self.step = 1
+				self.setStep = function(self, step)
+					self.step = step
+				end
+				self.setMinMax = function(self, min, max)
+					self.slider:SetMinMaxValues(min, max)
+				end
+				self.setValue = function(self, value)
+					self.slider:SetValue(value)
+				end
+				self.setText = function(self, text)
+					self.slider.text:SetText(text)
+				end
+				self.setMaxLetters = function(self, value)
+					self.edit:SetWidth(value * 7 + 7)
+					self.edit:SetMaxLetters(value)
+				end
+				self.setEnabled = function(self, enabled)
+					self.edit:SetEnabled(enabled)
+					self.slider:SetEnabled(enabled)
+				end
+				self.disable = function(self)
+					self.edit:Disable()
+					self.slider:Disable()
+				end
+				self.enable = function(self)
+					self.edit:Enable()
+					self.slider:Enable()
+				end
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+	<!-- InputBoxScriptTemplate+BackdropTemplate replaced: use InputBoxTemplate (available in 3.3.5a) -->
+	<EditBox name="HidingBarAddonEditBoxTemplate" inherits="InputBoxTemplate" multiLine="false" autoFocus="false" virtual="true">
+		<FontString inherits="GameFontHighlightSmall" justifyH="CENTER"/>
+		<Scripts>
+			<OnLoad>
+				self:SetBackdrop(HidingBarConfigAddon.editBoxBackdrop)
+				self:SetBackdropColor(0, 0, 0, .5)
+				self:SetBackdropBorderColor(.3, .3, .3, .8)
+			</OnLoad>
+			<OnEditFocusGained>self:HighlightText()</OnEditFocusGained>
+			<OnEnterPressed function="EditBox_ClearFocus"/>
+			<OnEnter>if self:IsEnabled() then self:SetBackdropBorderColor(.5, .5, .5, .8) end</OnEnter>
+			<OnLeave>self:SetBackdropBorderColor(.3, .3, .3, .8)</OnLeave>
+			<OnEnable>self:SetTextColor(HIGHLIGHT_FONT_COLOR:GetRGB())</OnEnable>
+			<OnDisable>self:SetTextColor(GRAY_FONT_COLOR:GetRGB())</OnDisable>
+		</Scripts>
+	</EditBox>
+
+	<EditBox name="HidingBarAddonDecimalScriptTeplate" inherits="HidingBarAddonEditBoxTemplate" virtual="true">
+		<Scripts>
+			<OnLoad inherit="prepend">
+				self.setOnChanged = function(self, func)
+					self.onValueChanged = func
+				end
+			</OnLoad>
+			<OnTextChanged>
+				if userInput then
+					self.isEdit = true
+					local int, dec = self:GetText():gsub(",", "."):match(self.mask or "(%-?%d*)(%.?%d*)")
+					if int == "" and dec and dec ~= "" then int = "0" end
+					self:SetText((int or "")..(dec or ""))
+				elseif not self.isEdit then
+					self.curValue = tonumber(self:GetText()) or 0
+				else
+					self.isEdit = nil
+				end
+			</OnTextChanged>
+			<OnEnterPressed>
+				self.step = nil
+				self:onValueChanged(tonumber(self:GetText()) or 0)
+				self.curValue = tonumber(self:GetText()) or 0
+				self:ClearFocus()
+			</OnEnterPressed>
+			<OnEditFocusLost>
+				self:SetNumber(self.curValue)
+			</OnEditFocusLost>
+			<OnMouseWheel>
+				if not self.step then
+					local step = (""..self.curValue):match("%d+(%.?%d*)%d")
+					self.step = tonumber(step and step:gsub("%d", "0").."1") or 1
+				end
+				local value = self.curValue + self.step * delta
+				if self.min and self.min > value then value = self.min
+				elseif self.max and value > self.max then value = self.max end
+				self.curValue = value
+				self:SetNumber(value)
+				self:onValueChanged(value)
+			</OnMouseWheel>
+		</Scripts>
+	</EditBox>
+
+	<EditBox name="HidingBarAddonNumberTextBox" inherits="HidingBarAddonDecimalScriptTeplate" numeric="true" letters="1" virtual="true">
+		<Size x="15" y="18"/>
+		<KeyValues>
+			<KeyValue key="max" value="9" type="number"/>
+		</KeyValues>
+	</EditBox>
+
+	<EditBox name="HidingBarAddonDelayTextBox" inherits="HidingBarAddonDecimalScriptTeplate" letters="4" virtual="true">
+		<Size x="32" y="18"/>
+		<KeyValues>
+			<KeyValue key="mask" value="%-?(%d*)(%.?%d*)" type="string"/>
+			<KeyValue key="min" value="0" type="number"/>
+		</KeyValues>
+	</EditBox>
+
+	<EditBox name="HidingBarAddonCoordTextBox" inherits="HidingBarAddonDecimalScriptTeplate" letters="5" virtual="true">
+		<Size x="40" y="18"/>
+		<KeyValues>
+			<KeyValue key="mask" value="%-?%d*" type="string"/>
+		</KeyValues>
+	</EditBox>
+
+	<Button name="HidingBarAddonTabTemplate" virtual="true">
+		<Size x="115" y="24"/>
+		<Layers>
+			<Layer level="BORDER">
+				<Texture parentKey="leftDisabled" file="Interface/OptionsFrame/UI-OptionsFrame-ActiveTab" hidden="true">
+					<Size x="20" y="24"/>
+					<Anchors>
+						<Anchor point="BOTTOMLEFT" x="0" y="-3"/>
+					</Anchors>
+					<TexCoords left="0" right=".15625" top="0" bottom="1"/>
+				</Texture>
+				<Texture parentKey="rightDisabled" file="Interface/OptionsFrame/UI-OptionsFrame-ActiveTab" hidden="true">
+					<Size x="20" y="24"/>
+					<Anchors>
+						<Anchor point="BOTTOMRIGHT" x="0" y="-3"/>
+					</Anchors>
+					<TexCoords left=".84375" right="1" top="0" bottom="1"/>
+				</Texture>
+				<Texture parentKey="middleDisabled" file="Interface/OptionsFrame/UI-OptionsFrame-ActiveTab" hidden="true">
+					<Size x="88" y="24"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.leftDisabled" relativePoint="RIGHT"/>
+						<Anchor point="RIGHT" relativeKey="$parent.rightDisabled" relativePoint="LEFT"/>
+					</Anchors>
+					<TexCoords left=".15625" right=".84375" top="0" bottom="1"/>
+				</Texture>
+				<Texture parentKey="left" file="Interface/OptionsFrame/UI-OptionsFrame-InActiveTab">
+					<Size x="20" y="24"/>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+					</Anchors>
+					<TexCoords left="0" right=".15625" top="0" bottom="1"/>
+				</Texture>
+				<Texture parentKey="right" file="Interface/OptionsFrame/UI-OptionsFrame-InActiveTab">
+					<Size x="20" y="24"/>
+					<Anchors>
+						<Anchor point="TOPRIGHT"/>
+					</Anchors>
+					<TexCoords left=".84375" right="1" top="0" bottom="1"/>
+				</Texture>
+				<Texture parentKey="middle" file="Interface/OptionsFrame/UI-OptionsFrame-InActiveTab">
+					<Size x="88" y="24"/>
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent.left" relativePoint="RIGHT"/>
+						<Anchor point="RIGHT" relativeKey="$parent.right" relativePoint="LEFT"/>
+					</Anchors>
+					<TexCoords left=".15625" right=".84375" top="0" bottom="1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<ButtonText parentKey="text" justifyH="CENTER">
+			<Anchors>
+				<Anchor point="CENTER" x="0" y="-3"/>
+			</Anchors>
+		</ButtonText>
+		<NormalFont style="GameFontNormalSmall"/>
+		<HighlightFont style="GameFontHighlightSmall"/>
+		<DisabledFont style="GameFontHighlightSmall"/>
+		<HighlightTexture name="$parentHighlightTexture" file="Interface/PaperDollInfoFrame/UI-Character-Tab-Highlight" alphaMode="ADD">
+			<Anchors>
+				<Anchor point="LEFT" x="10" y="-4"/>
+				<Anchor point="RIGHT" x="-10" y="-4"/>
+			</Anchors>
+		</HighlightTexture>
+		<Scripts>
+			<OnLoad>
+				self:SetFrameLevel(self:GetFrameLevel() + 1)
+			</OnLoad>
+			<OnDisable>
+				self.left:Hide()
+				self.right:Hide()
+				self.middle:Hide()
+				self.leftDisabled:Show()
+				self.rightDisabled:Show()
+				self.middleDisabled:Show()
+			</OnDisable>
+			<OnEnable>
+				self.left:Show()
+				self.right:Show()
+				self.middle:Show()
+				self.leftDisabled:Hide()
+				self.rightDisabled:Hide()
+				self.middleDisabled:Hide()
+			</OnEnable>
+		</Scripts>
+	</Button>
+
+	<EditBox name="HidingBarAddonAddTextBox" inherits="InputBoxTemplate" autoFocus="false" virtual="true">
+		<Size x="243" y="20"/>
+		<Frames>
+			<Button parentKey="clearButton" hidden="true">
+				<Size x="17" y="17"/>
+				<Anchors>
+					<Anchor point="RIGHT" x="-3" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<!-- Atlas replaced with a file texture available in 3.3.5a -->
+						<Texture file="Interface\Buttons\UI-GroupLoot-Pass-Up" alpha="0.5" parentKey="texture">
+							<Size x="10" y="10"/>
+							<Anchors>
+								<Anchor point="TOPLEFT" x="3" y="-3"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>
+						self.texture:SetAlpha(1.0)
+					</OnEnter>
+					<OnLeave>
+						self.texture:SetAlpha(0.5)
+					</OnLeave>
+					<OnMouseDown>
+						if self:IsEnabled() then
+							self.texture:SetPoint("TOPLEFT", 4, -4)
+						end
+					</OnMouseDown>
+					<OnMouseUp>
+						self.texture:SetPoint("TOPLEFT", 3, -3)
+					</OnMouseUp>
+					<OnClick function="SearchBoxTemplateClearButton_OnClick"/>
+				</Scripts>
+			</Button>
+		</Frames>
+		<FontString inherits="GameFontHighlightSmall"/>
+		<Scripts>
+			<OnLoad>
+				self:SetTextInsets(0, 16, 0, 0)
+			</OnLoad>
+			<OnEscapePressed function="EditBox_ClearFocus"/>
+			<OnEditFocusLost>
+				if self:GetText() == "" then
+					self.clearButton:Hide()
+				end
+			</OnEditFocusLost>
+			<OnEditFocusGained>
+				self.clearButton:Show()
+			</OnEditFocusGained>
+		</Scripts>
+	</EditBox>
+
+	<Button name="HidingBarAddonIgnoreButtonTemplate" virtual="true">
+		<Size x="305" y="18"/>
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="highlight" file="Interface/QuestFrame/UI-QuestLogTitleHighlight" alphaMode="ADD" hidden="true">
+					<Anchors>
+						<Anchor point="TOPLEFT" x="0" y="1"/>
+						<Anchor point="BOTTOMRIGHT" x="-22" y="1"/>
+					</Anchors>
+					<Color r=".196" g=".388" b=".8"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Button parentKey="removeButton" alpha="0">
+				<Size x="16" y="16"/>
+				<Anchors>
+					<Anchor point="RIGHT" x="-5" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="icon" file="Interface/BUTTONS/UI-GroupLoot-Pass-Up">
+							<Size x="16" y="16"/>
+							<Anchors>
+								<Anchor point="CENTER"/>
+							</Anchors>
+							<Color r=".7" g=".7" b=".7"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnEnter>
+						self.icon:SetVertexColor(1, 1, 1)
+						self:SetAlpha(1)
+						self:GetParent().highlight:Show()
+					</OnEnter>
+					<OnLeave>
+						self.icon:SetVertexColor(.7, .7, .7)
+						self:SetAlpha(0)
+						self:GetParent().highlight:Hide()
+					</OnLeave>
+					<OnMouseDown>self.icon:SetScale(.9)</OnMouseDown>
+					<OnMouseUp>self.icon:SetScale(1)</OnMouseUp>
+				</Scripts>
+			</Button>
+		</Frames>
+		<ButtonText parentKey="text" justifyH="LEFT" wordwrap="false">
+			<Anchors>
+				<Anchor point="LEFT" x="2"/>
+				<Anchor point="RIGHT" relativeKey="$parent.removeButton" relativePoint="LEFT" x="-2"/>
+			</Anchors>
+		</ButtonText>
+		<NormalFont style="GameFontHighlight"/>
+		<DisabledFont style="GameFontDisableSmall"/>
+		<Scripts>
+			<OnEnter>
+				self.highlight:Show()
+				self.removeButton:SetAlpha(1)
+				if self.text:IsTruncated() then
+					GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT", -self:GetWidth(), 0)
+					GameTooltip:SetText(self:GetText())
+					GameTooltip:Show()
+				end
+			</OnEnter>
+			<OnLeave>
+				self.highlight:Hide()
+				self.removeButton:SetAlpha(0)
+				GameTooltip:Hide()
+			</OnLeave>
+			<OnEnable>self.removeButton:Show()</OnEnable>
+			<OnDisable>self.removeButton:Hide()</OnDisable>
+		</Scripts>
+	</Button>
+
+	<Button name="HidingBarAddonCustomGrabButtonTemplate" inherits="HidingBarAddonIgnoreButtonTemplate" virtual="true">
+		<Size x="550" y="18"/>
+	</Button>
+
+	<!-- HybridScrollFrameTemplate replaced with a plain Frame + simple Slider for 3.3.5a -->
+	<Frame name="HidingBarAddonHybridScrollTemplate" virtual="true">
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="bg" alpha=".5">
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT"/>
+					</Anchors>
+					<Color r=".1" g=".1" b=".1"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Slider parentKey="scrollBar" orientation="VERTICAL">
+				<Size x="16"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="4" y="-16"/>
+					<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="4" y="16"/>
+				</Anchors>
+				<ThumbTexture file="Interface\Buttons\UI-ScrollBar-Knob">
+					<Size x="18" y="24"/>
+					<TexCoords left=".20" right=".80" top=".125" bottom=".875"/>
+				</ThumbTexture>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture file="Interface\Buttons\UI-ScrollBar-Background">
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT"/>
+							</Anchors>
+							<TexCoords left=".484375" right="1" top="0" bottom=".390625"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnLoad>
+						self:EnableMouseWheel(true)
+						self:SetMinMaxValues(0, 0)
+						self:SetValue(0)
+					</OnLoad>
+					<OnValueChanged>
+						if HybridScrollFrame_OnValueChanged then
+							HybridScrollFrame_OnValueChanged(self, self:GetValue(), true)
+						end
+					</OnValueChanged>
+					<OnMouseWheel>
+						local min, max = self:GetMinMaxValues()
+						local step = self:GetParent().buttonHeight or 18
+						local val = math.max(min, math.min(max, self:GetValue() - delta * step))
+						self:SetValue(val)
+					</OnMouseWheel>
+				</Scripts>
+			</Slider>
+		</Frames>
+	</Frame>
+
+	<!-- DialogBorderDarkTemplate: polyfill for WoW 3.3.5a
+	     LibSFDropDown uses this for the main dropdown list backdrop border. -->
+	<Frame name="DialogBorderDarkTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>
+				self:SetBackdrop({
+					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+					edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+					tile = true, tileSize = 32, edgeSize = 32,
+					insets = { left = 11, right = 12, top = 12, bottom = 11 },
+				})
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+	<!-- TooltipBackdropTemplate: polyfill for WoW 3.3.5a
+	     LibSFDropDown uses this for the dropdown menu background. -->
+	<Frame name="TooltipBackdropTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>
+				self:SetBackdrop({
+					bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+					edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+					tile = true, tileSize = 16, edgeSize = 16,
+					insets = { left = 5, right = 5, top = 5, bottom = 5 },
+				})
+				self:SetBackdropColor(0, 0, 0, .85)
+				self:SetBackdropBorderColor(1, 1, 1, 1)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+
+	<!-- HybridScrollFrameTemplate: polyfill for WoW 3.3.5a.
+	     LibSFDropDown creates ScrollFrames with this template at runtime.
+	     We just need a virtual ScrollFrame that auto-sets its scrollChild. -->
+	<ScrollFrame name="HybridScrollFrameTemplate" virtual="true">
+		<Frames>
+			<Frame parentKey="scrollChild">
+				<Size x="1" y="1"/>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				self:SetScrollChild(self.scrollChild)
+			</OnLoad>
+		</Scripts>
+	</ScrollFrame>
+
+	<!-- SearchBoxTemplate: polyfill for WoW 3.3.5a
+	     LibSFDropDown creates EditBoxes with this template when a dropdown list
+	     has more than 20 entries.  We build a minimal search box with a clear
+	     button (.clearButton) so the library's code can reference it. -->
+	<EditBox name="SearchBoxTemplate" inherits="InputBoxTemplate" autoFocus="false" virtual="true">
+		<Frames>
+			<Button parentKey="clearButton" hidden="true">
+				<Size x="14" y="14"/>
+				<Anchors>
+					<Anchor point="RIGHT" relativePoint="RIGHT" x="-4"/>
+				</Anchors>
+				<NormalTexture file="Interface\Buttons\UI-GroupLoot-Pass-Up">
+					<Size x="12" y="12"/>
+				</NormalTexture>
+				<HighlightTexture file="Interface\Buttons\UI-GroupLoot-Pass-Up" alphaMode="ADD">
+					<Size x="12" y="12"/>
+				</HighlightTexture>
+			</Button>
+		</Frames>
+	</EditBox>
+
+	<Frame name="HidingBarAddonHelpPlate" virtual="true">
+		<Size x="64" y="64"/>
+		<HitRectInsets>
+			<AbsInset left="20" right="20" top="20" bottom="20"/>
+		</HitRectInsets>
+		<Layers>
+			<Layer level="OVERLAY" textureSubLevel="0">
+				<Texture parentKey="highlight" file="Interface/TutorialFrame/minimap-glow" alphaMode="ADD" hidden="true">
+					<Size x="30" y="30"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+					<TexCoords left="0" right=".7421875" top="0" bottom=".7421875"/>
+				</Texture>
+			</Layer>
+			<Layer level="OVERLAY" textureSubLevel="1">
+				<Texture parentKey="I" file="Interface/common/help-i">
+					<Size x="46" y="46"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnEnter>
+				self.highlight:Show()
+				if self.tooltipTitle or self.tooltip then
+					GameTooltip:SetOwner(self, "ANCHOR_TOP", 0, -15)
+					if self.tooltipTitle then
+						GameTooltip:SetText(self.tooltipTitle, 1, 1, 1, 1, self.wrap)
+					end
+					if self.tooltip then
+						GameTooltip:SetText(self.tooltip, nil, nil, nil, nil, self.wrap)
+					end
+					GameTooltip:Show()
+				end
+			</OnEnter>
+			<OnLeave>
+				self.highlight:Hide()
+				GameTooltip:Hide()
+			</OnLeave>
+		</Scripts>
+	</Frame>
+</Ui>

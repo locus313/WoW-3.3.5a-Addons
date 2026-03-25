@@ -1,0 +1,74 @@
+<Ui>
+	<Frame name="HidingBarAddonPanel" enableMouse="true" frameLevel="100" virtual="true">
+		<Layers>
+			<Layer level="BACKGROUND">
+				<Texture parentKey="bg"/>
+			</Layer>
+		</Layers>
+	</Frame>
+
+	<Button name="HidingBarAddonButtonTemplate" clipChildren="true"  virtual="true">
+		<Size x="32" y="32"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="icon">
+					<Size x="30" y="30"/>
+					<Anchors>
+						<Anchor point="CENTER"/>
+					</Anchors>
+				</Texture>
+			</Layer>
+		</Layers>
+	</Button>
+
+	<Button name="HidingBarAddonCreatedButtonTemplate" inherits="HidingBarAddonButtonTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp", "MiddleButtonUp")
+			</OnLoad>
+			<OnEnter>
+				if not self.__MSQ_Enabled then
+					self.icon:SetSize(32, 32)
+				end
+				if self.data.OnEnter then
+					self.data.OnEnter(self)
+				end
+				if self.data.OnTooltipShow then
+					local tooltipAnchor = "ANCHOR_LEFT"
+					local anchor = self:GetParent().config.anchor
+					if anchor == "left" then
+						tooltipAnchor = "ANCHOR_RIGHT"
+					elseif anchor == "top" then
+						tooltipAnchor = "ANCHOR_BOTTOMLEFT"
+					end
+					GameTooltip:SetOwner(self, tooltipAnchor)
+					GameTooltip:ClearLines()
+					self.data.OnTooltipShow(GameTooltip)
+					GameTooltip:Show()
+				end
+			</OnEnter>
+			<OnLeave>
+				if not self.__MSQ_Enabled then
+					self.icon:SetSize(30, 30)
+				end
+				if self.data.OnLeave then
+					self.data.OnLeave(self)
+				end
+				if self.data.OnTooltipShow then
+					GameTooltip:Hide()
+				end
+			</OnLeave>
+			<OnMouseDown>
+				self.icon:SetScale(.9)
+			</OnMouseDown>
+			<OnMouseUp>
+				self.icon:SetScale(1)
+			</OnMouseUp>
+			<OnClick>
+				if type(self.data.OnClick) == "function" then
+					self.data.OnClick(self, button)
+				end
+			</OnClick>
+		</Scripts>
+	</Button>
+</Ui>

@@ -1,0 +1,13 @@
+## Interface: 30300
+## Title: HidingBar Options
+## Author: sfmict
+## Version: v3.4.20
+## IconTexture: Interface\AddOns\HidingBar\media\icon
+## Notes: HidingBar Options
+## LoadOnDemand: 1
+## Dependencies: HidingBar
+compat_335.lua
+embeds.xml
+templates.xml
+Main.lua
+About.lua

@@ -1,0 +1,15 @@
+## Interface: 30300
+## Title: HidingBar
+## Author: sfmict
+## Version: v3.4.20
+## IconTexture: Interface\AddOns\HidingBar\media\icon
+## Notes: Convenient hiding panel
+## SavedVariables: HidingBarDB
+## SavedVariablesPerCharacter: HidingBarDBChar
+## OptionalDeps: Masque
+compat_335.lua
+embeds.xml
+locales.xml
+templates.xml
+Config.lua
+HidingBar.lua
