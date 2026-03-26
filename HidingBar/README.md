@@ -17,8 +17,9 @@ This document describes every change made to backport HidingBar v3.4.20
 | `HidingBar/HidingBar.lua` | Various runtime compat fixes |
 | `HidingBar_Options/Config.lua` | Settings panel API rewrite |
 | `HidingBar_Options/About.lua` | Settings panel API rewrite |
+| `HidingBar/templates.xml` | Removed unsupported `clipChildren` XML attribute |
 | `HidingBar_Options/templates.xml` | XML template cleanup |
-| `libs/LibDBIcon-1.0/LibDBIcon-1.0.lua` | Animation / frame method guards |
+| `libs/LibDBIcon-1.0/LibDBIcon-1.0.lua` | Animation / frame method guards; icon texture safety |
 
 ---
 
@@ -255,6 +256,59 @@ if button.SetFixedFrameLevel  then button:SetFixedFrameLevel(true) end
 
 ---
 
+## 8. `HidingBar/templates.xml`
+
+### `clipChildren` attribute removed
+The `<Button>` template `HidingBarAddonButtonTemplate` had `clipChildren="true"` as an XML attribute. This attribute does not exist in 3.3.5a's XML parser and caused the button template to load in a broken state. Removed:
+```xml
+<!-- Before -->
+<Button name="HidingBarAddonButtonTemplate" clipChildren="true" virtual="true">
+
+<!-- After -->
+<Button name="HidingBarAddonButtonTemplate" virtual="true">
+```
+The `SetClipsChildren()` call in Lua already has a 3.3.5a guard and handles this at runtime.
+
+---
+
+## 9. `libs/LibDBIcon-1.0/LibDBIcon-1.0.lua` — Icon texture safety
+
+### Numeric FileDataID → string path replacement
+The modern LibDBIcon uses numeric FileDataIDs for the minimap button's overlay, background, and highlight textures (e.g. `136430`). In 3.3.5a, numeric IDs in `SetTexture` either render red or fail silently. All numeric IDs replaced with their explicit string paths:
+
+| Was | Now |
+|---|---|
+| `136430` | `"Interface\\Minimap\\MiniMap-TrackingBorder"` |
+| `136467` | `"Interface\\Minimap\\UI-Minimap-Background"` |
+| `136477` | `"Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight"` |
+
+### `WOW_PROJECT_ID` check for button layout branch
+The `createButton()` function branches on `WOW_PROJECT_ID == WOW_PROJECT_MAINLINE` to choose between a Retail and a Classic button layout. In 3.3.5a both globals are `nil`, making `nil == nil` true and always selecting the Retail layout. Fixed by guarding the check:
+```lua
+if WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+```
+This ensures 3.3.5a always uses the Classic layout (53px overlay anchored to TOPLEFT), which matches the visual style of the client.
+
+### `safeSetIconTexture` helper
+Several addons (Details, WeakAuras, Bistooltip, etc.) register LDB objects with icon values that don't exist in 3.3.5a:
+- **Atlas names** — strings with no path separator (e.g. `"communities-icon-guilds"`). The atlas system was added after 3.3.5a; `SetTexture` with an atlas name renders a solid red block.
+- **Numeric FileDataIDs** — integers pointing to files in the modern client's file database, which does not exist in 3.3.5a.
+
+A `safeSetIconTexture` helper is added and used in place of all direct `icon:SetTexture(object.icon)` calls:
+```lua
+local function safeSetIconTexture(icon, value)
+    if not value then return end
+    if type(value) == "number" then return end  -- no FileDataIDs in 3.3.5a
+    if type(value) == "string" and not value:find("[/\\]") then return end  -- atlas name
+    if icon:SetTexture(value) == false then
+        icon:SetTexture(nil)  -- file not found; clear instead of showing red
+    end
+end
+```
+The same guard is applied to `hb:addButton()` in `HidingBar.lua` for addon-registered buttons that supply their own icon path.
+
+---
+
 ## Summary of Root Causes
 
 | Root cause | Affected APIs |
@@ -265,3 +319,5 @@ if button.SetFixedFrameLevel  then button:SetFixedFrameLevel(true) end
 | APIs added post-3.3.5a (animation methods) | `SetFromAlpha`, `SetToAlpha`, `SetStartDelay`, `SetToFinalAlpha`, `GetTarget`, `GetObjectType` |
 | APIs added post-3.3.5a (global/namespace) | `securecallfunction`, `C_Timer`, `C_Texture`, `C_AddOns`, `GetPhysicalScreenSize`, `BackdropTemplateMixin`, `CreateFromMixins`, `SOUNDKIT`, `HybridScrollFrame_*` |
 | Settings framework replaced in Dragonflight | `Settings.RegisterCanvasLayoutCategory`, `Settings.OpenToCategory` |
+| Numeric FileDataIDs / atlas names in `SetTexture` | `LibDBIcon` icon textures rendered red in 3.3.5a |
+| XML attribute unsupported in 3.3.5a | `clipChildren="true"` on `<Button>` template |

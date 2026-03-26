@@ -925,7 +925,12 @@ do
 		button.name = name
 		button.data = data
 		if data.icon then
-			button.icon:SetTexture(data.icon)
+			-- 3.3.5a: atlas names (no path separator) and numeric FileDataIDs cause
+			-- red textures; skip both and let pcall catch any remaining failures.
+			local icon = data.icon
+			if type(icon) == "string" and icon:find("[/\\]") then
+				pcall(button.icon.SetTexture, button.icon, icon)
+			end
 			button.iconTex = data.icon
 			if data.iconCoords then
 				button.iconCoords = {unpack(data.iconCoords)}

@@ -21,10 +21,25 @@ local next, Minimap, CreateFrame, AddonCompartmentFrame = next, Minimap, CreateF
 lib.tooltip = lib.tooltip or CreateFrame("GameTooltip", "LibDBIconTooltip", UIParent, "GameTooltipTemplate")
 local isDraggingButton = false
 
+-- 3.3.5a: SetTexture with an atlas name (no path separator) or a numeric
+-- FileDataID (added after 3.3.5a) shows solid red or errors.
+-- Also check SetTexture's return value: false means the file was not found.
+local function safeSetIconTexture(icon, value)
+	if not value then return end
+	-- Numeric FileDataIDs don't exist in 3.3.5a
+	if type(value) == "number" then return end
+	-- Atlas names have no path separator
+	if type(value) == "string" and not value:find("[/\\]") then return end
+	-- SetTexture returns false when the texture file is missing; clear it to avoid red
+	if icon:SetTexture(value) == false then
+		icon:SetTexture(nil)
+	end
+end
+
 function lib:IconCallback(event, name, key, value)
 	if lib.objects[name] then
 		if key == "icon" then
-			lib.objects[name].icon:SetTexture(value)
+			safeSetIconTexture(lib.objects[name].icon, value)
 		elseif key == "iconCoords" then
 			lib.objects[name].icon:UpdateCoord()
 		elseif key == "iconR" then
@@ -250,33 +265,33 @@ local function createButton(name, object, db, customCompartmentIcon)
 	button:SetSize(31, 31)
 	button:RegisterForClicks("anyUp")
 	button:RegisterForDrag("LeftButton")
-	button:SetHighlightTexture(136477) --"Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight"
-	if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+	button:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
+	if WOW_PROJECT_ID and WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
 		local overlay = button:CreateTexture(nil, "OVERLAY")
 		overlay:SetSize(50, 50)
-		overlay:SetTexture(136430) --"Interface\\Minimap\\MiniMap-TrackingBorder"
+		overlay:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
 		overlay:SetPoint("TOPLEFT", button, "TOPLEFT")
 		local background = button:CreateTexture(nil, "BACKGROUND")
 		background:SetSize(24, 24)
-		background:SetTexture(136467) --"Interface\\Minimap\\UI-Minimap-Background"
+		background:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
 		background:SetPoint("CENTER", button, "CENTER")
 		local icon = button:CreateTexture(nil, "ARTWORK")
 		icon:SetSize(18, 18)
-		icon:SetTexture(object.icon)
+		safeSetIconTexture(icon, object.icon)
 		icon:SetPoint("CENTER", button, "CENTER")
 		button.icon = icon
 	else
 		local overlay = button:CreateTexture(nil, "OVERLAY")
 		overlay:SetSize(53, 53)
-		overlay:SetTexture(136430) --"Interface\\Minimap\\MiniMap-TrackingBorder"
+		overlay:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
 		overlay:SetPoint("TOPLEFT")
 		local background = button:CreateTexture(nil, "BACKGROUND")
 		background:SetSize(20, 20)
-		background:SetTexture(136467) --"Interface\\Minimap\\UI-Minimap-Background"
+		background:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
 		background:SetPoint("TOPLEFT", 7, -5)
 		local icon = button:CreateTexture(nil, "ARTWORK")
 		icon:SetSize(17, 17)
-		icon:SetTexture(object.icon)
+		safeSetIconTexture(icon, object.icon)
 		icon:SetPoint("TOPLEFT", 7, -6)
 		button.icon = icon
 	end

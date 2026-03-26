@@ -7,7 +7,7 @@
 		</Layers>
 	</Frame>
 
-	<Button name="HidingBarAddonButtonTemplate" clipChildren="true"  virtual="true">
+	<Button name="HidingBarAddonButtonTemplate" virtual="true">
 		<Size x="32" y="32"/>
 		<Layers>
 			<Layer level="ARTWORK">
