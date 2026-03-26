@@ -1,0 +1,38 @@
+name: Release Addon
+
+on:
+  push:
+    tags:
+      - '*-release'   # matches HidingBar-release, Bagnon-release, etc.
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse addon name and version from .toc file
+        id: parse
+        run: |
+          TAG="${GITHUB_REF_NAME}"                  # e.g. HidingBar-release
+          ADDON="${TAG%-release}"                    # e.g. HidingBar
+          TOC_FILE="${ADDON}/${ADDON}.toc"
+          VERSION=$(grep -i "^## Version:" "${TOC_FILE}" | sed 's/^## Version:[[:space:]]*//')
+          echo "addon=$ADDON" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "zip_name=${ADDON}-${VERSION}.zip" >> $GITHUB_OUTPUT
+
+      - name: Build zip
+        run: |
+          ADDON="${{ steps.parse.outputs.addon }}"
+          ZIP="${{ steps.parse.outputs.zip_name }}"
+          # Include main folder and any companion folders (e.g. HidingBar_Options)
+          FOLDERS=$(find . -maxdepth 1 -type d -name "${ADDON}*" | sed 's|^\./||')
+          zip -r "${ZIP}" $FOLDERS
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "${{ steps.parse.outputs.addon }} ${{ steps.parse.outputs.version }}"
+          tag_name: "${{ steps.parse.outputs.addon }}-${{ steps.parse.outputs.version }}"
+          files: "${{ steps.parse.outputs.zip_name }}"
