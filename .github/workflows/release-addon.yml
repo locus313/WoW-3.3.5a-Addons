@@ -26,9 +26,10 @@ jobs:
         run: |
           ADDON="${{ steps.parse.outputs.addon }}"
           ZIP="${{ steps.parse.outputs.zip_name }}"
-          # Include main folder and any companion folders (e.g. HidingBar_Options)
-          FOLDERS=$(find . -maxdepth 1 -type d -name "${ADDON}*" | sed 's|^\./||')
-          zip -r "${ZIP}" $FOLDERS
+          # Collect matching folders into an array (main + companions like _Options)
+          mapfile -t FOLDERS < <(find . -maxdepth 1 -type d -name "${ADDON}*" -printf "%f\n")
+          echo "Packaging folders: ${FOLDERS[*]}"
+          zip -r "${ZIP}" "${FOLDERS[@]}"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
