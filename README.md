@@ -192,6 +192,7 @@ These addons were originally written for a newer version of the WoW client and h
 - **SoulstoneWatcher** — see [SoulstoneWatcher/README.md](SoulstoneWatcher/README.md) for compatibility notes.
 - **Bistooltip** — version suffix `-3.3.5a` indicates a custom build for this client.
 - **ElvUIBackport_ProfileConverter** — converts modern (Wago.io) ElvUI profile exports back to the 3.3.5-compatible format; see [ElvUIBackport_ProfileConverter/README.md](ElvUIBackport_ProfileConverter/README.md).
+- **HidingBar** — back-ported from a newer client version; see [HidingBar/README.md](HidingBar/README.md) for compatibility notes.
 
 ## Contributing
 
