@@ -200,14 +200,20 @@ S:AddCallbackForAddon("Blizzard_AuctionUI", "Skin_Blizzard_AuctionUI", function(
 	BrowseTitle:ClearAllPoints()
 	BrowseTitle:Point("TOP", AuctionFrame, "TOP", 0, -5)
 
-	BrowseNameText:Point("TOPLEFT", 25, -19)
+	BrowseNameText:Point("TOPLEFT", 25, -32)
 	BrowseName:Size(163, 18)
 	BrowseName:Point("TOPLEFT", BrowseNameText, "BOTTOMLEFT", -5, -4)
 
-	BrowseResetButton:Point("TOPLEFT", 104, -59)
+	BrowseResetButton:Point("TOPLEFT", 104, -72)
 
-	BrowseLevelText:Point("BOTTOMLEFT", AuctionFrameBrowse, "TOPLEFT", 233, -31)
-	BrowseMinLevel:Point("TOPLEFT", BrowseLevelText, "BOTTOMLEFT", 0, -6)
+	IsUsableCheckButton:ClearAllPoints()
+	IsUsableCheckButton:Point("LEFT", BrowseDropDown, "RIGHT", 8, 5)
+
+	ShowOnPlayerCheckButton:ClearAllPoints()
+	ShowOnPlayerCheckButton:Point("LEFT", IsUsableCheckButton, "RIGHT", 80, 0)
+
+	BrowseLevelText:Point("BOTTOMLEFT", AuctionFrameBrowse, "TOPLEFT", 233, -48)
+	BrowseMinLevel:Point("TOPLEFT", BrowseLevelText, "BOTTOMLEFT", 0, -1)
 	BrowseLevelHyphen:Point("LEFT", BrowseMinLevel, "RIGHT", 2, 1)
 	BrowseMaxLevel:Point("LEFT", BrowseMinLevel, "RIGHT", 12, 0)
 
@@ -217,13 +223,17 @@ S:AddCallbackForAddon("Blizzard_AuctionUI", "Skin_Blizzard_AuctionUI", function(
 
 	S:HandleNextPrevButton(BrowsePrevPageButton, "left", nil, true)
 	BrowsePrevPageButton:Size(32)
-	BrowsePrevPageButton:Point("TOPLEFT", 636, -28)
 	BrowsePrevPageButton:SetHitRectInsets(6, 6, 6, 6)
-	BrowsePrevPageButton:GetRegions():Point("LEFT", BrowsePrevPageButton, "RIGHT", -5, 0)
+	BrowsePrevPageButton:GetRegions():ClearAllPoints()
+	BrowsePrevPageButton:GetRegions():Point("LEFT", BrowsePrevPageButton, "RIGHT", 3, 0)
 
 	S:HandleNextPrevButton(BrowseNextPageButton, "right", nil, true)
 	BrowseNextPageButton:Size(32)
-	BrowseNextPageButton:Point("TOPRIGHT", 72, -28)
+	BrowseNextPageButton:Point("RIGHT", BrowseCloseButton, "LEFT", 60, 0)
+	BrowseNextPageButton:GetRegions():ClearAllPoints()
+	BrowseNextPageButton:GetRegions():Point("RIGHT", BrowseNextPageButton, "LEFT", -3, 0)
+
+	BrowsePrevPageButton:Point("RIGHT", BrowseNextPageButton, "LEFT", -100, 0)
 	BrowseNextPageButton:SetHitRectInsets(6, 6, 6, 6)
 	BrowseNextPageButton:GetRegions():Point("RIGHT", BrowseNextPageButton, "LEFT", 5, 0)
 
