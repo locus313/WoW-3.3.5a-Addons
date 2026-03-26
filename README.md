@@ -69,6 +69,22 @@ A unified bag replacement addon. All modules below are part of the same suite.
 | [DataStore](DataStore/) | 3.3.001 | Core data storage framework used by DataStore modules |
 | [DataStore_Inventory](DataStore_Inventory/) | 3.3.002 | Stores inventory snapshots for all your characters |
 
+### Details Suite
+
+A detailed combat damage meter with optional plugin modules. **Details** is the core; all other modules are plugins.
+
+| Addon | Description |
+|-------|-------------|
+| [Details](Details/) | Core damage meter — shows DPS, HPS, threat, and more |
+| [Details_3DModelsPaths](Details_3DModelsPaths/) | Asset bundle of 3D model paths used for character display in rows |
+| [Details_ChartViewer](Details_ChartViewer/) | Plugin — graphical chart viewer |
+| [Details_DataStorage](Details_DataStorage/) | Plugin — stores combat log data for post-encounter review |
+| [Details_DeathGraphs](Details_DeathGraphs/) | Plugin — advanced death logs with timeline view and wipe analysis |
+| [Details_EncounterDetails](Details_EncounterDetails/) | Plugin — detailed encounter breakdown with phase-by-phase DPS and WeakAuras integration |
+| [Details_SunderCount](Details_SunderCount/) | Plugin — tracks Sunder Armor usage across the raid |
+| [Details_TimeLine](Details_TimeLine/) | Plugin — timeline of debuffs, cooldowns, and enemy casts |
+| [Details_TinyThreat](Details_TinyThreat/) | Plugin — compact threat meter displayed within the Details window |
+
 ### Deadly Boss Mods (DBM)
 
 Boss encounter timers and warnings. Requires **DBM-Core**; all other modules are encounter packs.
@@ -103,12 +119,30 @@ Boss encounter timers and warnings. Requires **DBM-Core**; all other modules are
 | [DBM-PvP](DBM-PvP/) | Battleground timers and events |
 | [DBM-WorldEvents](DBM-WorldEvents/) | World event and holiday timers |
 
+### ElvUI Suite (v6.09)
+
+A comprehensive UI replacement. **ElvUI** is the core; the other modules are companions.
+
+| Addon | Version | Description |
+|-------|---------|-------------|
+| [ElvUI](ElvUI/) | 6.09 | Full UI replacement — action bars, unit frames, nameplates, chat, and more |
+| [ElvUI_OptionsUI](ElvUI_OptionsUI/) | 1.06 | In-game options and configuration panel for ElvUI |
+| [ElvUI_ProfileConverter](ElvUI_ProfileConverter/) | 1.1.11 | Converts old profile exports to the current ElvUI format |
+| [ElvUIBackport_ProfileConverter](ElvUIBackport_ProfileConverter/) | 1.1.1 | Converts modern (Wago) profile exports back to the 3.3.5 format |
+
 ### Gatherer Suite (v3.1.16)
 
 | Addon | Description |
 |-------|-------------|
 | [Gatherer](Gatherer/) | Tracks gathering nodes (herbs, ore, treasure) on the minimap and world map |
 | [Gatherer_HUD](Gatherer_HUD/) | Heads-Up Display overlay showing nearby gathering nodes |
+
+### HidingBar Suite (v3.4.20)
+
+| Addon | Description |
+|-------|-------------|
+| [HidingBar](HidingBar/) | Auto-hiding action bar that slides in/out on hover |
+| [HidingBar_Options](HidingBar_Options/) | Configuration panel for HidingBar |
 
 ### Titan Panel Suite (v4.3.8.30300)
 
@@ -129,6 +163,17 @@ A modular info bar displayed along the top or bottom of the screen. Requires **T
 | [TitanVolume](TitanVolume/) | Quick sound volume control from the panel |
 | [TitanXP](TitanXP/) | Tracks XP gain, session XP/hour, and time to level |
 
+### WeakAuras Suite (v4.0.0)
+
+A powerful, comprehensive aura and trigger display system. **WeakAuras** is the core; the other modules are companions.
+
+| Addon | Version | Description |
+|-------|---------|-------------|
+| [WeakAuras](WeakAuras/) | 4.0.0 | Displays configurable graphics and text based on buffs, debuffs, cooldowns, and other triggers |
+| [WeakAurasArchive](WeakAurasArchive/) | — | Archives and stores inactive aura configurations |
+| [WeakAurasModelPaths](WeakAurasModelPaths/) | — | Asset bundle of 3D model paths used by WeakAuras displays |
+| [WeakAurasOptions](WeakAurasOptions/) | 4.0.0 | Options and profile management UI for WeakAuras |
+
 ## Installation
 
 1. Clone or download this repository.
@@ -146,6 +191,7 @@ These addons were originally written for a newer version of the WoW client and h
 
 - **SoulstoneWatcher** — see [SoulstoneWatcher/README.md](SoulstoneWatcher/README.md) for compatibility notes.
 - **Bistooltip** — version suffix `-3.3.5a` indicates a custom build for this client.
+- **ElvUIBackport_ProfileConverter** — converts modern (Wago.io) ElvUI profile exports back to the 3.3.5-compatible format; see [ElvUIBackport_ProfileConverter/README.md](ElvUIBackport_ProfileConverter/README.md).
 
 ## Contributing
 
