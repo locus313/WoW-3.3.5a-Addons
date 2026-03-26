@@ -163,6 +163,10 @@ if LibStub then
 					icon = "Interface\\AddOns\\Enchantrix\\Skin\\EnxOrb",
 					OnClick = function(self, button) click(self, button) end,
 					})
+		-- When the LDB icon is active, suppress the native miniIcon so it
+		-- doesn't appear alongside HidingBar (or any other LDB display).
+		miniIcon:Hide()
+		miniIcon.Reposition = function() miniIcon:Hide() end
 		-- TODO - localize these strings!
 		function sideIcon:OnTooltipShow()
 			self:AddLine("Enchantrix",  1,1,0.5, 1)
@@ -193,7 +197,11 @@ if sideIcon and SlideBar then
 		end
 	end
 else
-	sideIcon = {}
+	-- Only reset sideIcon if it was never assigned as an LDB proxy.
+	-- If SlideBar is missing but LibDataBroker is present, sideIcon is
+	-- the LDB proxy; overwriting it here would destroy the OnTooltipShow
+	-- and OnEnter closures stored on it, causing a nil-call error on hover.
+	if not sideIcon then sideIcon = {} end
 	function sideIcon.Update() end
 end
 
