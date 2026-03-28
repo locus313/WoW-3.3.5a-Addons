@@ -514,14 +514,23 @@ local function get_raid_players()
 end
 
 local function OnEvent(self, event)
-    local itemID = SoulstoneWatcherConfig.soulstone_itemid or 36895
-    startTime, duration, enable = GetItemCooldown(itemID)
-
-    if (duration == nil or duration == 0) and classIndex == 9 then
-        print("|cff8788EESoulstone Watcher: Your Soulstone is ready")
+    if classIndex ~= 9 then
+        return  -- Only warlocks need this
+    end
+    
+    if event == "READY_CHECK" or event == "PARTY_MEMBERS_CHANGED" then
+        local itemID = SoulstoneWatcherConfig.soulstone_itemid or 36895
+        startTime, duration, enable = GetItemCooldown(itemID)
+        
+        -- Show cast buttons regardless of cooldown
         player = get_raid_players()
         check = get_player_buffs(player)
-        versionMsgSent = false
+        
+        -- Only print ready message if soulstone is off cooldown
+        if (duration == nil or duration == 0) then
+            print("|cff8788EESoulstone Watcher: Your Soulstone is ready")
+            versionMsgSent = false
+        end
     end
 end
 
