@@ -76,16 +76,15 @@ local COMBAT_PROTECTED = {
 -- Set these CVars after login/reloading the UI
 function CVars:Initialize(cvar, value)
   -- Fix for: Friendly Nameplates Name Only Mode in Raids and Dungeons for Patch 10.0.5
-  -- https://www.wowhead.com/de/news/update-solution-to-friendly-nameplates-name-only-mode-in-raids-and-dungeons-for-331178
-  -- /script C_CVar.RegisterCVar("nameplateShowOnlyNames")
-  -- Registering only has to be done once, but the value seems to be reset to 0 after every reload 
-  if C_CVar.GetCVar("nameplateShowOnlyNames") == nil then
-    C_CVar.RegisterCVar("nameplateShowOnlyNames")
+  -- (Dragonflight 10.0.5+ only; skipped on WotLK 3.3.5a where the CVar doesn't exist)
+  if Addon.IS_MAINLINE then
+    if C_CVar.GetCVar("nameplateShowOnlyNames") == nil then
+      C_CVar.RegisterCVar("nameplateShowOnlyNames")
+    end
+    -- ! The CVar nameplateShowOnlyNames is not persistently stored by WoW, so we have to restore its value
+    -- ! after every login/reloading the UI.
+    self:SetBoolProtected("nameplateShowOnlyNames", Addon.db.profile.BlizzardSettings.Names.ShowOnlyNames)
   end
-
-  -- ! The CVar nameplateShowOnlyNames is not persistently stored by WoW, so we have to restore its value
-  -- ! after every login/reloading the UI.
-  self:SetBoolProtected("nameplateShowOnlyNames", Addon.db.profile.BlizzardSettings.Names.ShowOnlyNames)
 
   -- Sync internal settings with Blizzard CVars
   -- SetCVar("ShowClassColorInNameplate", 1)
@@ -117,7 +116,11 @@ local function SetConsoleVariable(cvar, value)
     db[cvar] = current_value
   end
 
-  _G.SetCVar(cvar, value)
+  -- Guard against CVars that don't exist on this client version (e.g. 3.3.5a);
+  -- SetCVar throws a C-level error for unknown CVar names.
+  if GetCVar(cvar) ~= nil then
+    _G.SetCVar(cvar, value)
+  end
 end
 
 function CVars:Set(cvar, value)
@@ -125,7 +128,9 @@ function CVars:Set(cvar, value)
 end
 
 function CVars:SetToDefault(cvar)
-  _G.SetCVar(cvar, GetCVarDefault(cvar))
+  if GetCVar(cvar) ~= nil then
+    _G.SetCVar(cvar, GetCVarDefault(cvar))
+  end
   Addon.db.profile.CVarsBackup[cvar] = nil
 end
 
@@ -133,7 +138,9 @@ function CVars:RestoreFromProfile(cvar)
   local db = Addon.db.profile.CVarsBackup
 
   if db[cvar] then
-    _G.SetCVar(cvar, db[cvar])
+    if GetCVar(cvar) ~= nil then
+      _G.SetCVar(cvar, db[cvar])
+    end
     db[cvar] = nil
   end
 end
@@ -153,10 +160,13 @@ end
 
 function CVars:GetAsNumber(cvar)
   local value = GetCVar(cvar)
+  if value == nil then
+    return nil  -- CVar doesn't exist on this client version; caller must handle nil
+  end
   local numeric_value = tonumber(value)
 
   if not numeric_value then
-    Addon.Logging.Warning(string_format(L["CVar %s has an invalid value: %s. The value must be a number. Using the default value for this CVar instead."], cvar, value))
+    Addon.Logging.Warning(string_format(L["CVar %s has an invalid value: %s. The value must be a number. Using the default value for this CVar instead."], cvar, tostring(value)))
     numeric_value = tonumber(GetCVarDefault(cvar))
   end
 
@@ -188,11 +198,15 @@ end
 function CVars:SetToDefaultProtected(cvar)
   if COMBAT_PROTECTED[cvar] then
     Addon:CallbackWhenOoC(function()
-      _G.SetCVar(cvar, GetCVarDefault())
+      if GetCVar(cvar) ~= nil then
+        _G.SetCVar(cvar, GetCVarDefault())
+      end
       Addon.db.profile.CVarsBackup[cvar] = nil
     end, L["Unable to change the following console variable while in combat: "] .. cvar .. ". ")
   else
-    _G.SetCVar(cvar, GetCVarDefault())
+    if GetCVar(cvar) ~= nil then
+      _G.SetCVar(cvar, GetCVarDefault())
+    end
     Addon.db.profile.CVarsBackup[cvar] = nil
   end
 end
@@ -200,10 +214,14 @@ end
 function CVars:OverwriteProtected(cvar, value)
   if COMBAT_PROTECTED[cvar] then
     Addon:CallbackWhenOoC(function()
-      _G.SetCVar(cvar, value)
+      if GetCVar(cvar) ~= nil then
+        _G.SetCVar(cvar, value)
+      end
     end, L["Unable to change the following console variable while in combat: "] .. cvar .. ". ")
   else
-    _G.SetCVar(cvar, value)
+    if GetCVar(cvar) ~= nil then
+      _G.SetCVar(cvar, value)
+    end
   end
 end
 

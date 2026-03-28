@@ -176,7 +176,7 @@ local PaneBackdrop  = {
 }
 
 local function Constructor()
-	local frame = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+	local frame = CreateFrame("Frame", nil, UIParent)
 	frame:Hide()
 
 	frame:EnableMouse(true)
@@ -203,7 +203,7 @@ local function Constructor()
 	closebutton:SetWidth(100)
 	closebutton:SetText(CLOSE)
 
-	local statusbg = CreateFrame("Button", nil, frame, "BackdropTemplate")
+	local statusbg = CreateFrame("Button", nil, frame)
 	statusbg:SetPoint("BOTTOMLEFT", 15, 15)
 	statusbg:SetPoint("BOTTOMRIGHT", -132, 15)
 	statusbg:SetHeight(24)

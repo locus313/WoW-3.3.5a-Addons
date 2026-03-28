@@ -556,21 +556,36 @@ do
 		frame:SetFrameLevel(100) -- Lots of room to draw under it
 		frame:SetScript("OnKeyDown", function(self, key)
 			if key == "ESCAPE" then
-				self:SetPropagateKeyboardInput(false)
+				if self.SetPropagateKeyboardInput then self:SetPropagateKeyboardInput(false) end
 				if self.cancel:IsShown() then
 					self.cancel:Click()
 				else -- Showing a validation error
 					self:Hide()
 				end
 			else
-				self:SetPropagateKeyboardInput(true)
+				if self.SetPropagateKeyboardInput then self:SetPropagateKeyboardInput(true) end
 			end
 		end)
 
-		local border = CreateFrame("Frame", nil, frame, "DialogBorderOpaqueTemplate")
-		border:SetAllPoints(frame)
-		frame:SetFixedFrameStrata(true)
-		frame:SetFixedFrameLevel(true)
+		local border
+		local borderOk = pcall(function()
+			border = CreateFrame("Frame", nil, frame, "DialogBorderOpaqueTemplate")
+		end)
+		if borderOk then
+			border:SetAllPoints(frame)
+		else
+			-- WoW 3.3.5a: DialogBorderOpaqueTemplate does not exist; apply a backdrop directly
+			if frame.SetBackdrop then
+				frame:SetBackdrop({
+					bgFile   = "Interface\\DialogFrame\\UI-DialogBox-Background",
+					edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+					tile = true, tileSize = 32, edgeSize = 32,
+					insets = { left = 11, right = 12, top = 12, bottom = 11 },
+				})
+			end
+		end
+		if frame.SetFixedFrameStrata then frame:SetFixedFrameStrata(true) end
+		if frame.SetFixedFrameLevel  then frame:SetFixedFrameLevel(true)  end
 
 		local text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
 		text:SetSize(290, 0)
@@ -582,12 +597,12 @@ do
 			button:SetSize(128, 21)
 			button:SetNormalFontObject(GameFontNormal)
 			button:SetHighlightFontObject(GameFontHighlight)
-			button:SetNormalTexture(130763) -- "Interface\\Buttons\\UI-DialogBox-Button-Up"
-			button:GetNormalTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875)
-			button:SetPushedTexture(130761) -- "Interface\\Buttons\\UI-DialogBox-Button-Down"
-			button:GetPushedTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875)
-			button:SetHighlightTexture(130762) -- "Interface\\Buttons\\UI-DialogBox-Button-Highlight"
-			button:GetHighlightTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875)
+			button:SetNormalTexture("Interface\\Buttons\\UI-DialogBox-Button-Up")
+			if button:GetNormalTexture() then button:GetNormalTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875) end
+			button:SetPushedTexture("Interface\\Buttons\\UI-DialogBox-Button-Down")
+			if button:GetPushedTexture() then button:GetPushedTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875) end
+			button:SetHighlightTexture("Interface\\Buttons\\UI-DialogBox-Button-Highlight")
+			if button:GetHighlightTexture() then button:GetHighlightTexture():SetTexCoord(0.0, 1.0, 0.0, 0.71875) end
 			button:SetText(newText)
 			return button
 		end

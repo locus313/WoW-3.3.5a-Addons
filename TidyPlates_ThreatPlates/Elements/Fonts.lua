@@ -24,6 +24,9 @@ Addon.Font = Font
 ---------------------------------------------------------------------------------------------------
 
 local function BackupSystemFont(font_instance)
+  if not font_instance then
+    return { Typeface = "Fonts\\FRIZQT__.TTF", Size = 10, flags = "" }
+  end
   local font_name, font_height, font_flags = font_instance:GetFont()
 
   return {

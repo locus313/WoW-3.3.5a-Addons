@@ -1,4 +1,4 @@
-## Interface: 30402
+## Interface: 30300
 
 ## Title: Threat Plates
 ## Version: 11.2.13
@@ -9,7 +9,6 @@
 ## Author: Suicidal Katt, Blacksalsify
 ## SavedVariables: ThreatPlatesDB
 
-## AddonCompartmentFunc: TidyPlatesThreat_OnAddonCompartmentClick
 ## IconTexture: Interface\Addons\TidyPlates_ThreatPlates\Artwork\Logo.tga
 
 ## RequiredDeps:
@@ -22,6 +21,8 @@
 
 ## X-License: GNU General Public License
 ## X-Credits: danltiger (for Tidy Plates), Tosaido (for quest handling code from QuestMobs)
+
+Compat335.lua
 
 Libs\Libs.xml
 Locales\Locales.xml

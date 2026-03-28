@@ -1419,7 +1419,7 @@ end
 
 function CoreEvents:UNIT_NAME_UPDATE(unitid)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) then return end
+  if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) then return end
 
   local plate = GetNamePlateForUnit(unitid) -- can plate ever be nil here?
 
@@ -1503,7 +1503,7 @@ end
 
 UNIT_TARGET = function(event, unitid)
   -- Skip special unit ids (which are updated with their nameplate unit id anyway) and personal nameplate
-  if SettingsTargetUnitHide or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) then return end
+  if not unitid or SettingsTargetUnitHide or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) then return end
 
   local plate = GetNamePlateForUnit(unitid)
   if plate and plate.TPFrame.Active then
@@ -1549,7 +1549,7 @@ end
 
 local function UNIT_HEALTH(event, unitid)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) then return end
+  if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) then return end
 
   local plate = GetNamePlateForUnit(unitid)
   local tp_frame = plate and plate.TPFrame -- or nil, false if plate == nil
@@ -1581,7 +1581,7 @@ end
 
 function CoreEvents:UNIT_MAXHEALTH(unitid)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) then return end
+  if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) then return end
 
   local plate = GetNamePlateForUnit(unitid)
   if plate and plate.TPFrame.Active then
@@ -1592,7 +1592,7 @@ end
 
 function CoreEvents:UNIT_THREAT_LIST_UPDATE(unitid)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) then return end
+  if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) then return end
 
   local plate = PlatesByUnit[unitid]
   if plate then
@@ -1630,7 +1630,7 @@ end
 
 local function UNIT_SPELLCAST_START(event, unitid, ...)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
+  if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
 
   local plate = GetNamePlateForUnit(unitid)
   if plate and plate.TPFrame.Active then
@@ -1641,7 +1641,7 @@ end
 -- Update spell currently being cast
 local function UnitSpellcastMidway(event, unitid, ...)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
+  if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
 
   local plate = GetNamePlateForUnit(unitid)
   if plate then
@@ -1652,7 +1652,7 @@ end
 
 local function UNIT_SPELLCAST_STOP(event, unitid, ...)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
+  if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
 
   -- plate can be nil, e.g., if unitid = player, combat ends and the player resource bar is already hidden
   -- when the cast stops (because it's not shown out of combat)
@@ -1664,7 +1664,7 @@ end
 
 local function UNIT_SPELLCAST_CHANNEL_START(event, unitid, _, spellid)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
+  if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
 
   local plate = GetNamePlateForUnit(unitid)
   if plate and plate.TPFrame.Active then
@@ -1675,7 +1675,7 @@ end
 
 local function UNIT_SPELLCAST_CHANNEL_STOP(event, unitid, ...)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
+  if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
 
   local plate = GetNamePlateForUnit(unitid)
   if plate and plate.TPFrame.Active then
@@ -1687,7 +1687,7 @@ if Addon.IS_CLASSIC then
   -- Different version for Classic as UnitChannelInfo does not work there and this needs a workaround (ChannelEventSpellID)
   UNIT_SPELLCAST_CHANNEL_STOP = function(event, unitid, ...)
     -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-    if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
+    if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
 
     local plate = GetNamePlateForUnit(unitid)
     if plate and plate.TPFrame.Active then
@@ -1699,7 +1699,7 @@ end
 
 function Addon.UNIT_SPELLCAST_INTERRUPTED(event, unitid, castGUID, spellID, sourceName, interrupterGUID)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
+  if not unitid or IGNORED_UNITIDS[unitid] or UnitIsUnit("player", unitid) or not ShowCastBars then return end
 
   local plate = GetNamePlateForUnit(unitid)
 
@@ -1790,7 +1790,7 @@ end
 
 local function UNIT_ABSORB_AMOUNT_CHANGED(event, unitid)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if unitid == "target" or UnitIsUnit("player", unitid) then return end
+  if not unitid or unitid == "target" or UnitIsUnit("player", unitid) then return end
 
   local plate = GetNamePlateForUnit(unitid)
   if plate and plate.TPFrame.Active then
@@ -1809,7 +1809,7 @@ end
 
 local function UNIT_HEAL_ABSORB_AMOUNT_CHANGED(event, unitid)
   -- Skip special unitids (they are updated via their nameplate unitid) and personal nameplate
-  if unitid == "target" or UnitIsUnit("player", unitid) then return end
+  if not unitid or unitid == "target" or UnitIsUnit("player", unitid) then return end
 
   local plate = GetNamePlateForUnit(unitid)
   if plate and plate.TPFrame.Active then
@@ -1878,7 +1878,7 @@ local function HandleEventRuneUpdate(event)
 end
 
 --  function CoreEvents:UNIT_SPELLCAST_INTERRUPTED(unitid, lineid, spellid)
---    if unitid == "target" or UnitIsUnit("player", unitid) or not ShowCastBars then return end
+--    if not unitid or unitid == "target" or UnitIsUnit("player", unitid) or not ShowCastBars then return end
 --  end
 
 -- The following events should not have worked before adjusting UnitSpellcastMidway
@@ -1926,9 +1926,12 @@ if Addon.ExpansionIsAtLeast(LE_EXPANSION_BURNING_CRUSADE) then
   CoreEvents.PLAYER_FOCUS_CHANGED = PLAYER_FOCUS_CHANGED
 end
 
-CoreEvents.PLAYER_SOFT_FRIEND_CHANGED = PLAYER_SOFT_FRIEND_CHANGED
-CoreEvents.PLAYER_SOFT_ENEMY_CHANGED = PLAYER_SOFT_ENEMY_CHANGED
-CoreEvents.PLAYER_SOFT_INTERACT_CHANGED = PLAYER_SOFT_INTERACT_CHANGED    
+-- Soft-target events were added in Shadowlands and are not available in WotLK 3.x.
+if Addon.IS_MAINLINE then
+  CoreEvents.PLAYER_SOFT_FRIEND_CHANGED = PLAYER_SOFT_FRIEND_CHANGED
+  CoreEvents.PLAYER_SOFT_ENEMY_CHANGED = PLAYER_SOFT_ENEMY_CHANGED
+  CoreEvents.PLAYER_SOFT_INTERACT_CHANGED = PLAYER_SOFT_INTERACT_CHANGED
+end
 
 CoreEvents.UNIT_LEVEL = UnitConditionChanged
 --CoreEvents.UNIT_THREAT_SITUATION_UPDATE = UnitConditionChanged -- did not work anyway (no unitid)
@@ -1939,7 +1942,11 @@ CoreEvents.PLAYER_CONTROL_GAINED = WorldConditionChanged
 -- Registration of Blizzard Events
 TidyPlatesCore:SetFrameStrata("TOOLTIP") 	-- When parented to WorldFrame, causes OnUpdate handler to run close to last
 TidyPlatesCore:SetScript("OnEvent", EventHandler)
-for eventName in pairs(CoreEvents) do TidyPlatesCore:RegisterEvent(eventName) end
+-- Use pcall so that events which don't exist in older clients (3.3.5a)
+-- or are handled synthetically (NAME_PLATE_*) don't produce Lua errors.
+for eventName in pairs(CoreEvents) do
+  pcall(TidyPlatesCore.RegisterEvent, TidyPlatesCore, eventName)
+end
 
 CoreEvents.UNIT_TARGET = UNIT_TARGET
 
@@ -1955,7 +1962,12 @@ local ENABLE_UNIT_AURA_FOR_CLASS = {
 }
 if ENABLE_UNIT_AURA_FOR_CLASS[Addon.PlayerClass] then
   CoreEvents.UNIT_AURA = UNIT_AURA
-  TidyPlatesCore:RegisterUnitEvent("UNIT_AURA", "player")
+  -- RegisterUnitEvent was added in Cataclysm; fall back to RegisterEvent on 3.x
+  if TidyPlatesCore.RegisterUnitEvent then
+    TidyPlatesCore:RegisterUnitEvent("UNIT_AURA", "player")
+  else
+    pcall(TidyPlatesCore.RegisterEvent, TidyPlatesCore, "UNIT_AURA")
+  end
   -- UNIT_AURA does not seem to be fired after login (even when buffs are active)
   UNIT_AURA()
 end
@@ -2250,7 +2262,7 @@ function Addon:ForceUpdate()
   Addon:UpdateConfigurationLocalization()
   Addon:UpdateConfigurationStatusText()
 
-  CVAR_NameplateOccludedAlphaMult = CVars:GetAsNumber("nameplateOccludedAlphaMult")
+  CVAR_NameplateOccludedAlphaMult = CVars:GetAsNumber("nameplateOccludedAlphaMult") or 0.6
 
   local db = Addon.db.profile
 

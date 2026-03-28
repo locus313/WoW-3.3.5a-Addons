@@ -236,25 +236,31 @@ function ChatThrottleLib:Init()
 			return ChatThrottleLib.Hook_SendChatMessage(...)
 		end)
 		--SendAddonMessage
-		hooksecurefunc(_G.C_ChatInfo, "SendAddonMessage", function(...)
-			return ChatThrottleLib.Hook_SendAddonMessage(...)
-		end)
+		if _G.C_ChatInfo then
+			hooksecurefunc(_G.C_ChatInfo, "SendAddonMessage", function(...)
+				return ChatThrottleLib.Hook_SendAddonMessage(...)
+			end)
+		end
 	end
 
 	-- v26: Hook SendAddonMessageLogged for traffic logging
 	if not self.securelyHookedLogged then
 		self.securelyHookedLogged = true
-		hooksecurefunc(_G.C_ChatInfo, "SendAddonMessageLogged", function(...)
-			return ChatThrottleLib.Hook_SendAddonMessageLogged(...)
-		end)
+		if _G.C_ChatInfo and _G.C_ChatInfo.SendAddonMessageLogged then
+			hooksecurefunc(_G.C_ChatInfo, "SendAddonMessageLogged", function(...)
+				return ChatThrottleLib.Hook_SendAddonMessageLogged(...)
+			end)
+		end
 	end
 
 	-- v29: Hook BNSendGameData for traffic logging
 	if not self.securelyHookedBNGameData then
 		self.securelyHookedBNGameData = true
-		hooksecurefunc("BNSendGameData", function(...)
-			return ChatThrottleLib.Hook_BNSendGameData(...)
-		end)
+		if _G.BNSendGameData then
+			hooksecurefunc("BNSendGameData", function(...)
+				return ChatThrottleLib.Hook_BNSendGameData(...)
+			end)
+		end
 	end
 
 	self.nBypass = 0
@@ -623,7 +629,7 @@ function ChatThrottleLib:SendAddonMessage(prio, prefix, text, chattype, target, 
 		error("ChatThrottleLib:SendAddonMessage(): message length cannot exceed 255 bytes", 2)
 	end
 
-	local sendFunction = _G.C_ChatInfo.SendAddonMessage
+local sendFunction = _G.C_ChatInfo and _G.C_ChatInfo.SendAddonMessage or _G.SendAddonMessage
 	SendAddonMessageInternal(self, sendFunction, prio, prefix, text, chattype, target, queueName, callbackFn, callbackArg)
 end
 
@@ -637,7 +643,7 @@ function ChatThrottleLib:SendAddonMessageLogged(prio, prefix, text, chattype, ta
 		error("ChatThrottleLib:SendAddonMessageLogged(): message length cannot exceed 255 bytes", 2)
 	end
 
-	local sendFunction = _G.C_ChatInfo.SendAddonMessageLogged
+local sendFunction = _G.C_ChatInfo and _G.C_ChatInfo.SendAddonMessageLogged or _G.SendAddonMessage
 	SendAddonMessageInternal(self, sendFunction, prio, prefix, text, chattype, target, queueName, callbackFn, callbackArg)
 end
 

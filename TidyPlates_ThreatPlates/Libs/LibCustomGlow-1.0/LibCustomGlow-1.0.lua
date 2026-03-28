@@ -34,9 +34,18 @@ lib.startList = {}
 lib.stopList = {}
 
 local GlowParent = UIParent
+-- Dummy mask object used on clients where CreateMaskTexture does not exist (pre-Legion)
+local _dummyMask = {
+    Hide = function() end,
+    ClearAllPoints = function() end,
+}
+
 local GlowMaskPool = {
     createFunc = function(self)
-        return self.parent:CreateMaskTexture()
+        if self.parent.CreateMaskTexture then
+            return self.parent:CreateMaskTexture()
+        end
+        return _dummyMask
     end,
     resetFunc = function(self, mask)
         mask:Hide()
@@ -80,9 +89,11 @@ local GlowMaskPool = {
 GlowMaskPool:Init(GlowParent)
 
 local TexPoolResetter = function(pool,tex)
-    local maskNum = tex:GetNumMaskTextures()
-    for i = maskNum , 1, -1 do
-        tex:RemoveMaskTexture(tex:GetMaskTexture(i))
+    if tex.GetNumMaskTextures then
+        local maskNum = tex:GetNumMaskTextures()
+        for i = maskNum , 1, -1 do
+            tex:RemoveMaskTexture(tex:GetMaskTexture(i))
+        end
     end
     tex:Hide()
     tex:ClearAllPoints()
@@ -309,7 +320,7 @@ function lib.PixelGlow_Start(r,color,N,frequency,length,th,xOffset,yOffset,borde
             f.bg:SetParent(f)
             f.bg:SetAllPoints(f)
             f.bg:SetDrawLayer("ARTWORK",6)
-            f.bg:AddMaskTexture(f.masks[2])
+            if f.bg.AddMaskTexture then f.bg:AddMaskTexture(f.masks[2]) end
         end
     else
         if f.bg then
@@ -322,7 +333,7 @@ function lib.PixelGlow_Start(r,color,N,frequency,length,th,xOffset,yOffset,borde
         end
     end
     for _,tex in pairs(f.textures) do
-        if tex:GetNumMaskTextures() < 1 then
+        if tex.GetNumMaskTextures and tex:GetNumMaskTextures() < 1 then
             tex:AddMaskTexture(f.masks[1])
         end
     end
@@ -466,7 +477,7 @@ lib.ButtonGlowPool = ButtonGlowPool
 
 local function CreateScaleAnim(group, target, order, duration, x, y, delay)
     local scale = group:CreateAnimation("Scale")
-    scale:SetChildKey(target)
+    if scale.SetChildKey then scale:SetChildKey(target) end
     scale:SetOrder(order)
     scale:SetDuration(duration)
     scale:SetScale(x, y)
@@ -478,7 +489,7 @@ end
 
 local function CreateAlphaAnim(group, target, order, duration, fromAlpha, toAlpha, delay, appear)
     local alpha = group:CreateAnimation("Alpha")
-    alpha:SetChildKey(target)
+    if alpha.SetChildKey then alpha:SetChildKey(target) end
     alpha:SetOrder(order)
     alpha:SetDuration(duration)
     alpha:SetFromAlpha(fromAlpha)
@@ -785,7 +796,7 @@ local function InitProcGlow(f)
     f.ProcLoopAnim:SetToFinalAlpha(true)
 
     local alphaRepeat = f.ProcLoopAnim:CreateAnimation("Alpha")
-    alphaRepeat:SetChildKey("ProcLoop")
+    if alphaRepeat.SetChildKey then alphaRepeat:SetChildKey("ProcLoop") end
     alphaRepeat:SetFromAlpha(1)
     alphaRepeat:SetToAlpha(1)
     alphaRepeat:SetDuration(.001)
@@ -793,7 +804,7 @@ local function InitProcGlow(f)
     f.ProcLoopAnim.alphaRepeat = alphaRepeat
 
     local flipbookRepeat = f.ProcLoopAnim:CreateAnimation("FlipBook")
-    flipbookRepeat:SetChildKey("ProcLoop")
+    if flipbookRepeat.SetChildKey then flipbookRepeat:SetChildKey("ProcLoop") end
     flipbookRepeat:SetDuration(1)
     flipbookRepeat:SetOrder(0)
     flipbookRepeat:SetFlipBookRows(6)
@@ -807,14 +818,14 @@ local function InitProcGlow(f)
     f.ProcStartAnim:SetToFinalAlpha(true)
 
     local flipbookStartAlphaIn = f.ProcStartAnim:CreateAnimation("Alpha")
-    flipbookStartAlphaIn:SetChildKey("ProcStart")
+    if flipbookStartAlphaIn.SetChildKey then flipbookStartAlphaIn:SetChildKey("ProcStart") end
     flipbookStartAlphaIn:SetDuration(.001)
     flipbookStartAlphaIn:SetOrder(0)
     flipbookStartAlphaIn:SetFromAlpha(1)
     flipbookStartAlphaIn:SetToAlpha(1)
 
     local flipbookStart = f.ProcStartAnim:CreateAnimation("FlipBook")
-    flipbookStart:SetChildKey("ProcStart")
+    if flipbookStart.SetChildKey then flipbookStart:SetChildKey("ProcStart") end
     flipbookStart:SetDuration(0.7)
     flipbookStart:SetOrder(1)
     flipbookStart:SetFlipBookRows(6)
@@ -824,7 +835,7 @@ local function InitProcGlow(f)
     flipbookStart:SetFlipBookFrameHeight(0)
 
     local flipbookStartAlphaOut = f.ProcStartAnim:CreateAnimation("Alpha")
-    flipbookStartAlphaOut:SetChildKey("ProcStart")
+    if flipbookStartAlphaOut.SetChildKey then flipbookStartAlphaOut:SetChildKey("ProcStart") end
     flipbookStartAlphaOut:SetDuration(.001)
     flipbookStartAlphaOut:SetOrder(2)
     flipbookStartAlphaOut:SetFromAlpha(1)

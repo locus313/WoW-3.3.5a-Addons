@@ -502,7 +502,7 @@ local function Constructor()
 	titletext:SetHeight(18)
 	titletext:SetText("")
 
-	local border = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+	local border = CreateFrame("Frame", nil, frame)
 	border:SetPoint("TOPLEFT", 1, -27)
 	border:SetPoint("BOTTOMRIGHT", -1, 3)
 	border:SetBackdrop(PaneBackdrop)

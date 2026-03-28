@@ -359,15 +359,19 @@ local function CreateTargetHighlightFrame(target_unitid)
     soft_target_icon:Show()
     
     soft_target_icon_frame:SetFrameLevel(widget_frame:GetFrameLevel())
-    soft_target_icon_frame.Mask = soft_target_icon_frame:CreateMaskTexture(nil, "OVERLAY", nil, 1)
-    soft_target_icon_frame.Mask:Show()
-    soft_target_icon_frame.Mask:SetAtlas("CircleMaskScalable", true)
-
-    soft_target_icon:AddMaskTexture(soft_target_icon_frame.Mask)
-
-    soft_target_icon_frame.Mask:ClearAllPoints()
-    PixelUtil_SetPoint(soft_target_icon_frame.Mask, "CENTER", soft_target_icon_frame, "CENTER", 0, 0)
-    soft_target_icon_frame.Mask:SetAllPoints(soft_target_icon)
+    if soft_target_icon_frame.CreateMaskTexture then
+      soft_target_icon_frame.Mask = soft_target_icon_frame:CreateMaskTexture(nil, "OVERLAY", nil, 1)
+      soft_target_icon_frame.Mask:Show()
+      if soft_target_icon_frame.Mask.SetAtlas then
+        soft_target_icon_frame.Mask:SetAtlas("CircleMaskScalable", true)
+      end
+      if soft_target_icon.AddMaskTexture then
+        soft_target_icon:AddMaskTexture(soft_target_icon_frame.Mask)
+      end
+      soft_target_icon_frame.Mask:ClearAllPoints()
+      PixelUtil_SetPoint(soft_target_icon_frame.Mask, "CENTER", soft_target_icon_frame, "CENTER", 0, 0)
+      soft_target_icon_frame.Mask:SetAllPoints(soft_target_icon)
+    end
     soft_target_icon_frame:Hide()     
 
     widget_frame.SoftTargetIconFrame = soft_target_icon_frame
