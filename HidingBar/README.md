@@ -84,9 +84,13 @@ The shim patches them onto the frame metatable's `__index` table
 | `SetShown(frame, bool)` | calls `Show()` or `Hide()` |
 
 ### Texture method stubs (metatable patch)
-`SetColorTexture`, `SetRotation`, `GetAtlas`, `SetAtlas` — patched onto the
-Texture object metatable. `SetColorTexture` is emulated via `SetTexture` +
-`SetVertexColor`.
+`SetColorTexture`, `SetRotation`, `GetAtlas`, `SetAtlas`, `SetScale` — patched
+onto the Texture object metatable. `SetColorTexture` is emulated via
+`SetTexture` + `SetVertexColor`. `SetScale` (added to Region/Texture types
+after 3.3.5a) is emulated via `SetSize`: the pre-scale size is captured on the
+first sub-1 call and restored when scale is reset to `1`. HidingBar only calls
+`SetScale(0.9)` (button press) and `SetScale(1)` (button release), so the
+polyfill fully covers the use-case without visual regressions.
 
 ### Animation method stubs (metatable patch)
 Alpha / AnimationGroup animation objects **do** expose a Lua-table `__index`
@@ -316,6 +320,7 @@ The same guard is applied to `hb:addButton()` in `HidingBar.lua` for addon-regis
 | Lua 5.1 — `xpcall` ignores extra args | `xpcall(f, h, arg)` |
 | Frame `__index` is a C dispatcher, not a Lua table | `CreateAnimationGroup` hook, `SetScript` hook |
 | APIs added post-3.3.5a (widget methods) | `SetShown`, `SetFixedFrameStrata`, `SetFixedFrameLevel`, `SetClipsChildren`, `SetIgnoreParentScale`, `HasFixedFrameStrata`, `HasFixedFrameLevel`, `DoesClipChildren`, `IsMouseMotionEnabled`, `IsMouseClickEnabled`, `SetMouseMotionEnabled`, `SetMouseClickEnabled` |
+| APIs added post-3.3.5a (Texture/Region methods) | `SetColorTexture`, `SetRotation`, `GetAtlas`, `SetAtlas`, `SetScale` |
 | APIs added post-3.3.5a (animation methods) | `SetFromAlpha`, `SetToAlpha`, `SetStartDelay`, `SetToFinalAlpha`, `GetTarget`, `GetObjectType` |
 | APIs added post-3.3.5a (global/namespace) | `securecallfunction`, `C_Timer`, `C_Texture`, `C_AddOns`, `GetPhysicalScreenSize`, `BackdropTemplateMixin`, `CreateFromMixins`, `SOUNDKIT`, `HybridScrollFrame_*` |
 | Settings framework replaced in Dragonflight | `Settings.RegisterCanvasLayoutCategory`, `Settings.OpenToCategory` |

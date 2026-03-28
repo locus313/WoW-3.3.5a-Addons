@@ -121,7 +121,8 @@ do
 	end
 end
 
--- Texture method polyfills (SetColorTexture, SetRotation, GetAtlas, SetAtlas)
+-- Texture method polyfills (SetColorTexture, SetRotation, GetAtlas, SetAtlas,
+-- SetScale)
 -- Try via metatable; callers also guard at the usage site via pcall where needed.
 do
 	local probe = CreateFrame("Frame"):CreateTexture()
@@ -137,6 +138,32 @@ do
 		if not probe.SetRotation then tex.SetRotation = function() end end
 		if not probe.GetAtlas then tex.GetAtlas = function() return nil end end
 		if not probe.SetAtlas then tex.SetAtlas = function() end end
+		-- SetScale was added to Region/Texture after 3.3.5a.
+		-- Emulate via SetSize: capture the pre-scale size on first call, restore
+		-- it when scale is reset to 1.  HidingBar only ever calls SetScale(0.9)
+		-- (press) and SetScale(1) (release), so this covers the full use-case.
+		if not probe.SetScale then
+			tex.SetScale = function(self, scale)
+				if scale == 1 then
+					if self._hb_baseW then
+						self:SetSize(self._hb_baseW, self._hb_baseH)
+						self._hb_baseW = nil
+						self._hb_baseH = nil
+					end
+				else
+					if not self._hb_baseW then
+						local w, h = self:GetSize()
+						if w > 0 and h > 0 then
+							self._hb_baseW = w
+							self._hb_baseH = h
+						end
+					end
+					if self._hb_baseW then
+						self:SetSize(self._hb_baseW * scale, self._hb_baseH * scale)
+					end
+				end
+			end
+		end
 	end
 end
 
