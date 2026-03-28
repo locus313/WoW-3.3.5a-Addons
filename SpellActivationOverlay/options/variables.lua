@@ -1,0 +1,31 @@
+local AddonName,SAO=...
+function SAO.ApplyAllVariables(self)
+self:ApplySpellAlertOpacity()
+self:ApplySpellAlertGeometry()
+self:ApplySpellAlertTimer()
+self:ApplySpellAlertSound()
+self:ApplyGlowingButtonsToggle()
+end
+function SAO.ApplySpellAlertOpacity(self)
+SpellActivationOverlayContainerFrame:SetShown(SpellActivationOverlayDB.alert.enabled)
+SpellActivationOverlayContainerFrame:SetAlpha(SpellActivationOverlayDB.alert.opacity)
+end
+function SAO.ApplySpellAlertGeometry(self)
+SpellActivationOverlayAddonFrame.scale=SpellActivationOverlayDB.alert.scale
+SpellActivationOverlayAddonFrame.offset=SpellActivationOverlayDB.alert.offset
+SpellActivationOverlay_OnChangeGeometry(SpellActivationOverlayAddonFrame)
+end
+function SAO.ApplySpellAlertTimer(self)
+SpellActivationOverlayAddonFrame.useTimer=SpellActivationOverlayDB.alert.timer~=0
+SpellActivationOverlay_OnChangeTimerVisibility(SpellActivationOverlayAddonFrame)
+end
+function SAO.ApplySpellAlertSound(self)
+SpellActivationOverlayAddonFrame.useSound=SpellActivationOverlayDB.alert.sound~=0
+SpellActivationOverlay_OnChangeSoundToggle(SpellActivationOverlayAddonFrame)
+end
+function SAO.ApplyGlowingButtonsToggle(self)
+self:ForEachBucket(function(bucket)
+bucket:reset()
+bucket.trigger:manualCheckAll()
+end)
+end

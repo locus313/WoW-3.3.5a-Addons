@@ -1,0 +1,142 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+	<Script file="SpellActivationOverlay.lua"/>
+	<Frame name="SpellActivationOverlayAddonTemplate" virtual="true">
+		<Animations>
+			<AnimationGroup name="$parentAnimIn" parentKey="animIn">
+				<Alpha fromAlpha="0" toAlpha="0.5" duration="0.1" order="1" parentKey="alpha1">
+					<!-- Split alpha animation in 2 steps , whose goal in to plug in a function to circumvent a bug with pulse animations -->
+					<!-- If this script is not called slightly early (0.1 secs in, instead of 0.2 sec), starting the pulse may cause a weird flash -->
+					<Scripts>
+						<OnFinished function="SpellActivationOverlayTexture_PreStartPulse"/>
+					</Scripts>
+				</Alpha>
+				<Alpha fromAlpha="0.5" toAlpha="1" duration="0.1" order="2" parentKey="alpha2"/>
+				<Scripts>
+					<OnPlay function="SpellActivationOverlayTexture_OnFadeInPlay"/>
+					<OnFinished function="SpellActivationOverlayTexture_OnFadeInFinished"/>
+				</Scripts>
+			</AnimationGroup>
+			<AnimationGroup name="$parentAnimOut" parentKey="animOut">
+				<Alpha fromAlpha="1" toAlpha="0" duration="0.1">
+					<Scripts>
+						<OnFinished function="SpellActivationOverlayTexture_OnFadeOutFinished"/>
+					</Scripts>
+				</Alpha>
+			</AnimationGroup>
+			<AnimationGroup name="$parentPulse" looping="REPEAT" parentKey="pulse">
+				<Scale scaleX="1.08" scaleY="1.08" duration="0.5" smoothing="IN_OUT" order="1"/>
+				<Scale scaleX="0.9259" scaleY="0.9259" duration="0.5" smoothing="IN_OUT" order="2"/>
+			</AnimationGroup>
+		</Animations>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture parentKey="texture" setAllPoints="true"/>
+				<MaskTexture parentKey="mask" file="Interface/Addons/SpellActivationOverlay/textures/mask" hWrapMode="CLAMP" vWrapMode="CLAMP">
+					<!-- Mask for shrinking effect -->
+					<Size x="256" y="256"/><!-- Must match, or be quivalent to, overlay size -->
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.texture" relativePoint="CENTER"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="texture"/>
+					</MaskedTextures>
+					<Animations>
+						<AnimationGroup name="$parentAnimTimeoutX" parentKey="timeoutX">
+							<Scale scaleX="0.05" scaleY="1" duration="10" smoothing="IN" parentKey="scaleX" order="1"/>
+							<Scale scaleX="0.01" scaleY="0.01" duration="0.1" smoothing="NONE" order="2"/>
+							<Scripts>
+								<OnFinished function="SpellActivationOverlayFrame_OnTimeoutFinished"/>
+							</Scripts>
+						</AnimationGroup>
+						<AnimationGroup name="$parentAnimTimeoutY" parentKey="timeoutY">
+							<Scale scaleX="1" scaleY="0.05" duration="10" smoothing="IN" parentKey="scaleY" order="1"/>
+							<Scale scaleX="0.01" scaleY="0.01" duration="0.1" smoothing="NONE" order="2"/>
+							<Scripts>
+								<OnFinished function="SpellActivationOverlayFrame_OnTimeoutFinished"/>
+							</Scripts>
+						</AnimationGroup>
+						<AnimationGroup name="$parentAnimTimeoutXY" parentKey="timeoutXY">
+							<Scale scaleX="0.05" scaleY="0.05" duration="10" smoothing="IN" parentKey="scaleXY" order="1"/>
+							<Scale scaleX="0.01" scaleY="0.01" duration="0.1" smoothing="NONE" order="2"/>
+							<Scripts>
+								<OnFinished function="SpellActivationOverlayFrame_OnTimeoutFinished"/>
+							</Scripts>
+						</AnimationGroup>
+					</Animations>
+				</MaskTexture>
+				<MaskTexture parentKey="combat" file="Interface/Addons/SpellActivationOverlay/textures/maskzero" hWrapMode="CLAMP" vWrapMode="CLAMP">
+					<!-- Mask for out-of-combat fade-out, used by infinite overlays registered as 'combat-only' auras -->
+					<!-- This mask is *not* used for non-combat-only auras, because such auras are intended to be visible out of combat -->
+					<Size x="256" y="256"/><!-- Must match, or be quivalent to, overlay size -->
+					<Anchors>
+						<Anchor point="CENTER" relativeKey="$parent.texture" relativePoint="CENTER"/>
+					</Anchors>
+					<MaskedTextures>
+						<MaskedTexture childKey="texture"/>
+					</MaskedTextures>
+					<Animations>
+						<AnimationGroup name="$parentCombatAnimIn" parentKey="animIn">
+							<Translation duration="0.01" order="1" offsetX="0" offsetY="0" parentKey="point1">
+								<Scripts>
+									<OnPlay function="SpellActivationOverlayTexture_OnCombatAnimInPlay"/>
+									<OnFinished function="SpellActivationOverlayTexture_OnCombatAnimInFinished"/>
+									<OnStop function="SpellActivationOverlayTexture_OnCombatAnimInStop"/>
+								</Scripts>
+							</Translation>
+							<Translation duration="0.99" order="2" offsetX="0" offsetY="0" parentKey="point2"/>
+						</AnimationGroup>
+						<AnimationGroup name="$parentCombatAnimOut" parentKey="animOut">
+							<Translation duration="5" order="1" offsetX="0" offsetY="0" parentKey="point1">
+								<Scripts>
+									<OnPlay function="SpellActivationOverlayTexture_OnCombatAnimOutPlay"/>
+								</Scripts>
+							</Translation>
+							<!-- The final translation should last longer than combatAnimIn + combatAnimOut + transition durations -->
+							<Translation duration="100" order="2" offsetX="0" offsetY="0" parentKey="point2"/> <!-- 100 should be enough, for now -->
+						</AnimationGroup>
+					</Animations>
+				</MaskTexture>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnShow function="SpellActivationOverlayTexture_OnShow"/>
+		</Scripts>
+	</Frame>
+	<Frame name="SpellActivationOverlayContainerFrame" parent="UIParent">
+		<Size x="256" y="256"/>
+		<Anchors>
+			<Anchor point="CENTER"/>
+		</Anchors>
+		<Frames>
+			<Frame name="SpellActivationOverlayAddonFrame" alpha="0.5">
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+					<Anchor point="BOTTOMRIGHT"/>
+				</Anchors>
+				<Animations>
+					<AnimationGroup name="$parentEnteringCombatAnim" parentKey="combatAnimIn" setToFinalAlpha="true">
+						<Alpha order="1" duration="0.1" fromAlpha="0.5" toAlpha="1"/>
+						<Alpha order="2" duration="4.9" fromAlpha="1" toAlpha="1"/>
+						<Scripts>
+							<OnPlay function="SpellActivationOverlayFrame_OnEnterCombat"/>
+							<OnFinished function="SpellActivationOverlayFrame_OnFadeInFinished"/>
+						</Scripts>
+					</AnimationGroup>
+					<AnimationGroup name="$parentLeavingCombatAnim" parentKey="combatAnimOut" setToFinalAlpha="true">
+						<Alpha order="1" duration="0.2"  fromAlpha="1"   toAlpha="0.5"/>
+						<Alpha order="2" duration="57.8" fromAlpha="0.5" toAlpha="0.5"/>
+						<Alpha order="3" duration="2"    fromAlpha="0.5" toAlpha="0"/>
+						<Scripts>
+							<OnPlay function="SpellActivationOverlayFrame_OnLeaveCombat"/>
+						</Scripts>
+					</AnimationGroup>
+				</Animations>
+				<Scripts>
+					<OnLoad function="SpellActivationOverlay_OnLoad"/>
+					<OnEvent function="SpellActivationOverlay_OnEvent"/>
+				</Scripts>
+			</Frame>
+		</Frames>
+	</Frame>
+</Ui>

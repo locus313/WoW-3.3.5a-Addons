@@ -1,0 +1,102 @@
+## Interface: 30405, 38000
+## Title: |TInterface/Icons/Spell_Frost_Stun:16:16:0:0:512:512:64:448:64:448|t SpellActivationOverlay |cff40abff2.7.2|r |TInterface/Icons/achievement_boss_lichking:16:16:0:0:512:512:64:448:64:448|t
+## Notes: Display overlays and glow buttons to improve your gameplay!
+## Notes-deDE: Zeigt Overlays und leuchtende Schaltflächen zur Verbesserung Ihres Gameplays an!
+## Notes-frFR: Affiche des overlays et illumine des boutons pour améliorer votre expérience de jeu !
+## Notes-esES: ¡Muestra overlays y resalta botones para mejorar su experiencia de juego!
+## Notes-esMX: ¡Muestra overlays y resalta botones para mejorar su experiencia de juego!
+## Notes-ruRU: Отображает наложения и подсвечивает кнопки для улучшения игрового процесса!
+## Notes-itIT: Visualizza overlays e pulsanti luminosi per migliorare la sua esperienza di gioco!
+## Notes-ptBR: Exibe overlays e destaca botões para melhorar sua experiência de jogo!
+## Notes-koKR: 오버레이 및 빛나는 버튼을 표시하여 게임 플레이를 향상시킵니다!
+## Notes-zhCN: 显示覆盖和发光按钮以改善您的游戏体验！
+## Notes-zhTW: 顯示覆蓋和發光按鈕以改善您的遊戲體驗！
+## Category: Combat Improvement
+## Category-deDE: Kampfverbesserung
+## Category-frFR: Amélioration de combat
+## Category-esES: Mejora de combate
+## Category-esMX: Mejora de combate
+## Category-ruRU: Улучшение боя
+## Category-itIT: Miglioramento del combattimento
+## Category-ptBR: Melhoria de Combate
+## Category-koKR: 전투 향상
+## Category-zhCN: 战斗改进
+## Category-zhTW: 戰鬥改進
+## Author: Vinny/Ennvina
+## Version: 2.7.2
+## SavedVariables: SpellActivationOverlayDB
+## IconTexture: Interface/AddOns/SpellActivationOverlay/textures/icon64
+## X-SAO-Build: wrath
+## X-Curse-Project-ID: 649417
+
+# SpellActivationOverlay.lua, SpellActivationOverlay.xml and all textures were created by Blizzard Entertainment, Inc.
+#
+# World of Warcraft®: Cataclysm®
+# ©2010 Blizzard Entertainment, Inc. All rights reserved. Cataclysm is a trademark, and World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.
+#
+# World of Warcraft®: Mists of Pandaria®
+# ©2012 Blizzard Entertainment, Inc. All rights reserved. Mists of Pandaria, World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.
+#
+# World of Warcraft®: Warlords of Draenor™
+# ©2014 Blizzard Entertainment, Inc. All rights reserved. Warlords of Draenor is a trademark, and World of Warcraft, Warcraft and Blizzard Entertainment are trademarks or registered trademarks of Blizzard Entertainment, Inc. in the U.S. and/or other countries.
+#
+
+#@no-lib-strip@
+libs\LibStub\LibStub.lua
+libs\LibButtonGlow-1.0\LibButtonGlow-1.0.lua
+#@end-no-lib-strip@
+
+components\project.lua
+components\util.lua
+
+components\aura.lua
+components\bucket.lua
+components\display.lua
+components\effect.lua
+components\events.lua
+components\glow.lua
+components\hash.lua
+components\item.lua
+components\overlay.lua
+components\rune.lua
+components\shutdown.lua
+components\sound.lua
+components\spell.lua
+components\tr.lua
+components\trigger.lua
+components\variable.lua
+
+variables\actionusable.lua
+variables\aurastacks.lua
+variables\execute.lua
+variables\itemset.lua
+variables\stance.lua
+variables\talent.lua
+
+textures\texname.lua
+
+classes\common.lua
+classes\deathknight.lua
+classes\druid.lua
+classes\hunter.lua
+classes\mage.lua
+classes\paladin.lua
+classes\priest.lua
+classes\rogue.lua
+classes\shaman.lua
+classes\warlock.lua
+classes\warrior.lua
+
+options\defaults.lua
+options\db.lua
+options\questions.lua
+options\variables.lua
+options\InterfaceOptionsPanels.lua
+options\InterfaceOptionsPanels.xml
+options\classoptions.lua
+options\glowoptions.lua
+options\overlayoptions.lua
+options\variants.lua
+
+SpellActivationOverlay.lua
+SpellActivationOverlay.xml

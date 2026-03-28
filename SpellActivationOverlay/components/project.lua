@@ -1,0 +1,122 @@
+local AddonName,SAO=...
+local Module="project"
+SAO.ERA=0x0100
+SAO.SOD=0x0200
+SAO.TBC=0x0400
+SAO.WRATH=0x0800
+SAO.CATA=0x1000
+SAO.MOP=0x2000
+SAO.WOD=0x4000
+SAO.LEGION=0x8000
+SAO.RETAIL=0x10000000
+SAO.ALL_PROJECTS=SAO.ERA + SAO.SOD + SAO.TBC + SAO.WRATH + SAO.CATA + SAO.MOP
+SAO.TBC_AND_ONWARD=SAO.ALL_PROJECTS - (SAO.ERA + SAO.SOD)
+SAO.WRATH_AND_ONWARD=SAO.ALL_PROJECTS - (SAO.ERA + SAO.SOD + SAO.TBC)
+SAO.CATA_AND_ONWARD=SAO.ALL_PROJECTS - (SAO.ERA + SAO.SOD + SAO.TBC + SAO.WRATH)
+SAO.MOP_AND_ONWARD=SAO.ALL_PROJECTS - (SAO.ERA + SAO.SOD + SAO.TBC + SAO.WRATH + SAO.CATA)
+function SAO.IsEra()
+return WOW_PROJECT_ID==WOW_PROJECT_CLASSIC
+end
+function SAO.IsTBC()
+return WOW_PROJECT_ID==WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+end
+function SAO.IsWrath()
+return WOW_PROJECT_ID==WOW_PROJECT_WRATH_CLASSIC
+end
+function SAO.IsCata()
+return WOW_PROJECT_ID==WOW_PROJECT_CATACLYSM_CLASSIC
+end
+function SAO.IsMoP()
+return WOW_PROJECT_ID==WOW_PROJECT_MISTS_CLASSIC
+end
+function SAO.IsSoD()
+return WOW_PROJECT_ID==WOW_PROJECT_CLASSIC and C_Engraving and C_Engraving.IsEngravingEnabled()
+end
+function SAO.IsRetail()
+return WOW_PROJECT_ID==WOW_PROJECT_MAINLINE
+end
+local hasMidnightUI
+function SAO.HasMidnightUI()
+if hasMidnightUI~=nil then
+return hasMidnightUI
+end
+local buildInfo=tonumber((select(2,GetBuildInfo())))
+hasMidnightUI=(SAO.IsTBC() and buildInfo >=65295)
+or (SAO.IsRetail() and LE_EXPANSION_LEVEL_CURRENT >=LE_EXPANSION_MIDNIGHT)
+return hasMidnightUI
+end
+function SAO.HasMidnightEvents()
+return SAO.IsRetail() and LE_EXPANSION_LEVEL_CURRENT >=LE_EXPANSION_MIDNIGHT
+end
+function SAO.IsProject(projectFlags)
+if type(projectFlags)~='number' then
+SAO:Debug(Module, "Checking project against invalid flags "..tostring(projectFlags))
+return false
+end
+return (
+bit.band(projectFlags,SAO.ERA)~=0 and SAO.IsEra() or
+bit.band(projectFlags,SAO.SOD)~=0 and SAO.IsSoD() or
+bit.band(projectFlags,SAO.TBC)~=0 and SAO.IsTBC() or
+bit.band(projectFlags,SAO.WRATH)~=0 and SAO.IsWrath() or
+bit.band(projectFlags,SAO.CATA)~=0 and SAO.IsCata() or
+bit.band(projectFlags,SAO.MOP)~=0 and SAO.IsMoP() or
+bit.band(projectFlags,SAO.RETAIL)~=0 and SAO.IsRetail()
+)
+end
+local flavorNames={
+[WOW_PROJECT_CLASSIC or 2]="Era",
+[WOW_PROJECT_BURNING_CRUSADE_CLASSIC or 5]="TBC",
+[WOW_PROJECT_WRATH_CLASSIC or 11]="Wrath",
+[WOW_PROJECT_CATACLYSM_CLASSIC or 14]="Cata",
+[WOW_PROJECT_MISTS_CLASSIC or 19]="MoP",
+[WOW_PROJECT_MAINLINE or 1]="Retail",
+}
+function SAO.GetFlavorName()
+if SAO.IsSoD()then
+return "SoD"
+end
+return flavorNames[WOW_PROJECT_ID] or "Unknown"
+end
+local function splitBuildID(buildID)
+if type(buildID)~="string" then
+return nil,nil
+end
+local dashIndex=string.find(buildID, "-")
+if dashIndex then
+local a=string.sub(buildID,1,dashIndex - 1)
+local b=string.sub(buildID,dashIndex + 1)
+return a,b
+else
+return buildID,nil
+end
+end
+local projectNameForBuildID={
+universal="*",
+vanilla=EXPANSION_NAME0 or "Classic",
+tbc=EXPANSION_NAME1 or "The Burning Crusade",
+wrath=EXPANSION_NAME2 or "Wrath of the Lich King",
+cata=EXPANSION_NAME3 or "Cataclysm",
+mop=EXPANSION_NAME4 or "Mists of Pandaria",
+retail=_G["EXPANSION_NAME"..(LE_EXPANSION_LEVEL_CURRENT or 99)] or "Retail",
+}
+function SAO.GetFullProjectName(buildID)
+return projectNameForBuildID[select(1,splitBuildID(buildID))] or "Unknown"
+end
+local subProjectNameForBuildID={
+ptr="PTR",
+beta="Beta",
+}
+function SAO.GetSubProjectName(buildID)
+return subProjectNameForBuildID[select(2,splitBuildID(buildID))]
+end
+local expectedBuildID={
+[WOW_PROJECT_CLASSIC or 2]="vanilla",
+[WOW_PROJECT_BURNING_CRUSADE_CLASSIC or 5]="tbc",
+[WOW_PROJECT_WRATH_CLASSIC or 11]="wrath",
+[WOW_PROJECT_CATACLYSM_CLASSIC or 14]="cata",
+[WOW_PROJECT_MISTS_CLASSIC or 19]="mop",
+[WOW_PROJECT_MAINLINE or 1]="retail",
+}
+function SAO.GetExpectedBuildID()
+return expectedBuildID[WOW_PROJECT_ID] or ""
+end

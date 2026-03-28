@@ -1,0 +1,379 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+  <Script file="InterfaceOptionsPanels.lua"/>
+
+  <Frame name="SpellActivationOverlayOptionsPanel" hidden="true" parent="UIParent">
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString name="$parentBuildInfo" text="" inherits="GameFontNormal" justifyH="CENTER" justifyV="CENTER">
+          <Anchors>
+            <Anchor point="BOTTOMRIGHT">
+              <Offset>
+                <AbsDimension x="-16" y="56"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+      <Layer level="ARTWORK">
+        <FontString name="$parentClassInfo" text="" inherits="GameFontNormalLarge" justifyH="CENTER" justifyV="CENTER">
+          <Anchors>
+            <Anchor point="BOTTOM" relativeTo="$parentBuildInfo" relativePoint="TOP">
+              <Offset>
+                <AbsDimension x="0" y="8"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+    <Frames>
+      <Slider name="$parentSpellAlertOpacitySlider" inherits="OptionsSliderTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT">
+            <Offset>
+              <AbsDimension x="40" y="-32"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnValueChanged>
+            value = math.floor(value * 100 + 0.5) / 100;
+            if (value ~= 0) then
+              value = math.max(0.5, value);
+            end
+            self.value = value;
+            self:SetValue(value);
+
+            if (self.ApplyValueToEngine) then
+              self:ApplyValueToEngine(value);
+            end
+            _G[self:GetParent():GetName().."SpellAlertTestButton"]:SetEnabled(value > 0);
+            for _, checkbox in ipairs(_G[self:GetParent():GetName()].additionalCheckboxes and _G[self:GetParent():GetName()].additionalCheckboxes.alert or {}) do
+              checkbox:SetEnabled(value > 0);
+              checkbox:ApplyParentEnabling();
+            end
+          </OnValueChanged>
+        </Scripts>
+      </Slider>
+      <Slider name="$parentSpellAlertScaleSlider" inherits="OptionsSliderTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentSpellAlertOpacitySlider" relativePoint="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="0" y="-32"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnValueChanged>
+            if (self.ApplyValueToEngine) then
+              self:ApplyValueToEngine(value);
+            end
+          </OnValueChanged>
+        </Scripts>
+      </Slider>
+      <Slider name="$parentSpellAlertOffsetSlider" inherits="OptionsSliderTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentSpellAlertScaleSlider" relativePoint="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="0" y="-32"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnValueChanged>
+            if (self.ApplyValueToEngine) then
+              self:ApplyValueToEngine(value);
+            end
+          </OnValueChanged>
+        </Scripts>
+      </Slider>
+      <Slider name="$parentSpellAlertTimerSlider" inherits="OptionsSliderTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentSpellAlertOffsetSlider" relativePoint="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="0" y="-32"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnValueChanged>
+            value = math.floor(value + 0.5);
+            self.value = value;
+            self:SetValue(value);
+
+            if (self.ApplyValueToEngine) then
+              self:ApplyValueToEngine(value);
+            end
+          </OnValueChanged>
+        </Scripts>
+      </Slider>
+      <Slider name="$parentSpellAlertSoundSlider" inherits="OptionsSliderTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentSpellAlertTimerSlider" relativePoint="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="0" y="-32"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnValueChanged>
+            value = math.floor(value + 0.5);
+            self.value = value;
+            self:SetValue(value);
+
+            if (self.ApplyValueToEngine) then
+              self:ApplyValueToEngine(value);
+            end
+          </OnValueChanged>
+        </Scripts>
+      </Slider>
+      <Button name="$parentSpellAlertTestButton" inherits="UIPanelButtonTemplate">
+        <Size x="96" y="22"/>
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentSpellAlertOpacitySlider" relativePoint="TOPRIGHT">
+            <Offset>
+              <AbsDimension x="24" y="2"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <OnClick>
+            if (not self.isTesting) then
+              self:StartTest();
+            else
+              self:StopTest();
+            end
+          </OnClick>
+          <OnHide>
+            self:StopTest();
+          </OnHide>
+        </Scripts>
+      </Button>
+      <CheckButton name="$parentGlowingButtons" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentSpellAlertSoundSlider" relativePoint="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="-24" y="-24"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <PostClick>
+            if (self.ApplyValueToEngine) then
+              self:ApplyValueToEngine(self:GetChecked());
+            end
+          </PostClick>
+        </Scripts>
+      </CheckButton>
+      <CheckButton name="$parentSpellAlertDebugButton" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT"/>
+        </Anchors>
+        <Scripts>
+          <PostClick>
+            if (self:GetChecked()) then
+              SpellActivationOverlayDB.debug = true;
+            else
+              SpellActivationOverlayDB.debug = nil;
+            end
+          </PostClick>
+        </Scripts>
+      </CheckButton>
+      <CheckButton name="$parentSpellAlertReportButton" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="BOTTOMLEFT" relativeTo="$parentSpellAlertDebugButton" relativePoint="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="0" y="20"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <PostClick>
+            if (self:GetChecked()) then
+              SpellActivationOverlayDB.report = nil;
+            else
+              SpellActivationOverlayDB.report = false;
+            end
+          </PostClick>
+        </Scripts>
+      </CheckButton>
+      <CheckButton name="$parentSpellAlertResponsiveButton" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="BOTTOMLEFT" relativeTo="$parentSpellAlertDebugButton" relativePoint="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="300" y="0"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <PostClick>
+            if (self:GetChecked()) then
+              SpellActivationOverlayDB.responsiveMode = true;
+            else
+              SpellActivationOverlayDB.responsiveMode = nil;
+            end
+          </PostClick>
+        </Scripts>
+      </CheckButton>
+      <CheckButton name="$parentSpellAlertAskDisableGameAlertButton" inherits="InterfaceOptionsCheckButtonTemplate">
+        <Anchors>
+          <Anchor point="BOTTOMLEFT" relativeTo="$parentSpellAlertResponsiveButton" relativePoint="BOTTOMLEFT">
+            <Offset>
+              <AbsDimension x="0" y="20"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Scripts>
+          <PostClick>
+            if (self.OnValueChanged) then
+              self:OnValueChanged(self:GetChecked());
+            end
+          </PostClick>
+        </Scripts>
+      </CheckButton>
+      <CheckButton name="$parentDisableConditionButton" inherits="InterfaceOptionsCheckButtonTemplate" frameLevel="101" hidden="true">
+        <Anchors>
+          <Anchor point="BOTTOMLEFT" relativeTo="$parentSpellAlertResponsiveButton" relativePoint="TOPLEFT"/>
+        </Anchors>
+        <Scripts>
+          <PostClick>
+            if (self.OnValueChanged) then
+              self:OnValueChanged(self:GetChecked());
+            end
+          </PostClick>
+        </Scripts>
+      </CheckButton>
+      <Frame name="$parentGlobalOffBlockingFrame" parentKey="globalOff" setAllPoints="true" frameLevel="100" enableMouse="true" hidden="true">
+        <Layers>
+          <Layer level="ARTWORK" textureSubLevel="1">
+            <Texture setAllPoints="true" file="Interface/ContainerFrame/UI-Icon-QuestBang">
+              <Color r="1" g="1" b="1" a="0.75"/>
+            </Texture>
+          </Layer>
+          <Layer level="ARTWORK" textureSubLevel="2">
+            <Texture setAllPoints="true">
+              <Color r="0" g="0" b="0" a="0.75"/>
+            </Texture>
+          </Layer>
+          <Layer level="ARTWORK" textureSubLevel="3">
+            <FontString name="$parentGlobalOffLabelDisabled" text="ADDON_DISABLED" inherits="SystemFont_Shadow_Huge3" justifyH="CENTER" justifyV="CENTER">
+              <Anchors>
+                <Anchor point="TOP">
+                  <Offset>
+                    <AbsDimension x="0" y="-222"/>
+                  </Offset>
+                </Anchor>
+              </Anchors>
+            </FontString>
+          </Layer>
+          <Layer level="ARTWORK" textureSubLevel="3">
+            <FontString name="$parentGlobalOffLabelReason" parentKey="reason" text="" inherits="SystemFont_Shadow_Huge1" justifyH="CENTER" justifyV="CENTER">
+              <Anchors>
+                <Anchor point="TOP" relativeTo="$parentGlobalOffLabelDisabled" relativePoint="BOTTOM">
+                  <Offset>
+                    <AbsDimension x="0" y="-16"/>
+                  </Offset>
+                </Anchor>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+        <Frames>
+          <Button name="$parentGlobalOffButton" parentKey="button" inherits="UIPanelButtonTemplate" hidden="true">
+            <Anchors>
+              <Anchor point="TOP" relativeTo="$parentGlobalOffLabelReason" relativePoint="BOTTOM">
+                <Offset>
+                  <AbsDimension x="0" y="-16"/>
+                </Offset>
+              </Anchor>
+            </Anchors>
+          </Button>
+        </Frames>
+      </Frame>
+      <Frame name="$parentGlowOffBlockingFrame" parentKey="glowOff" setAllPoints="false" frameLevel="50" enableMouse="true" hidden="true">
+        <Anchors>
+          <Anchor point="TOPLEFT" relativeTo="$parentGlowingButtons" relativePoint="TOPLEFT">
+            <Offset>
+              <AbsDimension x="-16" y="0"/>
+            </Offset>
+          </Anchor>
+          <Anchor point="BOTTOMRIGHT" relativeTo="$parentSpellAlertAskDisableGameAlertButton" relativePoint="TOPRIGHT">
+            <Offset>
+              <AbsDimension x="16" y="0"/>
+            </Offset>
+          </Anchor>
+        </Anchors>
+        <Layers>
+          <Layer level="ARTWORK" textureSubLevel="1">
+            <Texture setAllPoints="true" file="Interface/ContainerFrame/UI-Icon-QuestBang">
+              <Color r="1" g="1" b="1" a="0.5"/>
+            </Texture>
+          </Layer>
+          <Layer level="ARTWORK" textureSubLevel="2">
+            <Texture setAllPoints="true">
+              <Color r="0" g="0" b="0" a="0.75"/>
+            </Texture>
+          </Layer>
+          <Layer level="ARTWORK" textureSubLevel="3">
+            <FontString name="$parentGlowOffLabelReason" parentKey="reason" setAllPoints="true" text="Glowing Buttons are not available in this build and shall be fixed at a later date. Thank you for your understanding." inherits="SystemFont_Shadow_Huge1" justifyH="CENTER" justifyV="CENTER">
+              <Color r="0.8" g="0.8" b="0.8" a="1"/>
+              <Anchors>
+                <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+                  <Offset>
+                    <AbsDimension x="64" y="-64"/>
+                  </Offset>
+                </Anchor>
+                <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT">
+                  <Offset>
+                    <AbsDimension x="-64" y="64"/>
+                  </Offset>
+                </Anchor>
+              </Anchors>
+            </FontString>
+          </Layer>
+        </Layers>
+      </Frame>
+    </Frames>
+    <Layers>
+      <Layer level="ARTWORK">
+        <FontString name="$parentSpellAlertLabel" text="Spell Alerts" inherits="GameFontHighlight" justifyH="LEFT" justifyV="TOP">
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeTo="$parentSpellAlertTestButton" relativePoint="TOPRIGHT">
+              <Offset>
+                <AbsDimension x="24" y="10"/>
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+      <Layer level="ARTWORK">
+        <FontString name="$parentSpellAlertNone" text="" inherits="GameFontHighlight" justifyH="LEFT" justifyV="TOP" parentKey="alertNone">
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeTo="$parentSpellAlertLabel" relativePoint="BOTTOMLEFT">
+              <Offset>
+                <AbsDimension x="6" y="-6"/> <!-- +2 -2 more pixels than offset for checkboxes, defined at the end of SAO.AddOverlayOption -->
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+      <Layer level="ARTWORK">
+        <FontString name="$parentGlowingButtonNone" text="" inherits="GameFontHighlight" justifyH="LEFT" justifyV="TOP" parentKey="glowNone">
+          <Anchors>
+            <Anchor point="TOPLEFT" relativeTo="$parentGlowingButtons" relativePoint="BOTTOMLEFT">
+              <Offset>
+                <AbsDimension x="18" y="0"/> <!-- +2 -2 more pixels than offset for checkboxes, defined at the end of SAO.AddGlowingOption -->
+              </Offset>
+            </Anchor>
+          </Anchors>
+        </FontString>
+      </Layer>
+    </Layers>
+    <Scripts>
+      <OnShow function="SpellActivationOverlayOptionsPanel_OnShow"/>
+      <OnLoad function="SpellActivationOverlayOptionsPanel_OnLoad"/>
+    </Scripts>
+  </Frame>
+
+</Ui>
