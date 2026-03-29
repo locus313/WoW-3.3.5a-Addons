@@ -1,4 +1,4 @@
-## Interface: 30405, 38000
+## Interface: 30300
 ## Title: |TInterface/Icons/Spell_Frost_Stun:16:16:0:0:512:512:64:448:64:448|t SpellActivationOverlay |cff40abff2.7.2|r |TInterface/Icons/achievement_boss_lichking:16:16:0:0:512:512:64:448:64:448|t
 ## Notes: Display overlays and glow buttons to improve your gameplay!
 ## Notes-deDE: Zeigt Overlays und leuchtende Schaltflächen zur Verbesserung Ihres Gameplays an!
@@ -46,6 +46,7 @@ libs\LibStub\LibStub.lua
 libs\LibButtonGlow-1.0\LibButtonGlow-1.0.lua
 #@end-no-lib-strip@
 
+components\Compat335.lua
 components\project.lua
 components\util.lua
 

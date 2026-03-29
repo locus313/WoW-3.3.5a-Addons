@@ -271,6 +271,7 @@ self.combat:SetSize(longSide * scale * combatOverlayFactor,longSide * scale * co
 end
 overlay:SetGeometry(longSide,shortSide)
 overlay.texture:SetTexture(texturePath)
+overlay.texture:SetBlendMode("ADD")
 overlay.texture:SetVertexColor(r / 255,g / 255,b / 255)
 overlay.animOut:Stop()
 if useSound and (autoPulse or forcePulsePlay)then
@@ -524,7 +525,9 @@ overlay.pulse:Play()
 end
 end
 function SpellActivationOverlayTexture_OnFadeOutFinished(anim)
-local overlay=anim:GetRegionParent()
+	-- Compat335: GetRegionParent() is not available on Animation objects in 3.3.5a.
+	-- anim is the Alpha animation → GetParent() = AnimationGroup → GetParent() = Frame.
+	local overlay = anim.GetRegionParent and anim:GetRegionParent() or anim:GetParent():GetParent()
 SpellActivationOverlayTexture_TerminateOverlay(overlay)
 end
 function SpellActivationOverlayFrame_OnFadeInFinished(anim)
