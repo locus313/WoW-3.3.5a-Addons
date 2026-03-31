@@ -2119,6 +2119,7 @@ local ShowHideScrollArt
 local DesaturateScrollArtBackground
 
 local function DCS_TalentArtFrames(v, frameTL, frameTR, frameBL, frameBR, drawLayer, DCS_TalentSpec, TLAnchorframePoint, frameTLrelativeTo, relativePoint, xOffset, yOffset)
+	if not DCS_TalentSpec then return end
 	ShowHideScrollArt = gdbprivate.gdb.gdbdefaults.DejaClassicStatsShowHideScrollArtBackground.ShowHideScrollArtBackgroundChecked
 	DesaturateScrollArtBackground = gdbprivate.gdb.gdbdefaults.DejaClassicStatsDesaturateScrollArtBackground.DesaturateScrollArtBackgroundChecked
 	local frameexists = _G[frameTL.."Frame"]

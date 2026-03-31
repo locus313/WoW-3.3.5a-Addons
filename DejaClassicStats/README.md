@@ -103,3 +103,12 @@ This folder contains a backport of version `30400r10` to the WoW 3.3.5a (WotLK) 
 
 **`LoadAddOn` result guard**
 - Added `if _G[v.."Frame"] == nil then return end` after each `LoadAddOn` call, since `LoadAddOn` can silently fail if the addon file isn't present in the 3.3.5a client.
+
+---
+
+### DejaClassicStats.lua (continued)
+
+**`DCS_TalentArtFrames` — nil `DCS_TalentSpec` guard**
+- `DCS_GetTalents()` calls `GetTalentTabInfo()` to determine which talent tree is Primary/Offense/Defense. On login or before talent data is fully loaded, `GetTalentTabInfo` may return nil/empty, leaving the spec index variables nil.
+- `DCS_TalentArtFrames` would then attempt to concatenate a nil value into an `Interface\\TALENTFRAME\\...` texture path, causing a runtime error.
+- Added `if not DCS_TalentSpec then return end` at the top of `DCS_TalentArtFrames` to skip texture creation when talent data is unavailable.
