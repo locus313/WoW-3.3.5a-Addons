@@ -1,0 +1,53 @@
+## Interface: 30400
+## Version: 30400r10
+## Author: Dejablue, Kakjens, loudsoul
+## Title-deDE: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Title-enUS: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Title-esES: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Title-esMX: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Title-frFR: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Title-itIT: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Title-koKR: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Title-ptBR: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Title-ruRU: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Title-zhCN: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Title-zhTW: |TInterface\Addons\DejaClassicStats\DCSArt\DejoLogo:26:26|t|cff00c0ffDCS|r
+## Notes-deDE: DejaClassicStats: Dejablues verbesserte Ansicht der Charakterwerte.
+## Notes-enUS: DejaClassicStats: Dejablue's improved character stats panel view.
+## Notes-esES: DejaClassicStats: Vista mejorada del panel de atributos del personaje por Dejablue.
+## Notes-esMX: DejaClassicStats: Vista mejorada del panel de atributos del personaje por Dejablue.
+## Notes-frFR: DejaClassicStats: Panneau des statistiques de personnage amélioré, par Dejablue
+## Notes-itIT: DejaClassicStats: Vista pannello delle statistiche del personaggio migliorata di Dejablue.
+## Notes-koKR: DejaClassicStats: Dejablue의 향상된 캐릭터 통계 패널보기.
+## Notes-ptBR: DejaClassicStats: Visão do painel de estatísticas de personagem aprimorada de Dejablue.
+## Notes-ruRU: DejaClassicStats: Улучшенное представление характеристик персонажа Dejablue.
+## Notes-zhCN: DejaClassicStats: Dejablue的角色属性统计面板增强。
+## Notes-zhTW: DejaClassicStats: Dejablue的角色屬性統計面板增強。
+## SavedVariables: DejaClassicStatsDB
+## SavedVariables: DCS_ClassSpecDB
+## SavedVariablesPerCharacter: DejaClassicStatsDBPC
+
+## X-Category: Class
+## X-License: All Rights Reserved unless otherwise explicitly stated.
+## X-Website: https://dejoblue.com
+## X-Curse-Project-ID: 334987
+## X-WoWI-ID: 25977
+
+Localization\localization.core.lua
+Localization\localization.deDE.lua
+Localization\localization.enGB.lua
+Localization\localization.enUS.lua
+Localization\localization.esES.lua
+Localization\localization.esMX.lua
+Localization\localization.frFR.lua
+Localization\localization.itIT.lua
+Localization\localization.koKR.lua
+Localization\localization.ptBR.lua
+Localization\localization.ruRU.lua
+Localization\localization.zhCN.lua
+Localization\localization.zhTW.lua
+
+DejaClassicStats.lua
+DCSDuraRepair.lua
+DCSExpand.lua
+DCSAbout.lua
