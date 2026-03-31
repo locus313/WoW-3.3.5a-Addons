@@ -1,5 +1,9 @@
 local ADDON_NAME, namespace = ... 	--localization
 local L = namespace.L 				--localization
+
+-- 3.3.5a compat: define CR_ constants that may be missing from this client's FrameXML
+if not CR_RESILIENCE_CRIT_TAKEN then CR_RESILIENCE_CRIT_TAKEN = 25 end
+if not CR_DEFENSE_SKILL then CR_DEFENSE_SKILL = 2 end
 local version = GetAddOnMetadata(ADDON_NAME, "Version")
 local addoninfo = 'v'..version
 --------------------------
@@ -347,6 +351,7 @@ gdbprivate.gdbdefaults.gdbdefaults.dejacharacterstatsScrollbarChecked = {
 }
 
 local DCS_StatScrollFrame = CreateFrame("ScrollFrame", "DCS_StatScrollFrame", CharacterFrame, "UIPanelScrollFrameTemplate")
+	DCS_StatScrollFrame.ScrollBar = DCS_StatScrollFrameScrollBar  -- 3.3.5a: template doesn't set .ScrollBar, wire it up manually
 	DCS_StatScrollFrame:ClearAllPoints()
 	DCS_StatScrollFrame:SetSize( DCS_HeaderWidth, 400 )
 	DCS_StatScrollFrame:SetPoint("TOPLEFT", "CharacterFrame", "TOPRIGHT", -34, -26) -- This is (-40, -14) for Classic, different for dry development
@@ -358,7 +363,7 @@ local DCS_StatScrollFrame = CreateFrame("ScrollFrame", "DCS_StatScrollFrame", Ch
 	
 	local t=DCS_StatScrollFrame:CreateTexture(nil,"ARTWORK")
 	t:SetAllPoints(DCS_StatScrollFrame)
-	t:SetColorTexture(0, 0, 0, 1)
+	t:SetTexture(0, 0, 0, 1)
 
 	local DCS_TopTexture=DCS_StatScrollFrame:CreateTexture(nil,"ARTWORK")
 	local DCS_TopRightTexture=DCS_StatScrollFrame:CreateTexture(nil,"ARTWORK")
@@ -405,13 +410,11 @@ end
 
 	local t=DCS_StatScrollFrame.ScrollBar:CreateTexture(nil,"ARTWORK")
 		t:SetAllPoints(DCS_StatScrollFrame.ScrollBar)
-		t:SetColorTexture(0, 0, 0, 1)
+		t:SetTexture(0, 0, 0, 1)
 
 	DCS_StatScrollFrame:HookScript("OnScrollRangeChanged", function(self, xrange, yrange)
-		self.ScrollBar:SetShown(floor(yrange) ~= 0)
-		-- self.ScrollBar:Hide() -- This is what will hide the ScrollBar
+		-- SetShown not available in 3.3.5a; manage scrollbar visibility manually
 		if scrollbarchecked then
-			self.ScrollBar:SetShown(floor(yrange) ~= 0)
 			self.ScrollBar:Show()
 		else
 			self.ScrollBar:Hide()
@@ -462,8 +465,9 @@ local DCS_ScrollbarCheck = CreateFrame("CheckButton", "DCS_ScrollbarCheck", Deja
 -- Class Colors --
 ------------------
 local className, classFilename, classID = UnitClass("player") --Players Class Color (In case I want to use it)
-local rPerc, gPerc, bPerc, argbHex = GetClassColor(classFilename)
--- print(className, classFilename,classID, rPerc, gPerc, bPerc, argbHex)
+local classColor = RAID_CLASS_COLORS[classFilename]
+local rPerc, gPerc, bPerc = classColor and classColor.r or 1, classColor and classColor.g or 1, classColor and classColor.b or 1
+-- print(className, classFilename, classID, rPerc, gPerc, bPerc)
 
 --------------------
 -- Primary Header --
@@ -593,7 +597,7 @@ local DCSDefenseStatsFS = DCSDefenseStatsHeader:CreateFontString(nil, "OVERLAY",
 
 local t=DCSDefenseStatsHeader:CreateTexture(nil,"ARTWORK")
 	t:SetAllPoints(DCSDefenseStatsHeader)
-	t:SetColorTexture(1, 1, 1, 0)
+	t:SetTexture(1, 1, 1, 0)
 	t:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollInfoPart1")
 	t:SetTexCoord(0, 0.193359375, 0.69921875, 0.736328125)
 
@@ -736,18 +740,8 @@ return "", format(" %.0f", effectiveArmor), tooltip2, "", "", ""
 end
 -- Player Movement Speed
 local function MovementSpeed()
-	local currentSpeed, runSpeed, flightSpeed, swimSpeed = GetUnitSpeed("player")
-	-- print(currentSpeed, runSpeed, flightSpeed, swimSpeed)
-	local playerSpeed
-	if IsSwimming() then
-		playerSpeed = (swimSpeed)
-	elseif IsFlying() then
-		playerSpeed = flightSpeed
-	elseif UnitOnTaxi("player") then
-		playerSpeed = currentSpeed
-	else
-		playerSpeed = runSpeed
-	end
+	local currentSpeed = GetUnitSpeed("player")
+	local playerSpeed = currentSpeed or 0
 	local TooltipLine1 = L["Your current movement speed including items, buffs, enchants, forms, and mounts."]
     return "", format("%.0f%%", ((playerSpeed/7)*100)), TooltipLine1, "", "", ""
 end
@@ -1016,7 +1010,7 @@ local function RangedCrit()
 	-- local TooltipLine3 = L["Total Crit: "]..(format( "%.2f%%", chance) )
 	local total = ""
 
-	return "", "("..crit..") "..(format( "%.2f%%", chance) ), TooltipLine1, TooltipLine2, TooltipLine3, total
+	return "", "("..crit..") "..(format( "%.2f%%", chance) ), TooltipLine1, "", "", total
 end
 -- Bonus Melee Hit Chance Modifier
 local function HitModifier()
@@ -1024,11 +1018,11 @@ local function HitModifier()
 	local hit = GetCombatRating(CR_HIT_MELEE)
 
 	local TooltipLine1 = L["Hit Chance: "]..(format( "%.2f%%", hitRating)).."\n ("..hit.." Rating adds "..(format( "%.2f%%", hitRating) ).." Hit)"
-	local TooltipLine2 = "\n"..( format(CR_HIT_MELEE_TOOLTIP, UnitLevel("player"), hitRating, hit, GetArmorPenetration()) );
+	local TooltipLine2 = L["Hit Chance: "]..(format( "%.2f%%", hitRating))
 	-- local TooltipLine3 = L["Total Hit: "]..(format( "%.2f%%", hitRating) )
 	local total = ""
 
-	return "", "("..hit..") "..(format( "%.2f%%", hitRating) ), TooltipLine1, TooltipLine2, TooltipLine3, total
+	return "", "("..hit..") "..(format( "%.2f%%", hitRating) ), TooltipLine1, TooltipLine2, "", total
 end
 local function MeleeHaste()
 	local hasteRating = GetCombatRatingBonus(CR_HASTE_MELEE)
@@ -1041,7 +1035,7 @@ local function MeleeHaste()
 	-- local TooltipLine3 = L["Total Hit: "]..(format( "%.2f%%", hasteRating) )
 	local total = ""
 
-	return "", "("..haste..") "..(format( "%.2f%%", hasteRating) ), TooltipLine1, TooltipLine2, TooltipLine3, total
+	return "", "("..haste..") "..(format( "%.2f%%", hasteRating) ), TooltipLine1, TooltipLine2, "", total
 end
 -- Bonus Ranged Hit Chance Modifier
 local function RangedHitModifier()
@@ -1054,11 +1048,11 @@ local function RangedHitModifier()
 	end
 
 	local TooltipLine1 = L["Hit Chance: "]..(format( "%.2f%%", hitRating)).."\n ("..hit.." Rating adds "..(format( "%.2f%%", hitRating) ).." Hit)"
-	local TooltipLine2 = "\n"..( format(CR_HIT_RANGED_TOOLTIP, UnitLevel("player"), hitRating, hit, GetArmorPenetration()) );
+	local TooltipLine2 = L["Hit Chance: "]..(format( "%.2f%%", hitRating))
 	-- local TooltipLine3 = L["Total Hit: "]..(format( "%.2f%%", hitRating) )
 	local total = ""
 
-	return "", "("..hit..") "..(format( "%.2f%%", hitRating) ), TooltipLine1, TooltipLine2, TooltipLine3, total
+	return "", "("..hit..") "..(format( "%.2f%%", hitRating) ), TooltipLine1, TooltipLine2, "", total
 end
 local function RangedHaste()
 	local hasteRating = GetCombatRatingBonus(CR_HASTE_RANGED)
@@ -1071,7 +1065,7 @@ local function RangedHaste()
 	-- local TooltipLine3 = L["Total Hit: "]..(format( "%.2f%%", hasteRating) )
 	local total = ""
 
-	return "", "("..haste..") "..(format( "%.2f%%", hasteRating) ), TooltipLine1, TooltipLine2, TooltipLine3, total
+	return "", "("..haste..") "..(format( "%.2f%%", hasteRating) ), TooltipLine1, TooltipLine2, "", total
 end
 local function Expertise()
 	if ( not unit ) then
@@ -1100,7 +1094,7 @@ local function Expertise()
 	-- end
 	local TooltipLine1 = HIGHLIGHT_FONT_COLOR_CODE..getglobal("COMBAT_RATING_NAME"..CR_EXPERTISE).." ("..expertise..") "..expertisePercent..FONT_COLOR_CODE_CLOSE;
 	local TooltipLine2 = L["Expertise: "]..(format( "%.2f%%", expertiseRatingBonus)).."\n ("..expertiseRating.." Rating adds "..(format( "%.2f%%", expertiseRatingBonus) ).." Expertise)"
-	local TooltipLine3 = "\n"..( format(CR_EXPERTISE_TOOLTIP, expertisePercent.."\n", expertiseRating, expertiseRatingBonus) );
+	local TooltipLine3 = L["Expertise: "]..(format( "%.2f%%", expertiseRatingBonus)).."\n ("..expertiseRating.." Rating adds "..(format( "%.2f%%", expertiseRatingBonus) ).." Expertise)"
 
 	return "", "("..expertise..") "..expertisePercent, TooltipLine1, TooltipLine2, TooltipLine3, ""
 end
@@ -1185,11 +1179,18 @@ local function Defense()
 end
 -- Resilience
 local function Resilience()
-	local resilience = GetCombatRating(CR_RESILIENCE_CRIT_TAKEN);
-	local bonus = GetCombatRatingBonus(CR_RESILIENCE_CRIT_TAKEN);
+	local resilience = GetCombatRating(CR_RESILIENCE_CRIT_TAKEN) or 0
+	local bonus = GetCombatRatingBonus(CR_RESILIENCE_CRIT_TAKEN) or 0
 
-	local DCSstatFrametooltip = HIGHLIGHT_FONT_COLOR_CODE..STAT_RESILIENCE.." "..resilience..FONT_COLOR_CODE_CLOSE;
-	local DCSstatFrametooltip2 = format(RESILIENCE_TOOLTIP, bonus, min(bonus * 2, 25.00), bonus);
+	local statName = STAT_RESILIENCE or "Resilience"
+	local DCSstatFrametooltip = HIGHLIGHT_FONT_COLOR_CODE..statName.." "..resilience..FONT_COLOR_CODE_CLOSE
+	local DCSstatFrametooltip2
+	if RESILIENCE_TOOLTIP then
+		local ok, result = pcall(format, RESILIENCE_TOOLTIP, bonus, min(bonus * 2, 25.00), bonus)
+		DCSstatFrametooltip2 = ok and result or (statName.." "..resilience)
+	else
+		DCSstatFrametooltip2 = statName.." "..resilience
+	end
 	return "", resilience, DCSstatFrametooltip, DCSstatFrametooltip2, "", ""
 end
 -- Avoidance
@@ -1325,11 +1326,11 @@ local function SpellHitModifier()
 	local hit = GetCombatRating(CR_HIT_SPELL)
 
 	local TooltipLine1 = L["Hit Chance: "]..(format( "%.2f%%", hitRating)).."\n ("..hit.." Rating adds "..(format( "%.2f%%", hitRating) ).." Hit)"
-	local TooltipLine2 = "\n"..( format(CR_HIT_SPELL_TOOLTIP, UnitLevel("player"), hitRating, GetArmorPenetration()) );
+	local TooltipLine2 = L["Hit Chance: "]..(format( "%.2f%%", hitRating))
 	-- local TooltipLine3 = L["Total Hit: "]..(format( "%.2f%%", hitRating) )
 	local total = ""
 
-	return "", "("..hit..") "..(format( "%.2f%%", hitRating) ), TooltipLine1, TooltipLine2, TooltipLine3, total
+	return "", "("..hit..") "..(format( "%.2f%%", hitRating) ), TooltipLine1, TooltipLine2, "", total
 end
 -- SpellPenetration Modifier
 -- local function SpellPenetration()
@@ -1350,7 +1351,7 @@ local function SpellHaste()
 	-- local TooltipLine3 = L["Total Hit: "]..(format( "%.2f%%", hasteRating) )
 	local total = ""
 
-	return "", "("..haste..") "..(format( "%.2f%%", hasteRating) ), TooltipLine1, TooltipLine2, TooltipLine3, total
+	return "", "("..haste..") "..(format( "%.2f%%", hasteRating) ), TooltipLine1, TooltipLine2, "", total
 end
 -- Bonus Healing
 local function PlusHealing()
@@ -2224,7 +2225,21 @@ CHAR_ROTATE_BUTTONS = {
 	}
 
 local ignoreDCSRBAlpha
-local DCSRBAlphaTimer
+local DCSRBAlphaTimerElapsed
+local DCSRBAlphaTimerActive = false
+local hideDCSRB  -- forward declaration so the OnUpdate closure can reference it
+local DCSRBAlphaTimerFrame = CreateFrame("Frame")
+
+DCSRBAlphaTimerFrame:SetScript("OnUpdate", function(self, elapsed)
+	if DCSRBAlphaTimerActive then
+		DCSRBAlphaTimerElapsed = (DCSRBAlphaTimerElapsed or 0) + elapsed
+		if DCSRBAlphaTimerElapsed >= 0.75 then
+			DCSRBAlphaTimerActive = false
+			DCSRBAlphaTimerElapsed = 0
+			hideDCSRB()
+		end
+	end
+end)
 
 local function SetAlpha(frame)
 	if ignoreDCSRBAlpha then return end
@@ -2238,7 +2253,8 @@ local function SetAlpha(frame)
 end
 
 local function showDCSRB(self)
-	if DCSRBAlphaTimer then DCSRBAlphaTimer:Cancel() end
+	DCSRBAlphaTimerActive = false
+	DCSRBAlphaTimerElapsed = 0
 	for _, v in ipairs(CHAR_ROTATE_BUTTONS) do
 		ignoreDCSRBAlpha = true
 		_G[v]:SetAlpha(1)
@@ -2246,7 +2262,7 @@ local function showDCSRB(self)
 	end
 end
 
-local function hideDCSRB(self)
+hideDCSRB = function(self)
 	for _, v in ipairs(CHAR_ROTATE_BUTTONS) do
 		if ShowModelRotation then
 			showDCSRB(self)
@@ -2259,7 +2275,8 @@ local function hideDCSRB(self)
 end
 
 local function delayHideDCSRB(self)
-	DCSRBAlphaTimer = C_Timer.NewTimer(0.75, hideDCSRB)
+	DCSRBAlphaTimerElapsed = 0
+	DCSRBAlphaTimerActive = true
 end
 
 for _, v in ipairs(CHAR_ROTATE_BUTTONS) do

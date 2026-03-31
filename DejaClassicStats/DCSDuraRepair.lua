@@ -95,7 +95,7 @@ local function DCS_Set_Item_Quality_Color_Outlines()
 			else
 				qualityBordersAlpha = 0
 			end
-			local r, g, b, hex = getItemQualityColor(C_Item.GetItemQualityByID(itemLink))
+			local r, g, b, hex = getItemQualityColor(select(3, GetItemInfo(itemLink)))
 			v.ItemFrameOutlineTexture:SetVertexColor(r, g, b, qualityBordersAlpha);
 			v.ItemFramehighlightTexture:SetVertexColor(r, g, b, qualityBordersAlpha);
 		end
@@ -116,7 +116,7 @@ local QCOA_Slider = CreateFrame("Slider", "QCOA_Slider", DejaClassicStatsPanel, 
 	QCOA_Slider:SetMinMaxValues(0.25, 1.0)
 	QCOA_Slider.minValue, QCOA_Slider.maxValue = QCOA_Slider:GetMinMaxValues() 
 	QCOA_Slider:SetValueStep(0.05)
-	QCOA_Slider:SetObeyStepOnDrag(true)
+	-- SetObeyStepOnDrag not available in 3.3.5a
 
 	QCOA_Slider.tooltipText = "Set the intensity (alpha) of your equipped items' quality colored border glow in increments or decrements of 5. Default is 75." --Creates a tooltip on mouseover.
 
@@ -559,17 +559,17 @@ local function DCS_Durability_Bar_Textures()
 		duraTotal = duraTotal + durCur
 		duraMaxTotal = duraMaxTotal + durMax
 		if ( durCur == durMax ) then
-			v.duratexture:SetColorTexture(0, 0, 0, 0)
+			v.duratexture:SetTexture(0, 0, 0, 0)
 		else --if ( durCur ~= durMax ) then -- no need to check, can remain as comment for easier understanding
 			duraFinite = durCur/durMax
             if duraFinite > 0.66 then
-	            v.duratexture:SetColorTexture(0, 1, 0)
+	            v.duratexture:SetTexture(0, 1, 0)
 		    elseif duraFinite > 0.33 then
-				v.duratexture:SetColorTexture(1, 1, 0)
+				v.duratexture:SetTexture(1, 1, 0)
 			elseif duraFinite > 0.10 then
-				v.duratexture:SetColorTexture(1, 0, 0)
+				v.duratexture:SetTexture(1, 0, 0)
 			else --if duraFinite <= 0.10 then -- no need to check, can remain as comment for easier understanding
-				v.duratexture:SetColorTexture(1, 0, 0, 0.10)
+				v.duratexture:SetTexture(1, 0, 0, 0.10)
 			end
 		    if DCSITEM_SLOT_FRAMES_RIGHT[v] then
 		        v.duratexture:SetPoint("BOTTOMLEFT",v,"BOTTOMRIGHT",1,3)
@@ -588,18 +588,18 @@ local function DCS_Durability_Bar_Textures()
 	local duraMean = duraTotal/duraMaxTotal
 	duraMeanTexture:SetSize(4, 31*duraMean)
 	if duraMean == 1 then 
-		duraMeanTexture:SetColorTexture(0, 0, 0, 0)
+		duraMeanTexture:SetTexture(0, 0, 0, 0)
 	elseif duraMean < 0.10 then
-		--duraMeanTexture:SetColorTexture(1, 0, 0)
-		duraMeanTexture:SetColorTexture(1, 0, 0, 0.15)
+		--duraMeanTexture:SetTexture(1, 0, 0)
+		duraMeanTexture:SetTexture(1, 0, 0, 0.15)
 	elseif duraMean < 0.33 then
-		duraMeanTexture:SetColorTexture(1, 0, 0)
+		duraMeanTexture:SetTexture(1, 0, 0)
 	elseif duraMean < 0.66 then
-		duraMeanTexture:SetColorTexture(1, 1, 0)
+		duraMeanTexture:SetTexture(1, 1, 0)
 	elseif duraMean < 0.80 then
-		duraMeanTexture:SetColorTexture(0, 1, 0)
+		duraMeanTexture:SetTexture(0, 1, 0)
 	else --if duraMean < 1 then -- no need to check, can remain as comment for easier understanding
-		duraMeanTexture:SetColorTexture(0.753, 0.753, 0.753)
+		duraMeanTexture:SetTexture(0.753, 0.753, 0.753)
 	end
 	duraMeanTexture:ClearAllPoints()
 	if duraMean > 0.10 then 
@@ -744,13 +744,18 @@ local DCS_ShowAverageDuraCheck = CreateFrame("CheckButton", "DCS_ShowAverageDura
 ----------------------
 -- Item Repair Cost --
 ----------------------
+local DCS_RepairScanTooltip  -- created once on first use
+
 local function DCS_Item_RepairCostBottom()
+	if not DCS_RepairScanTooltip then
+		DCS_RepairScanTooltip = CreateFrame("GameTooltip", "DCSRepairScanTooltip", UIParent, "GameTooltipTemplate")
+		DCS_RepairScanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+	end
 	for _, v in ipairs(DCSITEM_SLOT_FRAMES) do
 		local slotId = v:GetID()
-		local scanTool = CreateFrame("GameTooltip")
-			scanTool:ClearLines()
-		local repairitemCost = select(3, scanTool:SetInventoryItem("player", slotId))
-		if (repairitemCost<=0) then
+		DCS_RepairScanTooltip:ClearLines()
+		local repairitemCost = select(3, DCS_RepairScanTooltip:SetInventoryItem("player", slotId))
+		if (not repairitemCost or repairitemCost <= 0) then
 			v.itemrepair:SetFormattedText("")
 		elseif (repairitemCost>999999) then -- 99G 99s 99c
 			v.itemrepair:SetTextColor(1, 0.843, 0)
@@ -838,16 +843,25 @@ DCS_ShowItemRepairCheck:SetScript("OnClick", function(self)
 	end
 end)
 
-local function attempt_ilvl(v,attempts)
+local function attempt_ilvl(v, attempts)
 	if attempts > 0 then
-		local item = Item:CreateFromEquipmentSlot(v:GetID())
-		local value = item:GetCurrentItemLevel()
-		if value then --ilvl of nil probably indicates that there's no tem in that slot
-			if value > 0 then --ilvl of 0 probably indicates that item is not fully loaded
-				v.ilevel:SetTextColor(getItemQualityColor(item:GetItemQuality())) --upvalue call
-				v.ilevel:SetText(value)
+		local itemLink = GetInventoryItemLink("player", v:GetID())
+		if itemLink then
+			local _, _, quality, iLevel = GetItemInfo(itemLink)
+			if iLevel and iLevel > 0 then
+				v.ilevel:SetTextColor(getItemQualityColor(quality))
+				v.ilevel:SetText(iLevel)
 			else
-				C_Timer.After(0.2, function() attempt_ilvl(v,attempts-1) end)
+				-- Item data not yet loaded, retry after a short delay
+				local retryFrame = CreateFrame("Frame")
+				local elapsed = 0
+				retryFrame:SetScript("OnUpdate", function(self, dt)
+					elapsed = elapsed + dt
+					if elapsed >= 0.2 then
+						self:SetScript("OnUpdate", nil)
+						attempt_ilvl(v, attempts - 1)
+					end
+				end)
 			end
 		else
 			v.ilevel:SetText("")
@@ -901,7 +915,16 @@ DCS_ShowItemLevelChange:SetScript("OnEvent", function(self, event, ...)
 		--print("PaperDollFrame:IsVisible")
 		if showitemlevel then
 		--print("showitemlevel")
-			C_Timer.After(0.25, DCS_Item_Level_Center) --Event fires before Artifact changes so we have to wait a fraction of a second.
+			-- Delay slightly so item data is loaded before we query it
+			local delayElapsed = 0
+			local delayFrame = CreateFrame("Frame")
+			delayFrame:SetScript("OnUpdate", function(df, dt)
+				delayElapsed = delayElapsed + dt
+				if delayElapsed >= 0.25 then
+					df:SetScript("OnUpdate", nil)
+					DCS_Item_Level_Center()
+				end
+			end)
 		else
 			for _, v in ipairs(DCSITEM_SLOT_FRAMES) do
 				v.ilevel:SetFormattedText("")
@@ -918,10 +941,10 @@ gdbprivate.gdbdefaults.gdbdefaults.DejaClassicStatsSimpleItemColorChecked = {
 local function paintblack()
 	for _, v in ipairs(DCSITEM_SLOT_FRAMES) do
 		if simpleitemcolor then
-			v.itemcolor:SetColorTexture(0, 0, 0, 1)
+			v.itemcolor:SetTexture(0, 0, 0, 1)
 			v.itemcolor:Show()
 		elseif darkeritemcolor then
-			v.itemcolor:SetColorTexture(0, 0, 0, 0.6)
+			v.itemcolor:SetTexture(0, 0, 0, 0.6)
 			v.itemcolor:Show()
 		else
 			v.itemcolor:Hide()
@@ -6309,18 +6332,19 @@ local DCS_ABBREV_ENCHANT_IDS = {
 --------------------------
 addon.hasBiznicks = false
 
+local DCSScanTooltip = CreateFrame("GameTooltip", "DCSScanTooltip", UIParent, "GameTooltipTemplate")
+DCSScanTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+
 local function DCS_Item_Enchant_GetText()
-	local MATCH_ENCHANT = ENCHANTED_TOOLTIP_LINE:gsub('%%s', '(.+)')
-	local ENCHANT_PATTERN = ENCHANTED_TOOLTIP_LINE:gsub('%%s', '(.+)') --moving outside of the function might not be warranted but moving outside of for loop is
-	local tooltip = CreateFrame("GameTooltip", "DCSScanTooltip", nil, "GameTooltipTemplate") --TODO: use the same frame for both repairs and itemlevel
-	tooltip:SetOwner(UIParent, "ANCHOR_NONE")
+	local MATCH_ENCHANT = ENCHANTED_TOOLTIP_LINE and ENCHANTED_TOOLTIP_LINE:gsub('%%s', '(.+)') or ""
+	local ENCHANT_PATTERN = MATCH_ENCHANT
+	local tooltip = DCSScanTooltip
 	for _, v in ipairs(DCSITEM_SLOT_FRAMES) do
 		v.enchant:SetText("")
 		-- local slotId, textureName = GetInventorySlotInfo(v) --Call for string parsing instead of table lookup, bleh.
-		local item = Item:CreateFromEquipmentSlot(v:GetID())
 		local itemLink = GetInventoryItemLink("player", v:GetID())
 		if itemLink then
-			local itemName, itemStringLink = GetItemInfo(itemLink)
+			local itemName, itemStringLink, quality = GetItemInfo(itemLink)
 			if itemStringLink then
 				local _, _, Color, Ltype, Id, Enchant, Gem1, Gem2, Gem3, Gem4, Suffix, Unique, LinkLvl, Name = string.find(itemStringLink,
 				"|?c?f?f?(%x*)|?H?([^:]*):?(%d+):?(%d*):?(%d*):?(%d*):?(%d*):?(%d*):?(%-?%d*):?(%-?%d*):?(%d*):?(%d*):?(%-?%d*)|?h?%[?([^%[%]]*)%]?|?h?|?r?")
@@ -6331,7 +6355,7 @@ local function DCS_Item_Enchant_GetText()
 					addon.hasBiznicks = true
 				end
 				if showenchant then
-					v.enchant:SetTextColor(getItemQualityColor(item:GetItemQuality())) --upvalue call
+					v.enchant:SetTextColor(getItemQualityColor(quality)) --upvalue call
 					if abbrevEnchants then
 						v.enchant:SetText(DCS_ABBREV_ENCHANT_IDS[tonumber(""..Enchant.."")])
 					else
