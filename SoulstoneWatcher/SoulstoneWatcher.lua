@@ -518,7 +518,12 @@ local function OnEvent(self, event)
         return  -- Only warlocks need this
     end
     
-    if event == "READY_CHECK" or event == "PARTY_MEMBERS_CHANGED" then
+    if event == "READY_CHECK" or event == "PARTY_MEMBERS_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
+        -- For PLAYER_ENTERING_WORLD only trigger when actually in a group (handles RDF zone-in)
+        if event == "PLAYER_ENTERING_WORLD" then
+            if GetNumPartyMembers() == 0 and GetNumRaidMembers() == 0 then return end
+        end
+
         local itemID = SoulstoneWatcherConfig.soulstone_itemid or 36895
         startTime, duration, enable = GetItemCooldown(itemID)
         
@@ -711,6 +716,7 @@ function load_options(self, event)
     end 
     if SoulstoneWatcherConfig.enable_at_join == true then
         triggerEventFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
+        triggerEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
     end
 end
 
