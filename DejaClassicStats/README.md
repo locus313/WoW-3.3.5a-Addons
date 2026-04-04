@@ -60,6 +60,11 @@ This folder contains a backport of version `30400r10` to the WoW 3.3.5a (WotLK) 
 - `STAT_RESILIENCE`, `RESILIENCE_TOOLTIP` may be nil or have a different format specifier count in some 3.3.5a builds.
 - Added nil guards and wrapped the `format` call in `pcall`.
 
+**Section header frame textures (`PaperDollInfoPart1` → `SetBackdrop`)**
+- The section headers (Primary, Melee, Ranged, Spell, Defense) used `CreateTexture` sampling `Interface\PaperDollInfoFrame\PaperDollInfoPart1` at TexCoords `(0, 0.193359375, 0.69921875, 0.736328125)`. These coordinates point to the bordered header bar artwork in the WoW Classic (3.4.x) version of that atlas; the original 3.3.5a client's version of the same texture has different content at those coordinates, so no frame was visible.
+- Replaced the `CreateTexture` block on all five headers with `SetBackdrop` using `Interface\Tooltips\UI-Tooltip-Background` (background) and `Interface\Tooltips\UI-Tooltip-Border` (golden border), both of which exist in the 3.3.5a client. `SetBackdropColor` and `SetBackdropBorderColor` are used to colour them appropriately.
+- Also removed a dead `t:SetTexture(1, 1, 1, 0)` call on the Defense header that was silently overridden by the subsequent `SetTexture` call.
+
 ---
 
 ### DCSDuraRepair.lua

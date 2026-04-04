@@ -485,11 +485,14 @@ local DCSPrimaryStatsFS = DCSPrimaryStatsHeader:CreateFontString(nil, "OVERLAY",
 	-- DCSPrimaryStatsFS:SetFont("Fonts\\FRIZQT__.TTF", 12, "THINOUTLINE")
 	DCSPrimaryStatsFS:SetJustifyH("CENTER")
 
-local t=DCSPrimaryStatsHeader:CreateTexture(nil,"ARTWORK")
-		t:SetAllPoints(DCSPrimaryStatsHeader)
-		-- t:SetColorTexture(1, 1, 1, 0)
-		t:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollInfoPart1")
-		t:SetTexCoord(0, 0.193359375, 0.69921875, 0.736328125)
+DCSPrimaryStatsHeader:SetBackdrop({
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+			tile = true, tileSize = 16, edgeSize = 8,
+			insets = {left = 2, right = 2, top = 2, bottom = 2}
+		})
+		DCSPrimaryStatsHeader:SetBackdropColor(0.1, 0.1, 0.1, 0.85)
+		DCSPrimaryStatsHeader:SetBackdropBorderColor(0.5, 0.45, 0.25, 1)
 
 -----------
 --Offense--
@@ -529,11 +532,14 @@ local DCSMeleeEnhancementsStatsFS = DCSMeleeEnhancementsStatsHeader:CreateFontSt
 	-- DCSMeleeEnhancementsStatsFS:SetFont("Fonts\\FRIZQT__.TTF", 12, "THINOUTLINE")
 	DCSMeleeEnhancementsStatsFS:SetJustifyH("CENTER")
 
-local t=DCSMeleeEnhancementsStatsHeader:CreateTexture(nil,"ARTWORK")
-		t:SetAllPoints(DCSMeleeEnhancementsStatsHeader)
-		-- t:SetColorTexture(1, 1, 1, 0)
-		t:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollInfoPart1")
-		t:SetTexCoord(0, 0.193359375, 0.69921875, 0.736328125)
+DCSMeleeEnhancementsStatsHeader:SetBackdrop({
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+			tile = true, tileSize = 16, edgeSize = 8,
+			insets = {left = 2, right = 2, top = 2, bottom = 2}
+		})
+		DCSMeleeEnhancementsStatsHeader:SetBackdropColor(0.1, 0.1, 0.1, 0.85)
+		DCSMeleeEnhancementsStatsHeader:SetBackdropBorderColor(0.5, 0.45, 0.25, 1)
 
 -------------------------------
 -- Ranged Header --
@@ -551,11 +557,14 @@ local DCSRangedStatsFS = DCSRangedStatsHeader:CreateFontString(nil, "OVERLAY", "
 	-- DCSRangedStatsFS:SetFont("Fonts\\FRIZQT__.TTF", 12, "THINOUTLINE")
 	DCSRangedStatsFS:SetJustifyH("CENTER")
 
-local t=DCSRangedStatsHeader:CreateTexture(nil,"ARTWORK")
-		t:SetAllPoints(DCSRangedStatsHeader)
-		-- t:SetColorTexture(1, 1, 1, 0)
-		t:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollInfoPart1")
-		t:SetTexCoord(0, 0.193359375, 0.69921875, 0.736328125)
+DCSRangedStatsHeader:SetBackdrop({
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+			tile = true, tileSize = 16, edgeSize = 8,
+			insets = {left = 2, right = 2, top = 2, bottom = 2}
+		})
+		DCSRangedStatsHeader:SetBackdropColor(0.1, 0.1, 0.1, 0.85)
+		DCSRangedStatsHeader:SetBackdropBorderColor(0.5, 0.45, 0.25, 1)
 
 -------------------------------
 -- Spell Enhancements Header --
@@ -573,11 +582,14 @@ local DCSSpellEnhancementsStatsFS = DCSSpellEnhancementsStatsHeader:CreateFontSt
 	-- DCSSpellEnhancementsStatsFS:SetFont("Fonts\\FRIZQT__.TTF", 12, "THINOUTLINE")
 	DCSSpellEnhancementsStatsFS:SetJustifyH("CENTER")
 
-local t=DCSSpellEnhancementsStatsHeader:CreateTexture(nil,"ARTWORK")
-		t:SetAllPoints(DCSSpellEnhancementsStatsHeader)
-		-- t:SetColorTexture(1, 1, 1, 0)
-		t:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollInfoPart1")
-		t:SetTexCoord(0, 0.193359375, 0.69921875, 0.736328125)
+DCSSpellEnhancementsStatsHeader:SetBackdrop({
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+			edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+			tile = true, tileSize = 16, edgeSize = 8,
+			insets = {left = 2, right = 2, top = 2, bottom = 2}
+		})
+		DCSSpellEnhancementsStatsHeader:SetBackdropColor(0.1, 0.1, 0.1, 0.85)
+		DCSSpellEnhancementsStatsHeader:SetBackdropBorderColor(0.5, 0.45, 0.25, 1)
 
 -----------
 --Defense--
@@ -595,11 +607,14 @@ local DCSDefenseStatsFS = DCSDefenseStatsHeader:CreateFontString(nil, "OVERLAY",
 	-- DCSDefenseStatsFS:SetFont("Fonts\\FRIZQT__.TTF", 12, "THINOUTLINE")
 	DCSDefenseStatsFS:SetJustifyH("CENTER")
 
-local t=DCSDefenseStatsHeader:CreateTexture(nil,"ARTWORK")
-	t:SetAllPoints(DCSDefenseStatsHeader)
-	t:SetTexture(1, 1, 1, 0)
-	t:SetTexture("Interface\\PaperDollInfoFrame\\PaperDollInfoPart1")
-	t:SetTexCoord(0, 0.193359375, 0.69921875, 0.736328125)
+DCSDefenseStatsHeader:SetBackdrop({
+		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+		tile = true, tileSize = 16, edgeSize = 8,
+		insets = {left = 2, right = 2, top = 2, bottom = 2}
+	})
+	DCSDefenseStatsHeader:SetBackdropColor(0.1, 0.1, 0.1, 0.85)
+	DCSDefenseStatsHeader:SetBackdropBorderColor(0.5, 0.45, 0.25, 1)
 
 ---------------------
 -- Primary/General --
