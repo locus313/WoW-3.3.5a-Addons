@@ -1,7 +1,7 @@
 SoulstoneWatcherConfig = {}
 
 local SPELL_ID = 5232
-local localizedClass, englishClass, classIndex = UnitClass("player")
+local localizedClass, englishClass = UnitClass("player")
 local button1Player;
 local button2Player;
 local button3Player;
@@ -451,7 +451,7 @@ local function get_player_buffs(player)
         end
     end
 
-    if classIndex == 9 and SoulstoneWatcherConfig.show_cast_buttons then
+    if englishClass == "WARLOCK" and SoulstoneWatcherConfig.show_cast_buttons then
 
         if button1Player ~= nil then
             local unit1 = getUnitToken(button1Player)
@@ -514,7 +514,7 @@ local function get_raid_players()
 end
 
 local function OnEvent(self, event)
-    if classIndex ~= 9 then
+    if englishClass ~= "WARLOCK" then
         return  -- Only warlocks need this
     end
     
@@ -552,7 +552,7 @@ local function cooldownCheck(self, event)
         local itemID = SoulstoneWatcherConfig.soulstone_itemid or 36895
         startTime, duration, enable = GetItemCooldown(itemID)
 
-        if (duration == nil or duration == 0) and classIndex == 9 then
+        if (duration == nil or duration == 0) and englishClass == "WARLOCK" then
             SendAddonMessage(prefix, versionNumber, "RAID")
             SendAddonMessage(prefix, versionNumber, "GUILD")        
             print("|cff8788EESoulstone Watcher: Your Soulstone is ready again !")
@@ -751,7 +751,7 @@ sendAddonVersion:SetScript("OnEvent", function(self, event, pre, text)
     SendAddonMessage(prefix, versionNumber, "GUILD")
 end)
 
-if classIndex == 9 then
+if englishClass == "WARLOCK" then
     local spellEventFrame = CreateFrame("Frame")
     spellEventFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
     spellEventFrame:RegisterEvent("UNIT_SPELLCAST_SENT")

@@ -15,6 +15,8 @@ Releases are automated via `.github/workflows/release-addon.yml`. To release an 
 
 The `## Version:` field in the `.toc` file is the single source of truth for the release version.
 
+> **Back-port rule:** When fixing or modifying an existing back-ported addon, do **not** bump `## Version:` in the `.toc` file. Version bumps only happen as part of an intentional release.
+
 ---
 
 ## TOC File Conventions
