@@ -1,0 +1,18 @@
+## Interface: 30300
+## Title: Comix
+## Notes: A plain fun addon.
+## DefaultState: Enabled
+## LoadOnDemand: 0
+## SavedVariablesPerCharacter: ComixDB
+## Author: Kader (|cff808080bkader#5341|r)
+## Version: 1.0.0
+## X-License: MIT/X
+## X-Email: bkader@mail.com
+## X-Website: https://github.com/bkader/Comix-WotLK
+## X-Localizations: Abel (ES), Kader (FR)
+
+Embeds.xml
+Locales.xml
+Core.lua
+Options.lua
+Media.lua
