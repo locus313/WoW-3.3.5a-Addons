@@ -25,7 +25,7 @@ do
 	local cmds = {"say", "emote", "yell", "party", "guild", "officer", "raid", "rw", "bg", "afk", "dnd"}
 	local function MessageSender(msg, link)
 		local cmd, txt = msg:match("^(%S*)%s*(.-)$")
-		local lang = GetDefaultLanguage("PLAYER")
+		local lang = GetDefaultLanguage("player")
 		txt = gsub(txt, "~~", link)
 
 		if tContains(cmds, cmd) then
@@ -36,8 +36,6 @@ do
 			end
 			SendChatMessage(txt, cmd:upper())
 		elseif (tonumber(cmd) or 0) > 0 and tonumber(cmd) < 100 then
-			SendChatMessage(txt, "CHANNEL", lang, cmd)
-		else
 			SendChatMessage(txt, "CHANNEL", lang, cmd)
 		end
 	end
@@ -54,12 +52,19 @@ do
 		elseif cmd == "special" or cmd == "specialpic" then
 			Comix:CallPic(Comix.Images.Special[random(1, Comix.ImageSpecialCt)])
 		elseif cmd == "clearjump" then
-			Comix.jumpCount = 0
+			Comix.db.profile.jumpCount = 0
 			Comix:Print(L["Jump counter reset."])
 		elseif cmd == "showjump" then
-			Comix:Printf("[Jump Report]: %s", format(L["%s has jumped %d times."], Comix.userName, Comix.jumpCount or 0))
+			Comix:Printf("[Jump Report]: %s", format(L["%s has jumped %d times."], Comix.userName, Comix.db.profile.jumpCount))
 		elseif cmd == "reportjump" then
-			SendChatMessage(format("[Comix] %s", format(L["%s has jumped %d times."], Comix.userName, Comix.jumpCount or 0)), "SAY")
+			SendChatMessage(format("[Comix] %s", format(L["%s has jumped %d times."], Comix.userName, Comix.db.profile.jumpCount)), "SAY")
+		elseif cmd == "clearhug" then
+			Comix.db.profile.hugCount = 0
+			Comix:Print(L["Hug counter reset."])
+		elseif cmd == "showhug" then
+			Comix:Printf("[Hug Report]: %s", format(L["%s has hugged %d times."], Comix.userName, Comix.db.profile.hugCount))
+		elseif cmd == "reporthug" then
+			SendChatMessage(format("[Comix] %s", format(L["%s has hugged %d times."], Comix.userName, Comix.db.profile.hugCount)), "SAY")
 		elseif cmd == "shake" then
 			Comix:Shake(true)
 		elseif cmd == "about" then
@@ -72,6 +77,7 @@ do
 			print("\124cffffaeae/comix\124r \124cffffff33create\124r / \124cffffff33hide\124r")
 			print("\124cffffaeae/comix\124r \124cffffff33pic\124r / \124cffffff33special\124r")
 			print("\124cffffaeae/comix\124r \124cffffff33clearjump\124r / \124cffffff33showjump\124r / \124cffffff33reportjump\124r")
+			print("\124cffffaeae/comix\124r \124cffffff33clearhug\124r / \124cffffff33showhug\124r / \124cffffff33reporthug\124r")
 		else
 			ACD:Open("Comix")
 		end
@@ -98,19 +104,12 @@ do
 	end
 
 	function Comix:OnEnable()
-		self.lastUpdate = 0
 		self.currentFrame = 1
 
 		self:CreateFrames()
 		self:LoaddaShit()
 
 		-- self:DongSound(self.Sounds.Zone, random(1, self.SoundZoneCt))
-
-		self.worldFramePoints = {}
-		for i = 1, WorldFrame:GetNumPoints() do
-			local point, frame, relPoint, xOffset, yOffset = WorldFrame:GetPoint(i)
-			self.worldFramePoints[i] = {point = point, frame = frame, relPoint = relPoint, xOffset = xOffset, yOffset = yOffset}
-		end
 
 		SlashCmdList.COMIX = Commad_Comix
 		SlashCmdList.COMIXJOKE = Command_BadJoke
@@ -173,14 +172,6 @@ function Comix:CreateFrames()
 end
 
 do
-	local function table_len(t)
-		local len = 0
-		for _, _ in pairs(t) do
-			len = len + 1
-		end
-		return len
-	end
-
 	function Comix:LoaddaShit()
 		-- Counting Normal Images --
 		self.ImagePhysicalCt = self.ImagePhysicalCt or #self.Images.Physical
@@ -267,6 +258,15 @@ do
 		self.SoundKillCountCt = self.SoundKillCountCt or #self.Sounds.KillCount
 		self:Debug("Me loaded " .. self.SoundKillCountCt .. " sounds", 1, 1, 1)
 
+		-- NPC-specific sounds: keyed by exact English NPC name.
+		-- Mr. Bigglesworth is Kel'Thuzad's cat in Naxxramas (Austin Powers reference).
+		-- The Muffin Man is the food vendor in Shattrath City's Lower City.
+		-- Update the names here if they differ on your realm.
+		self.NPCSounds = {
+			["Mr. Bigglesworth"] = self.Sounds.Special[5],  -- dr_evil.ogg
+			["Muffin Man Moser"] = self.Sounds.Special[10], -- muffinman.ogg
+		}
+
 		self:Print("Open options GUI with \124cffffd700/comix\124r or get Slashcommands with \124cffffd700/comix help\124r.")
 	end
 end
@@ -312,7 +312,6 @@ function Comix:CallPic(image, name)
 		self.yCoords = random(0, 150)
 	end
 
-	self.currentImage = image
 	self:DongPic(self.xCoords, self.yCoords, image, name)
 end
 
@@ -341,8 +340,8 @@ do
 		end
 
 		self.textures[self.currentFrame]:SetAllPoints(self.frames[self.currentFrame])
-		self.frames[self.currentFrame].texture = self.textures[self.currentFrame]
 
+		self.frames[self.currentFrame]:ClearAllPoints()
 		if image == "portrait" then
 			self.frames[self.currentFrame]:SetPoint("CENTER", -150, -50)
 		else
@@ -361,13 +360,10 @@ do
 		if not Comix.db.profile.enabled then return end
 		if UnitOnTaxi("player") then return end
 
-		local boing = true
 		if not IsFlying() and not IsSwimming() then
-			if boing then
-				Comix.jumpCount = (Comix.jumpCount or 0) + 1
-				if Comix.db.profile.bounceSound then
-					Comix:DongSound(Comix.Sounds.Special, 8)
-				end
+			Comix.db.profile.jumpCount = Comix.db.profile.jumpCount + 1
+			if Comix.db.profile.bounceSound then
+				Comix:DongSound(Comix.Sounds.Special, 8)
 			end
 		end
 	end
@@ -396,34 +392,42 @@ do
 
 		self.frame:SetScript("OnUpdate", self.Update)
 
-		-- jump sound
-		hooksecurefunc("JumpOrAscendStart", jumpOrAscendStart)
+		-- jump sound (hooked once; hooksecurefunc chains on each call)
+		if not self.jumpHooked then
+			hooksecurefunc("JumpOrAscendStart", jumpOrAscendStart)
+			self.jumpHooked = true
+		end
 
 		self:ToggleEvent("READY_CHECK", "readySound")
-		self:ToggleEvent("ZONE_CHANGED_NEW_AREA", "zoneSound")
+		self:ToggleEvent("ZONE_CHANGED_NEW_AREA", "zoneSound", "specialSound")
 
-		self:ToggleEvent("PLAYER_TARGET_CHANGED", "finish")
+		self:ToggleEvent("PLAYER_TARGET_CHANGED", "finish", "npcSound")
 		self:ToggleEvent("UNIT_HEALTH", "finish")
 
 		self:ToggleEvent("PLAYER_DEAD", "deathSound")
 		self:ToggleEvent("RESURRECT_REQUEST", "resSound")
 
-		self:ToggleEvent("CHAT_MSG_TEXT_EMOTE", "specialSound")
-		self:ToggleEvent("CHAT_MSG_EMOTE", "specialSound")
+		self:RegisterEvent("CHAT_MSG_TEXT_EMOTE")  -- objections, bad-joke/drama, hug counter
 
 		self:ToggleEvent("UNIT_SPELLCAST_SENT", "demoSound", "abilitySound")
 
-		self:ToggleEvent("COMBAT_LOG_EVENT_UNFILTERED", "critical", "overkill", "killCount")
+		self:ToggleEvent("COMBAT_LOG_EVENT_UNFILTERED", "critical", "overkill", "killCount", "battleSound", "critHeal")
 	end
 end
 
 function Comix:ToggleEvent(event, ...)
+	-- Register the event if ANY of the listed settings is enabled; unregister only when ALL are disabled.
+	local shouldRegister = false
 	for i = 1, select("#", ...) do
 		if self.db.profile[select(i, ...)] == true then
-			self:RegisterEvent(event)
-		else
-			self:UnregisterEvent(event)
+			shouldRegister = true
+			break
 		end
+	end
+	if shouldRegister then
+		self:RegisterEvent(event)
+	else
+		self:UnregisterEvent(event)
 	end
 end
 
@@ -454,7 +458,9 @@ function Comix:Update(elapsed)
 				elseif Comix.status[i] == 1 then
 					Comix.scales[i] = Comix.db.profile.maxScale
 					frame:SetScale(Comix.scales[i])
-					if Comix.scales[i] >= Comix.db.profile.maxScale * 0.4 then
+						Comix.visibleTime[i] = Comix.visibleTime[i] + 0.01
+						if Comix.visibleTime[i] >= 0.15 then
+							Comix.visibleTime[i] = 0
 						Comix.status[i] = 2
 					end
 				elseif Comix.status[i] == 2 then
@@ -499,10 +505,17 @@ function Comix:Shake(force)
 			elapsed = self.elapsed + elapsed
 
 			if elapsed >= Comix.db.profile.shakeDuration or (WorldFrame:IsProtected() and InCombatLockdown()) then
+				-- Restore WorldFrame to its original position before hiding.
+				WorldFrame:ClearAllPoints()
+				for i = 1, #self.originalPoints do
+					local v = self.originalPoints[i]
+					WorldFrame:SetPoint(v[1], v[2], v[3], v[4], v[5])
+				end
 				self:Hide()
 			else
-				local rand =
-					random(-100, 100) / (101 - Comix.db.profile.shakeIntensity - (Comix.db.profile.shakeOffset - 1))
+				local denom = 101 - Comix.db.profile.shakeIntensity - (Comix.db.profile.shakeOffset - 1)
+				if denom <= 0 then denom = 1 end
+				local rand = random(-100, 100) / denom
 				WorldFrame:ClearAllPoints()
 				for i = 1, #self.originalPoints do
 					local v = self.originalPoints[i]
@@ -520,7 +533,8 @@ function Comix:Shake(force)
 end
 
 function Comix:Flash(r, g, b, size)
-	size = (size < 1) and 1 or (size > 2) and 2 or size or 1
+	size = size or 1
+	size = (size < 1) and 1 or (size > 2) and 2 or size
 	self.flashFrame.texture:SetTexture("Interface\\Addons\\Comix\\Media\\Images\\flash" .. size .. ".tga")
 	self.flashFrame.texture:SetVertexColor(r, g, b)
 	UIFrameFlash(self.flashFrame.texture, 0.5, 0.5, 2, false, 1, 0)
@@ -531,38 +545,25 @@ end
 function Comix:KillCount()
 	if self.db.profile.killCount then
 		self.killCount = (self.killCount or 0) + 1
-		self.killCountPlayed = false
 
-		if not self.killCountPlayed then
-			if self.killCount == 2 then
-				self:DongSound(self.Sounds.KillCount, 1)
-				self.killCountPlayed = true
-			elseif self.killCount == 5 then
-				self:DongSound(self.Sounds.KillCount, 2)
-				self.killCountPlayed = true
-			elseif self.killCount == 8 then
-				self:DongSound(self.Sounds.KillCount, 3)
-				self.killCountPlayed = true
-			elseif self.killCount == 10 then
-				self:DongSound(self.Sounds.KillCount, 4)
-				self.killCountPlayed = true
-			elseif self.killCount == 15 then
-				self:DongSound(self.Sounds.KillCount, 5)
-				self.killCountPlayed = true
-			elseif self.killCount == 20 then
-				self:DongSound(self.Sounds.KillCount, 6)
-				self.killCountPlayed = true
-			elseif self.killCount == 30 then
-				self:DongSound(self.Sounds.KillCount, 7)
-				self.killCountPlayed = true
-			elseif self.killCount == 40 then
-				self:DongSound(self.Sounds.KillCount, 8)
-				self.killCountPlayed = true
-			elseif self.killCount == 50 then
-				self:DongSound(self.Sounds.KillCount, 9)
-				self.killCountPlayed = true
-			else
-			end
+		if self.killCount == 2 then
+			self:DongSound(self.Sounds.KillCount, 1)
+		elseif self.killCount == 5 then
+			self:DongSound(self.Sounds.KillCount, 2)
+		elseif self.killCount == 8 then
+			self:DongSound(self.Sounds.KillCount, 3)
+		elseif self.killCount == 10 then
+			self:DongSound(self.Sounds.KillCount, 4)
+		elseif self.killCount == 15 then
+			self:DongSound(self.Sounds.KillCount, 5)
+		elseif self.killCount == 20 then
+			self:DongSound(self.Sounds.KillCount, 6)
+		elseif self.killCount == 30 then
+			self:DongSound(self.Sounds.KillCount, 7)
+		elseif self.killCount == 40 then
+			self:DongSound(self.Sounds.KillCount, 8)
+		elseif self.killCount == 50 then
+			self:DongSound(self.Sounds.KillCount, 9)
 		end
 	end
 end
@@ -590,18 +591,23 @@ do
 				self:DongSound(self.Sounds.Zone, random(1, self.SoundZoneCt))
 			end
 		elseif self.db.profile.zoneSound then
-            if lastZoneTime == nil or GetTime() - lastZoneTime >= 15 then
-                lastZoneTime = GetTime()
-			    self:DongSound(self.Sounds.Zone, random(1, self.SoundZoneCt))
-            elseif GetTime() - lastZoneTime < 30 then
-                return
-            end
+			if lastZoneTime == nil or GetTime() - lastZoneTime >= 30 then
+				lastZoneTime = GetTime()
+				self:DongSound(self.Sounds.Zone, random(1, self.SoundZoneCt))
+			end
 		end
 	end
 end
 
 function Comix:PLAYER_TARGET_CHANGED()
-	self.finishTarget = (UnitExists("target") ~= nil)
+	self.finishTarget = UnitExists("target")
+
+	if self.db.profile.npcSound and UnitExists("target") and not UnitIsPlayer("target") then
+		local npcSound = self.NPCSounds and self.NPCSounds[UnitName("target")]
+		if npcSound then
+			self:DongSound("customcomixsound", npcSound)
+		end
+	end
 end
 
 function Comix:UNIT_HEALTH(event, unit)
@@ -611,44 +617,72 @@ function Comix:UNIT_HEALTH(event, unit)
 			local percent = 100 * targetHealth / targetMaxHealth
 			if percent < self.db.profile.finishGap then
 				self.finishTarget = false
-				self:DongSound(self.Sounds.Special, 12)
+				if self.db.profile.finishSound then
+					self:DongSound(self.Sounds.Special, 12)
+				end
 			end
 		end
 	end
 end
 
 function Comix:PLAYER_DEAD()
-	self.dead, self.unghosted = true, false
 	self:CallPic(self.Images.Death[random(1, self.ImageDeathCt)])
 	self:DongSound(self.Sounds.Death, random(1, self.SoundDeathCt))
 	self.killCount = 0
 end
 
 function Comix:RESURRECT_REQUEST()
-	self.unghosted, self.dontFireOnAlive = false, true
 	self:DongSound(self.Sounds.Res, random(1, self.SoundResCt))
 end
 
-function Comix:CHAT_MSG_EMOTE(event, msg)
-	if msg and strfind(msg, L["bad joke"]) then
-		self:DongSound(self.Sounds.Special, 17)
-	elseif msg and strfind(msg, L["detects a hint of drama."]) then
-		self:DongSound(self.Sounds.Special, 19)
-	end
-end
-
 do
+	-- Resolve a sender's character name to a group unit token so that
+	-- unit-token-only APIs (UnitInParty, UnitSex, SetPortraitTexture) work correctly.
+	local function NameToUnitID(name)
+		for i = 1, 4 do
+			local u = "party" .. i
+			if UnitName(u) == name then return u end
+		end
+		for i = 1, 40 do
+			local u = "raid" .. i
+			if UnitName(u) == name then return u end
+		end
+		return nil
+	end
+
+	-- Handles objection reactions, bad-joke/drama detections, and hug counting.
+	-- Registered for CHAT_MSG_TEXT_EMOTE because SendChatMessage(text, "EMOTE")
+	-- fires CHAT_MSG_TEXT_EMOTE, not CHAT_MSG_EMOTE.
 	function Comix:CHAT_MSG_TEXT_EMOTE(event, msg, name)
-		if msg and (strfind(msg:lower(), L["object"]) or strfind(msg:lower(), L["objects"])) then
-			if UnitInParty(name) or UnitInRaid(name) then
+		if not msg then return end
+		local msgLower = msg:lower()
+
+		-- Count hugs sent by the player (persisted lifetime counter).
+		if name == self.userName and strfind(msgLower, "hug", 1, true) then
+			self.db.profile.hugCount = self.db.profile.hugCount + 1
+		end
+
+		if strfind(msgLower, L["object"], 1, true) or strfind(msgLower, L["objects"], 1, true) then
+			local unit = NameToUnitID(name)
+			if unit and (UnitInParty(unit) or UnitInRaid(unit)) then
 				if self.db.profile.objection and self.db.profile.objectionImage then
-					self:CallPic("portrait", name)
+					self:CallPic("portrait", unit)  -- unit token required by SetPortraitTexture
 					self:CallPic(self.Images.Special[5])
 				end
 				if self.db.profile.objection and self.db.profile.objectionSound then
-					self:DongSound(self.Sounds.Objection, UnitSex(name) == 3 and random(3, 4) or random(1, 2))
+					self:DongSound(self.Sounds.Objection, UnitSex(unit) == 3 and random(3, 4) or random(1, 2))
 				end
-			else
+			elseif self.db.profile.objection and self.db.profile.objectionPublic then
+				-- Public objection: sender not in group, no portrait
+				self:CallPic(self.Images.Special[5])
+				self:DongSound(self.Sounds.Objection, random(1, self.SoundObjectionCt))
+			end
+		elseif self.db.profile.specialSound then
+			-- Bad joke and drama reactions: detect messages sent by /badjoke and /drama commands.
+			if strfind(msg, L["bad joke"], 1, true) then
+				self:DongSound(self.Sounds.Special, 17)
+			elseif strfind(msg, L["detects a hint of drama."], 1, true) then
+				self:DongSound(self.Sounds.Special, 19)
 			end
 		end
 	end
@@ -660,15 +694,16 @@ do
 	local demoRoar = GetSpellInfo(48560)
 	local runTable = {GetSpellInfo(11305), GetSpellInfo(33357), GetSpellInfo(5118)}
 	local deathGrip = GetSpellInfo(49576)
-	local lifegrip = GetSpellInfo(73325)
 	local metamorph = GetSpellInfo(47241)
 	local runTable1 = {GetSpellInfo(1120), GetSpellInfo(8288), GetSpellInfo(8289), GetSpellInfo(11975), GetSpellInfo(27217), GetSpellInfo(47855)}
 
 	function Comix:UNIT_SPELLCAST_SENT(event, unit, spellname)
+		if unit ~= "player" then return end
 		if not spellname then return end
 
 		if self.db.profile.demoSound and (spellname == L["Demoralizing Shout"] or spellname == demoRoar) then
-			self:DongPic(0, 0, self.Images.Special[2])
+			self:CallPic(self.Images.Special[2])
+			self:DongSound(self.Sounds.Special, random(2, 3))
 		end
 
 		if self.db.profile.abilitySound then
@@ -679,10 +714,8 @@ do
 			elseif tContains(runTable, spellname) then
 				self:DongSound(self.Sounds.Special, 11)
 			elseif self.db.profile.demoSound and (spellname == L["Demoralizing Shout"] or spellname == demoRoar) then
-				self:DongSound(self.Sounds.Special, random(2, 3))
+				-- sound already played above; no-op here to avoid double sound
 			elseif spellname == deathGrip then
-				self:DongSound(self.Sounds.Special, random(20, 21))
-			elseif spellname == lifegrip then
 				self:DongSound(self.Sounds.Special, random(20, 21))
 			elseif tContains(runTable1, spellname) then
 				self:DongSound(self.Sounds.Special, 22)
@@ -697,8 +730,10 @@ do
 
 	function Comix:COMBAT_LOG_EVENT_UNFILTERED(_, _, event, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
 		if event == "SPELL_AURA_APPLIED" and select(2, ...) == L["Battle Shout"] then
-			if srcName == self.userName and self.db.profile.battleSound then
-				self:DongPic(0, 0, self.Images.Special[1])
+			-- Guard dstGUID so this fires once (when the buff lands on the player)
+			-- rather than once per raid member receiving the shout.
+			if srcName == self.userName and dstGUID == self.userGUID and self.db.profile.battleSound then
+				self:CallPic(self.Images.Special[1])
 				self:DongSound(self.Sounds.Special, 1)
 			end
 			return
@@ -708,12 +743,13 @@ do
 			if srcName == self.userName or dstName == self.userName then
 				local amount, _, _, critical = select(4, ...)
 				if critical then
-					if self.db.profile.critGapEnabled and amount < self.db.profile.critGap then
+					if self.db.profile.critGapEnabled and self.db.profile.critGap and amount < self.db.profile.critGap then
 						return
 					end
-					if random(1, 100) <= 100 then
+					if random(1, 100) <= self.db.profile.critPercent then
 						if self.db.profile.critHealFlash then
-							self:Flash(0, 1, 0, 1)
+							-- Size 1 when healing self or receiving a heal; size 2 when player heals another.
+							self:Flash(0, 1, 0, (srcName == self.userName and dstName ~= self.userName) and 2 or 1)
 						end
 						self:CallPic(self.Images.HolyHeal[random(1, self.ImageHolyHealCt)])
 						if self.db.profile.critHeal then
@@ -728,79 +764,65 @@ do
 		if srcFlags and bit.band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) ~= 0 then
 			if event == "PARTY_KILL" then
 				self:KillCount()
-			elseif event == "SPELL_HEAL" then
-				local amount, _, _, critical = select(4, ...)
-				if critical then
-					if self.db.profile.critGapEnabled and amount < self.db.profile.critGap then
-						return
-					end
-
-					if random(1, 100) <= 100 then
-						if self.db.profile.critHealFlash then
-							self:Flash(0, 1, 0, dstName == self.userName and 1 or 2)
-						end
-						self:CallPic(self.Images.HolyHeal[random(1, self.ImageHolyHealCt)])
-						if self.db.profile.critHeal then
-							self:DongSound(self.Sounds.Healing, random(1, self.SoundHealingCt))
-						end
-					end
-				end
 			end
 		end
 
 		if (event == "SPELL_DAMAGE" or event == "RANGE_DAMAGE") and srcGUID == self.userGUID then
 			local spellschool, amount, overkill, _, _, _, _, critical = select(3, ...)
 
-			if self.db.profile.overkill and (amount - overkill) > 1 then
-				if overkill / (amount - overkill) > 0.75 then
+			-- overkill is -1 in 3.3.5a when there is no overkill; guard before using it
+			if self.db.profile.overkill and overkill > 0 and (amount - overkill) > 1 then
+				if overkill / (amount - overkill) > (self.db.profile.overkillGap / 100) then
 					self:CallPic(self.Images.Overkill[random(1, self.ImageOverkillCt)])
 				end
 			end
 
-			if critical then
-				if self.db.profile.critGapEnabled and amount < self.db.profile.critGap then
-					return
-				end
-				if random(1, 100) <= 100 then
-					if self.db.profile.shake then
-						self:Shake()
+			if self.db.profile.critical then
+				if critical then
+					if self.db.profile.critGapEnabled and self.db.profile.critGap and amount < self.db.profile.critGap then
+						return
 					end
-					self.critCount = (self.critCount or 0) + 1
-					if self.critCount >= 3 then
-						if self.db.profile.specialSound then
-							self:DongSound(self.Sounds.Crit, random(1, self.SoundCritCt))
+					if random(1, 100) <= self.db.profile.critPercent then
+						if self.db.profile.shake then
+							self:Shake()
 						end
-						self:DongPic(self.xCoords + random(-15, 15), self.yCoords + random(-20, 20), self.Images.Special[3])
-						self.critCount = 0
-					end
+						self.critCount = (self.critCount or 0) + 1
+						if self.critCount >= 3 then
+							if self.db.profile.specialSound then
+								self:DongSound(self.Sounds.Crit, random(1, self.SoundCritCt))
+							end
+							self:CallPic(self.Images.Special[3])
+							self.critCount = 0
+						end
 
-					if self.db.profile.critSound then
-						self:DongSound(self.Sounds.Crit)
-					end
+						if self.db.profile.critSound then
+							self:DongSound(self.Sounds.Crit)
+						end
 
-					if self.db.profile.critFlash then
-						self:Flash(1, 0, 0, 2)
+						if self.db.profile.critFlash then
+							self:Flash(1, 0, 0, 2)
+						end
+						if spellschool == 16 then
+							self:CallPic(self.Images.Frost[random(1, self.ImageFrostCt)])
+						elseif spellschool == 20 then
+							self:CallPic(self.Images.FrostFire[random(1, self.ImageFrostFireCt)])
+						elseif spellschool == 4 then
+							self:CallPic(self.Images.Fire[random(1, self.ImageFireCt)])
+						elseif spellschool == 2 then
+							self:CallPic(self.Images.HolyDamage[random(1, self.ImageHolyDamageCt)])
+						elseif spellschool == 8 then
+							self:CallPic(self.Images.Nature[random(1, self.ImageNatureCt)])
+						elseif spellschool == 32 then
+							self:CallPic(self.Images.Shadow[random(1, self.ImageShadowCt)])
+						elseif spellschool == 64 then
+							self:CallPic(self.Images.Arcane[random(1, self.ImageArcaneCt)])
+						elseif spellschool == 1 then
+							self:CallPic(self.Images.Physical[random(1, self.ImagePhysicalCt)])
+						end
 					end
-					if spellschool == 16 then
-						self:CallPic(self.Images.Frost[random(1, self.ImageFrostCt)])
-					elseif spellschool == 20 then
-						self:CallPic(self.Images.FrostFire[random(1, self.ImageFrostFireCt)])
-					elseif spellschool == 4 then
-						self:CallPic(self.Images.Fire[random(1, self.ImageFireCt)])
-					elseif spellschool == 2 then
-						self:CallPic(self.Images.HolyDamage[random(1, self.ImageHolyDamageCt)])
-					elseif spellschool == 8 then
-						self:CallPic(self.Images.Nature[random(1, self.ImageNatureCt)])
-					elseif spellschool == 32 then
-						self:CallPic(self.Images.Shadow[random(1, self.ImageShadowCt)])
-					elseif spellschool == 64 then
-						self:CallPic(self.Images.Arcane[random(1, self.ImageArcaneCt)])
-					elseif spellschool == 1 then
-						self:CallPic(self.Images.Physical[random(1, self.ImagePhysicalCt)])
-					end
+				else
+					self.critCount = 0
 				end
-			else
-				self.critCount = 0
 			end
 
 			return
@@ -809,41 +831,44 @@ do
 		if event == "SWING_DAMAGE" and srcGUID == self.userGUID then
 			local amount, overkill, _, _, _, _, critical = ...
 
-			if self.db.profile.overkill and (amount - overkill) > 1 then
-				if overkill / (amount - overkill) > 0.75 then
+			-- overkill is -1 in 3.3.5a when there is no overkill; guard before using it
+			if self.db.profile.overkill and overkill > 0 and (amount - overkill) > 1 then
+				if overkill / (amount - overkill) > (self.db.profile.overkillGap / 100) then
 					self:CallPic(self.Images.Overkill[random(1, self.ImageOverkillCt)])
 					self:DongSound(self.Sounds.OneHit, random(1, self.SoundOneHitCt))
 				end
 			end
 
-			if critical then
-				if self.db.profile.critGapEnabled and amount < self.db.profile.critGap then
-					return
-				end
-				if random(1, 100) <= 100 then
-					if self.db.profile.shake then
-						self:Shake()
+			if self.db.profile.critical then
+				if critical then
+					if self.db.profile.critGapEnabled and self.db.profile.critGap and amount < self.db.profile.critGap then
+						return
 					end
-					self.critCount = (self.critCount or 0) + 1
-					if self.critCount >= 3 then
-						if self.db.profile.specialSound then
-							self:DongSound(self.Sounds.Crit, random(1, self.SoundCritCt))
+					if random(1, 100) <= self.db.profile.critPercent then
+						if self.db.profile.shake then
+							self:Shake()
 						end
-						self:DongPic(self.xCoords + random(-15, 15), self.yCoords + random(-20, 20), self.Images.Special[3])
-						self.critCount = 0
-					end
+						self.critCount = (self.critCount or 0) + 1
+						if self.critCount >= 3 then
+							if self.db.profile.specialSound then
+								self:DongSound(self.Sounds.Crit, random(1, self.SoundCritCt))
+							end
+							self:CallPic(self.Images.Special[3])
+							self.critCount = 0
+						end
 
-					if self.db.profile.critSound then
-						self:DongSound(self.Sounds.Crit)
-					end
+						if self.db.profile.critSound then
+							self:DongSound(self.Sounds.Crit)
+						end
 
-					if self.db.profile.critFlash then
-						self:Flash(1, 0, 0, 2)
+						if self.db.profile.critFlash then
+							self:Flash(1, 0, 0, 2)
+						end
+						self:CallPic(self.Images.Physical[random(1, self.ImagePhysicalCt)])
 					end
-					self:CallPic(self.Images.Physical[random(1, self.ImageFrostCt)])
+				else
+					self.critCount = 0
 				end
-			else
-				self.critCount = 0
 			end
 
 			return

@@ -97,3 +97,10 @@ L["Public Objections"] = true
 L["Ignore Objections from everyone outside your party or raid. Public objections do not show a portrait and are not gender specific."] = true
 L["object"] = true
 L["objects"] = true
+
+L["NPC Sounds"] = true
+L["Play a sound when targeting special NPCs (Mr. Bigglesworth, Muffin Man Moser)."] = true
+
+-- hug counter
+L["Hug counter reset."] = true
+L["%s has hugged %d times."] = true

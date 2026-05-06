@@ -45,7 +45,11 @@ Comix.defaults = {
 		readySound = true,
 		resSound = true,
 		specialSound = true,
-		zoneSound = true
+		zoneSound = true,
+		npcSound = true,
+		-- lifetime counters --
+		jumpCount = 0,
+		hugCount = 0
 	}
 }
 
@@ -67,6 +71,10 @@ end
 
 local function Disabled_Object()
 	return (Comix.db.profile.objection ~= true)
+end
+
+local function Disabled_CritGap()
+	return (Comix.db.profile.critical ~= true) or (Comix.db.profile.critGapEnabled ~= true)
 end
 
 Comix.options = {
@@ -100,12 +108,18 @@ Comix.options = {
 			type = "range",
 			name = L["Scale"],
 			desc = L["Adjust the size of the images."],
+			min = 0.5, max = 4, step = 0.1, bigStep = 0.5,
+			get = function() return Comix.db.profile.maxScale end,
+			set = function(_, val)
+				Comix.db.profile.maxScale = val
+				Comix:ApplySettings()
+			end,
 			order = 60
 		},
 		animSpeed = {
 			type = "range",
 			name = L["Animation Speed"],
-			min = 0, max = 3, step = 0.01, bigStep = 0.1,
+			min = 0.1, max = 3, step = 0.01, bigStep = 0.1,
 			order = 70
 		},
 		-- shake --
@@ -181,6 +195,7 @@ Comix.options = {
 					name = L["Crit Percent"],
 					desc = L["Percentage chance for crits to show."],
 					width = "double",
+					min = 1, max = 100, step = 1,
 					hidden = Disabled_Critial,
 					disabled = Disabled_Critial,
 					order = 40
@@ -196,8 +211,13 @@ Comix.options = {
 					type = "input",
 					name = L["Gap"],
 					desc = L["Only want fun at really impressive crits ? try this."],
-					hidden = Disabled_Critial,
-					disabled = Disabled_Critial,
+					hidden = Disabled_CritGap,
+					disabled = Disabled_CritGap,
+					get = function() return tostring(Comix.db.profile.critGap or "") end,
+					set = function(_, val)
+						Comix.db.profile.critGap = tonumber(val) or false
+						Comix:ApplySettings()
+					end,
 					order = 60
 				},
 				critFlash = {
@@ -381,6 +401,12 @@ Comix.options = {
 					name = L["Zone Sound"],
 					desc = L["Yes, there is a sound for zone changes, toggle it on/off with this."],
 					order = 110
+				},
+				npcSound = {
+					type = "toggle",
+					name = L["NPC Sounds"],
+					desc = L["Play a sound when targeting special NPCs (Mr. Bigglesworth, Muffin Man Moser)."],
+					order = 120
 				}
 			}
 		}
