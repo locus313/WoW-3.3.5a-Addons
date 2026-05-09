@@ -10,6 +10,7 @@ local castID;
 local castTargetPlayer;
 local msgSent = false;
 local versionMsgSent = false;
+local lastGroupSize = 0;
 local versionNumber = 107;
 local prefix = "SoulstoneWatcher"
 local f
@@ -517,33 +518,43 @@ local function OnEvent(self, event)
     if englishClass ~= "WARLOCK" then
         return  -- Only warlocks need this
     end
-    
-    if event == "READY_CHECK" or event == "PARTY_MEMBERS_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
-        -- For PLAYER_ENTERING_WORLD only trigger when actually in a group (handles RDF zone-in)
-        if event == "PLAYER_ENTERING_WORLD" then
-            if GetNumPartyMembers() == 0 and GetNumRaidMembers() == 0 then return end
-        end
 
-        local itemID = SoulstoneWatcherConfig.soulstone_itemid or 36895
-        startTime, duration, enable = GetItemCooldown(itemID)
-        
-        -- Show cast buttons regardless of cooldown
-        player = get_raid_players()
-        check = get_player_buffs(player)
+    if event == "PARTY_MEMBERS_CHANGED" then
+        local currentGroupSize = GetNumRaidMembers() + GetNumPartyMembers()
+        local wasAlone = lastGroupSize == 0
+        lastGroupSize = currentGroupSize
+        -- Only trigger when the player themselves joins a group (transition from solo to grouped)
+        if not wasAlone then return end
+        if currentGroupSize == 0 then return end
+    end
 
-        -- Always notify on READY_CHECK; only notify on other events if soulstone is ready
-        if event == "READY_CHECK" then
-            if (duration == nil or duration == 0) then
-                print("|cff8788EESoulstone Watcher: Your Soulstone is ready!")
-            else
-                local remaining = math.ceil(duration - (GetTime() - startTime))
-                print("|cff8788EESoulstone Watcher: Soulstone is on cooldown (" .. remaining .. "s remaining)")
-            end
-            versionMsgSent = false
-        elseif (duration == nil or duration == 0) then
-            print("|cff8788EESoulstone Watcher: Your Soulstone is ready")
-            versionMsgSent = false
+    if event == "PLAYER_ENTERING_WORLD" then
+        lastGroupSize = GetNumRaidMembers() + GetNumPartyMembers()
+        if lastGroupSize == 0 then return end
+    end
+
+    -- Suppress join/zone-in notifications while in combat; READY_CHECK always fires
+    if event ~= "READY_CHECK" and UnitAffectingCombat("player") then return end
+
+    local itemID = SoulstoneWatcherConfig.soulstone_itemid or 36895
+    startTime, duration, enable = GetItemCooldown(itemID)
+
+    -- Show cast buttons regardless of cooldown
+    player = get_raid_players()
+    check = get_player_buffs(player)
+
+    -- Always notify on READY_CHECK; only notify on other events if soulstone is ready
+    if event == "READY_CHECK" then
+        if (duration == nil or duration == 0) then
+            print("|cff8788EESoulstone Watcher: Your Soulstone is ready!")
+        else
+            local remaining = math.ceil(duration - (GetTime() - startTime))
+            print("|cff8788EESoulstone Watcher: Soulstone is on cooldown (" .. remaining .. "s remaining)")
         end
+        versionMsgSent = false
+    elseif (duration == nil or duration == 0) then
+        print("|cff8788EESoulstone Watcher: Your Soulstone is ready")
+        versionMsgSent = false
     end
 end
 
