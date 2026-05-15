@@ -1105,3 +1105,72 @@ do
     end)
 end
 
+-- ==========================================================================
+-- 22. PlaySoundFile return value  (3.3.5a; 4.0.1+ returns willPlay, soundHandle)
+--     The original WotLK 3.3.5a PlaySoundFile is a void C function.
+--     SAO.PlaySpellAlertSound reads the first return value (willPlay) to
+--     record the play time and throttle repeated calls within the same frame.
+--     Without the fix, willPlay is always nil, the throttle never fires, and
+--     the sound plays twice per proc when the overlay has two positions
+--     (e.g. "Left + Right (Flipped)") because two ShowOverlay calls fire in
+--     the same Lua execution frame.
+--
+--     Also note: soundHandle is returned as nil because 3.3.5a has no
+--     handle-based StopSound.  The guard  if handle then StopSound(handle)
+--     in sound.lua is therefore safe — StopSound is never called.
+--
+--     The wrapper is transparent on clients that already return a value
+--     (private-server builds that extend the API), because we only override
+--     when the original returns nil for the first value.
+-- ==========================================================================
+if PlaySoundFile then
+    local _orig_PlaySoundFile = PlaySoundFile
+    PlaySoundFile = function(path, channel)
+        local willPlay, soundHandle = _orig_PlaySoundFile(path, channel)
+        if willPlay == nil then
+            -- 3.3.5a client: sound plays but no value is returned.
+            return true, nil
+        end
+        return willPlay, soundHandle
+    end
+end
+
+-- ==========================================================================
+-- 23. IsSpellKnownOrOverridesKnown  (4.0.1 / Cataclysm pre-patch+)
+--     spell.lua captures this as a local upvalue at load time:
+--       local IsSpellKnownOrOverridesKnown = IsSpellKnownOrOverridesKnown
+--     It is called unconditionally inside SAO:IsSpellLearned(spellID), which
+--     is in turn called by actionusable.lua on every SPELL_UPDATE_USABLE and
+--     PLAYER_ENTERING_WORLD event.  On 3.3.5a, the global does not exist and
+--     the upvalue is nil → every call crashes with "attempt to call a nil value".
+--
+--     IsSpellKnown() (the simpler 1-arg version) was also added in patch 4.0.1
+--     and is therefore also absent from 3.3.5a.
+--
+--     Implementation: scan the player spellbook using GetSpellBookItemInfo,
+--     which returns (type, spellID) on WotLK 3.3.5a.  This is the most
+--     reliable approach.  A server-capability guard returns true (permissive)
+--     when GetSpellBookItemInfo is absent — in that case the cooldown check
+--     inside actionusable.lua still prevents unknown spells from activating.
+-- ==========================================================================
+if not IsSpellKnownOrOverridesKnown then
+    function IsSpellKnownOrOverridesKnown(spellID)
+        if not spellID then return false end
+        -- GetSpellBookItemInfo is present on all real 3.3.5a clients;
+        -- some stripped-down private servers omit it.
+        if not GetSpellBookItemInfo then
+            -- Permissive fallback: assume known.  The caller still guards
+            -- against truly unlearned spells via GetSpellCooldown.
+            return true
+        end
+        for tab = 1, GetNumSpellTabs() do
+            local _, _, offset, numSlots = GetSpellTabInfo(tab)
+            for i = offset + 1, offset + numSlots do
+                local _, id = GetSpellBookItemInfo(i, BOOKTYPE_SPELL)
+                if id == spellID then return true end
+            end
+        end
+        return false
+    end
+end
+
