@@ -636,11 +636,11 @@ do
             --
             --   LEFT COLUMN (x = 40)
             --     Sliders y=-20 .. y=-217  (gap=-28, initial=-20)
-            --     GlowingButtons y=-225    (fixed; 21 px gap below alert bottom)
-            --     Glow checkboxes y≈-249+  (LoadOptions anchors to GlowingButtons)
+            --     GlowingButtons y=-245    (fixed; 16 px gap below $parentLow label)
+            --     Glow checkboxes y≈-269+  (LoadOptions anchors to GlowingButtons)
             --
             --   RIGHT COLUMN (x = 320)
-            --     Utility buttons y=-260 .. y=-344
+            --     Utility buttons y=-280 .. y=-364
             --
             -- Alert checkboxes are anchored to SpellAlertLabel (not sliders)
             -- and stay in the far-right column (x≈332) up to y≈-204 (Mage,
@@ -654,9 +654,13 @@ do
             --     any slider-text overlap.  Initial y-offset: -20 (was -32).
             --     Total height saved vs. original: 28 px.
             --
-            -- (2) GlowingButtons is pinned to panel TOPLEFT + (16, -225) so it
-            --     always sits below the deepest possible alert-checkbox row
-            --     (y=-204 for Mage) regardless of slider compaction.
+            -- (2) GlowingButtons is pinned to panel TOPLEFT + (16, -245) so it
+            --     always sits below the Sound slider's $parentLow label.
+            --     OptionsSliderTemplate $parentLow sits 2 px below the slider
+            --     frame bottom (SoundSlider frame bottom = y=-217) and is ~10 px
+            --     tall → label runs y=-219 to y=-229.  y=-245 gives a clear
+            --     16 px gap.  Original XML placed GlowingButtons 24 px below
+            --     the slider bottom (500 px panel); we preserve that intent.
             --
             -- (3) Utility buttons (Debug, Report, Responsive, AskDisableGameAlert)
             --     are moved from BOTTOMLEFT of the panel to a fixed position in
@@ -701,18 +705,22 @@ do
                 end
 
                 -- (2) Pin GlowingButtons to a fixed panel-relative position.
+                -- SoundSlider $parentLow label ends at ~y=-229; y=-245 leaves
+                -- a clear 16 px gap below it.
                 local glowCheckBtn = _G[prefix .. "GlowingButtons"]
                 if glowCheckBtn then
                     glowCheckBtn:ClearAllPoints()
-                    glowCheckBtn:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -225)
+                    glowCheckBtn:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -245)
                 end
 
                 -- (3) Move utility buttons to the right column (x=320).
+                -- Shifted down 20 px vs. previous iteration to stay below
+                -- the glow section (GlowingButtons now at y=-245).
                 local utilBtns = {
-                    { "SpellAlertDebugButton",               -260 },
-                    { "SpellAlertReportButton",              -288 },
-                    { "SpellAlertResponsiveButton",          -316 },
-                    { "SpellAlertAskDisableGameAlertButton", -344 },
+                    { "SpellAlertDebugButton",               -280 },
+                    { "SpellAlertReportButton",              -308 },
+                    { "SpellAlertResponsiveButton",          -336 },
+                    { "SpellAlertAskDisableGameAlertButton", -364 },
                 }
                 for _, info in ipairs(utilBtns) do
                     local f = _G[prefix .. info[1]]
