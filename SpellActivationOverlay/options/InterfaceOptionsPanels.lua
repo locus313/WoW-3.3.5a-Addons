@@ -290,7 +290,7 @@ SpellActivationOverlayOptionsPanel.classOptions={initialValue=CopyTable(classOpt
 else
 SpellActivationOverlayOptionsPanel.classOptions={initialValue={}}
 end
-SpellActivationOverlayOptionsPanel.additionalCheckboxes={}
+SpellActivationOverlayOptionsPanel.additionalCheckboxes=SpellActivationOverlayOptionsPanel.additionalCheckboxes or {}
 end
 local function okayFunc(self)
 local opacitySlider=SpellActivationOverlayOptionsPanelSpellAlertOpacitySlider
@@ -429,6 +429,7 @@ self.cancel=cancelFunc
 self.default=defaultFunc
 self.refresh=SpellActivationOverlayOptionsPanel_Init
 self.applyAll=applyAllFunc
+self.additionalCheckboxes={}
 InterfaceOptions_AddCategory(self)
 SAO.OptionsPanel=self
 end

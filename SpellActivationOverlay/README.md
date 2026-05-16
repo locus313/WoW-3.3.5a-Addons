@@ -47,14 +47,17 @@ Provides sixteen individually-guarded API compatibility shims. Each shim is wrap
 
 ### `options/InterfaceOptionsPanels.lua`
 
-#### Missing `self.refresh` in `SpellActivationOverlayOptionsPanel_OnLoad`
+#### Missing `self.refresh` in `SpellActivationOverlayOptionsPanel_OnLoad`, and `OnShow`/`refresh` ordering
 
-`SpellActivationOverlayOptionsPanel_Init` (the function that populates slider labels, initial values, and the `additionalCheckboxes` table) was never assigned to `self.refresh` in `SpellActivationOverlayOptionsPanel_OnLoad`. On 3.3.5a, Blizzard's `InterfaceOptions_AddCategory` framework calls `panel.refresh(panel)` each time the options panel is opened; without the assignment it simply does nothing. This has two cascading effects:
+`SpellActivationOverlayOptionsPanel_Init` (the function that populates slider labels, initial values, and the `additionalCheckboxes` table) was never assigned to `self.refresh` in `SpellActivationOverlayOptionsPanel_OnLoad`. On 3.3.5a, Blizzard's `InterfaceOptions_AddCategory` framework calls `panel.refresh(panel)` each time the options panel is opened; without the assignment it simply does nothing — sliders open blank.
 
-1. All slider titles, Low/High labels, initial values, and checkbox texts are never set — the options panel opens blank.
-2. `SpellActivationOverlayOptionsPanel.additionalCheckboxes` is never initialised (`= {}`). When `SpellActivationOverlayOptionsPanel_OnShow` immediately tries to call `classDef.LoadOptions(SAO)`, which in turn calls `classoptions.lua` code that indexes `additionalCheckboxes[optionType]`, a Lua error fires: *"attempt to index a nil value (field 'additionalCheckboxes')"* — crashing the entire first-open sequence for every class.
+On 3.3.5a, the framework calls `panel:Show()` (firing `OnShow`) and *then* `panel.refresh(panel)`. On modern WoW the Settings framework calls `OnRefresh` (i.e. `Init`) *before* showing the panel. This ordering difference means that on 3.3.5a `SpellActivationOverlayOptionsPanel_OnShow` runs before `Init` has had a chance to initialise `additionalCheckboxes = {}`. When `OnShow` calls `classDef.LoadOptions(SAO)`, which calls `SAO.AddOption` in `classoptions.lua`, that function indexes `SpellActivationOverlayOptionsPanel.additionalCheckboxes[optionType]` — crashing with *"attempt to index a nil value (field 'additionalCheckboxes')"* for every class with registered overlays or glows.
 
-Fixed by adding `self.refresh = SpellActivationOverlayOptionsPanel_Init` to `SpellActivationOverlayOptionsPanel_OnLoad`. This also fixes the modern-WoW Settings-framework path where `frame.OnRefresh = frame.refresh` was silently assigning `nil`.
+Three coordinated fixes were applied:
+
+1. `self.refresh = SpellActivationOverlayOptionsPanel_Init` added to `OnLoad` — ensures Init runs when the panel opens, and also fixes the modern-WoW path where `frame.OnRefresh = frame.refresh` was silently assigning `nil`.
+2. `self.additionalCheckboxes = {}` added to `OnLoad` — pre-initialises the table so `OnShow` and `SAO.AddOption` never see `nil`, regardless of call order.
+3. The final line of `Init` changed from `additionalCheckboxes = {}` to `additionalCheckboxes = additionalCheckboxes or {}` — on 3.3.5a, `OnShow` populates the table before `Init` runs; the `or {}` guard preserves those entries instead of wiping them, keeping class-specific checkbox tracking intact so the main glow toggle correctly enables/disables class glow checkboxes.
 
 ### `components/Compat335.lua` — Section 14 addition
 
