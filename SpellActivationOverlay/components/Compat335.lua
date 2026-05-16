@@ -604,6 +604,25 @@ do
         if panel then
             panel.alertNone = panel.alertNone or _G[prefix .. "SpellAlertNone"]
             panel.glowNone  = panel.glowNone  or _G[prefix .. "GlowingButtonNone"]
+
+            -- On 3.3.5a, InterfaceOptions_AddCategory does NOT call panel.refresh
+            -- when the panel is shown (that callback was added in Cataclysm).
+            -- Without it, SpellActivationOverlayOptionsPanel_Init is never called,
+            -- so sliders have no labels/values and additionalCheckboxes is never set.
+            --
+            -- Fix: wrap the panel's OnShow script to call self.refresh(self) before
+            -- the original handler runs.  This also corrects the call order so Init
+            -- always runs before OnShow accesses additionalCheckboxes, matching the
+            -- modern-WoW behaviour where OnRefresh fires first.
+            local origOnShow = panel:GetScript("OnShow")
+            panel:SetScript("OnShow", function(self)
+                if self.refresh then
+                    self.refresh(self)
+                end
+                if origOnShow then
+                    origOnShow(self)
+                end
+            end)
         end
 
         -- SetShown(bool) polyfill for XML-created frames (Cata+; 3.3.5a only has Show/Hide).

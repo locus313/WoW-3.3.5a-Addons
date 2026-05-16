@@ -55,9 +55,11 @@ On 3.3.5a, the framework calls `panel:Show()` (firing `OnShow`) and *then* `pane
 
 Three coordinated fixes were applied:
 
-1. `self.refresh = SpellActivationOverlayOptionsPanel_Init` added to `OnLoad` — ensures Init runs when the panel opens, and also fixes the modern-WoW path where `frame.OnRefresh = frame.refresh` was silently assigning `nil`.
-2. `self.additionalCheckboxes = {}` added to `OnLoad` — pre-initialises the table so `OnShow` and `SAO.AddOption` never see `nil`, regardless of call order.
-3. The final line of `Init` changed from `additionalCheckboxes = {}` to `additionalCheckboxes = additionalCheckboxes or {}` — on 3.3.5a, `OnShow` populates the table before `Init` runs; the `or {}` guard preserves those entries instead of wiping them, keeping class-specific checkbox tracking intact so the main glow toggle correctly enables/disables class glow checkboxes.
+1. `self.refresh = SpellActivationOverlayOptionsPanel_Init` added to `OnLoad` — ensures the field is set so modern-WoW `Settings` code can wire `frame.OnRefresh = frame.refresh` correctly.
+2. `self.additionalCheckboxes = {}` added to `OnLoad` — pre-initialises the table so `SAO.AddOption` (called from `LoadOptions` in `OnShow`) never sees `nil`, regardless of call order.
+3. The final line of `Init` changed from `additionalCheckboxes = {}` to `additionalCheckboxes = additionalCheckboxes or {}` — on 3.3.5a, `OnShow` populates the table before `Init` runs; the `or {}` guard preserves those entries instead of wiping them, keeping class-specific checkbox tracking intact.
+
+The root cause on 3.3.5a is more fundamental: the 3.3.5a `InterfaceOptions_AddCategory` framework **never calls `panel.refresh`** — that callback was added in Cataclysm. Without it `SpellActivationOverlayOptionsPanel_Init` is never invoked, so all slider labels, slider values, and the `additionalCheckboxes` table are never set up. The ADDON_LOADED handler in Compat335.lua now wraps the panel's `OnShow` script to call `self.refresh(self)` before the original handler, ensuring `Init` always runs (and runs first, matching modern-WoW order).
 
 ### `components/Compat335.lua` — Section 14 addition
 
