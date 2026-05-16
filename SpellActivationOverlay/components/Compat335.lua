@@ -623,6 +623,95 @@ do
                     origOnShow(self)
                 end
             end)
+
+            -- -----------------------------------------------------------------
+            -- Compact the options panel layout for 3.3.5a.
+            --
+            -- In 3.3.5a, InterfaceOptionsFramePanelContainer is significantly
+            -- shorter (~380-400 px) than the WotLK Classic 2022 panel that SAO
+            -- was designed for (~500 px).  The default layout causes all element
+            -- groups to overlap each other.
+            --
+            -- (1) Slider spacing: reduce initial y-offset and inter-slider gap
+            --     from -32 to -20 (saving ~60 px); tighten GlowingButtons gap
+            --     from -24 to -16.
+            --
+            -- (2) Utility buttons (Debug, Report, Responsive, AskDisableGameAlert)
+            --     are moved from BOTTOMLEFT of the panel to a fixed position in
+            --     the right column (x=280, below the slider section) so they do
+            --     not overlap with the glow checkboxes LoadOptions creates in the
+            --     left column (x≈32) below GlowingButtons.
+            --
+            -- (3) BuildInfo anchor drift: Init offsets the BuildInfo FontString's
+            --     y-anchor by -24 every call when AskDisableGameAlert is hidden
+            --     (always true on 3.3.5a).  panel.refresh is wrapped to reset the
+            --     anchor to its XML-defined value first, making the adjustment
+            --     idempotent (net result is always y = 56 - 24 = 32).
+            -- -----------------------------------------------------------------
+            do
+                -- (1) Compact slider y-positions.
+                local sliderSuffixes = {
+                    "SpellAlertOpacitySlider",
+                    "SpellAlertScaleSlider",
+                    "SpellAlertOffsetSlider",
+                    "SpellAlertTimerSlider",
+                    "SpellAlertSoundSlider",
+                }
+                local prevSlider = nil
+                for i, suffix in ipairs(sliderSuffixes) do
+                    local f = _G[prefix .. suffix]
+                    if f then
+                        f:ClearAllPoints()
+                        if i == 1 then
+                            f:SetPoint("TOPLEFT", panel, "TOPLEFT", 40, -20)
+                        else
+                            f:SetPoint("TOPLEFT", prevSlider, "BOTTOMLEFT", 0, -20)
+                        end
+                        prevSlider = f
+                    end
+                end
+
+                -- Tighten GlowingButtons gap from last slider.
+                local glowCheckBtn = _G[prefix .. "GlowingButtons"]
+                if glowCheckBtn and prevSlider then
+                    glowCheckBtn:ClearAllPoints()
+                    glowCheckBtn:SetPoint("TOPLEFT", prevSlider, "BOTTOMLEFT", -24, -16)
+                end
+
+                -- (2) Move utility buttons to right column (x=280).
+                local utilBtns = {
+                    { "SpellAlertDebugButton",               -220 },
+                    { "SpellAlertReportButton",              -248 },
+                    { "SpellAlertResponsiveButton",          -276 },
+                    { "SpellAlertAskDisableGameAlertButton", -304 },
+                }
+                for _, info in ipairs(utilBtns) do
+                    local f = _G[prefix .. info[1]]
+                    if f then
+                        f:ClearAllPoints()
+                        f:SetPoint("TOPLEFT", panel, "TOPLEFT", 280, info[2])
+                    end
+                end
+
+                -- DisableConditionButton was anchored relative to ResponsiveButton.
+                local disableBtn    = _G[prefix .. "DisableConditionButton"]
+                local responsiveBtn = _G[prefix .. "SpellAlertResponsiveButton"]
+                if disableBtn and responsiveBtn then
+                    disableBtn:ClearAllPoints()
+                    disableBtn:SetPoint("BOTTOMLEFT", responsiveBtn, "TOPLEFT", 0, 0)
+                end
+
+                -- (3) Fix BuildInfo anchor drift.
+                local buildInfo = _G[prefix .. "BuildInfo"]
+                if buildInfo and panel.refresh then
+                    local _origRefresh = panel.refresh
+                    panel.refresh = function(self)
+                        buildInfo:ClearAllPoints()
+                        buildInfo:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -16, 56)
+                        _origRefresh(self)
+                    end
+                end
+            end
         end
 
         -- SetShown(bool) polyfill for XML-created frames (Cata+; 3.3.5a only has Show/Hide).
