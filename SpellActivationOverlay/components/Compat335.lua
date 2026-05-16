@@ -675,6 +675,40 @@ do
                     end
                 end
 
+                -- OpacitySlider's XML OnValueChanged uses
+                -- self:GetParent():GetName() to build the panel prefix.
+                -- After reparenting the slider to content, GetParent()
+                -- returns "...Content" instead of "...Panel", making the
+                -- TestButton lookup nil.  Override the script to use the
+                -- captured prefix directly.
+                local opacitySlider = _G[prefix .. "SpellAlertOpacitySlider"]
+                if opacitySlider then
+                    opacitySlider:SetScript("OnValueChanged", function(self, value)
+                        value = math.floor(value * 100 + 0.5) / 100
+                        if value ~= 0 then
+                            value = math.max(0.5, value)
+                        end
+                        self.value = value
+                        self:SetValue(value)
+                        if self.ApplyValueToEngine then
+                            self:ApplyValueToEngine(value)
+                        end
+                        local testBtn = _G[prefix .. "SpellAlertTestButton"]
+                        if testBtn and testBtn.SetEnabled then
+                            testBtn:SetEnabled(value > 0)
+                        end
+                        local panelRef  = _G[prefix]
+                        local alertCbs  = panelRef
+                                          and panelRef.additionalCheckboxes
+                                          and panelRef.additionalCheckboxes.alert
+                                          or {}
+                        for _, cb in ipairs(alertCbs) do
+                            cb:SetEnabled(value > 0)
+                            cb:ApplyParentEnabling()
+                        end
+                    end)
+                end
+
                 -- Utility checkboxes stay in panel (fixed, always visible).
                 local utilBtns = {
                     { "SpellAlertDebugButton",               240, -20  },
