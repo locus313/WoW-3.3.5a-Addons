@@ -539,20 +539,17 @@ local function OnEvent(self, event)
     local itemID = SoulstoneWatcherConfig.soulstone_itemid or 36895
     startTime, duration, enable = GetItemCooldown(itemID)
 
-    -- Show cast buttons regardless of cooldown
-    player = get_raid_players()
-    check = get_player_buffs(player)
-
-    -- Always notify on READY_CHECK; only notify on other events if soulstone is ready
+    -- Only show prompt and cast buttons when soulstone is off cooldown
     if event == "READY_CHECK" then
         if (duration == nil or duration == 0) then
+            player = get_raid_players()
+            check = get_player_buffs(player)
             print("|cff8788EESoulstone Watcher: Your Soulstone is ready!")
-        else
-            local remaining = math.ceil(duration - (GetTime() - startTime))
-            print("|cff8788EESoulstone Watcher: Soulstone is on cooldown (" .. remaining .. "s remaining)")
+            versionMsgSent = false
         end
-        versionMsgSent = false
     elseif (duration == nil or duration == 0) then
+        player = get_raid_players()
+        check = get_player_buffs(player)
         print("|cff8788EESoulstone Watcher: Your Soulstone is ready")
         versionMsgSent = false
     end
