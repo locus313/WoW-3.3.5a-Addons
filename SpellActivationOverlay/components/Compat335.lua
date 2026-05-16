@@ -614,80 +614,99 @@ do
             -- the original handler runs.  This also corrects the call order so Init
             -- always runs before OnShow accesses additionalCheckboxes, matching the
             -- modern-WoW behaviour where OnRefresh fires first.
-            local origOnShow = panel:GetScript("OnShow")
-            panel:SetScript("OnShow", function(self)
-                if self.refresh then
-                    self.refresh(self)
-                end
-                if origOnShow then
-                    origOnShow(self)
-                end
-            end)
-
             -- -----------------------------------------------------------------
-            -- Compact the options panel layout for 3.3.5a.
+            -- Single-column scrollable layout for 3.3.5a.
             --
-            -- In 3.3.5a, InterfaceOptionsFramePanelContainer is ~380-400 px
-            -- tall, significantly shorter than the WotLK Classic 2022 panel
-            -- (~500 px) that SAO was designed for.  The default layout causes
-            -- all element groups to overlap each other.
+            -- The original two-column design (sliders + alert checkboxes
+            -- side-by-side, GlowingButtons below) requires ~500 px.  On
+            -- 3.3.5a the panel is only ~380-400 px and sections overlap.
             --
-            -- Layout overview (all y values are negative offsets from TOPLEFT):
+            -- Fix: all main content lives inside a ScrollFrame.  Elements
+            -- are stacked in a single left column; the mouse wheel scrolls
+            -- the content so every section is reachable.
             --
-            --   LEFT COLUMN (x = 40)
-            --     Sliders y=-20 .. y=-217  (gap=-28, initial=-20)
-            --     GlowingButtons y=-245    (fixed; 16 px gap below $parentLow label)
-            --     Glow checkboxes y≈-269+  (LoadOptions anchors to GlowingButtons)
+            -- Scroll-content column (x=40, inside content frame):
+            --   y=-20:  Opacity slider  (gap=-28 between sliders)
+            --   y=-237: "Toggle Test" button
+            --   y=-271: "Spell Alerts" label → per-class alert checkboxes
+            --   y=dyn:  "Glowing Buttons" checkbox → per-class glow checkboxes
+            --           (GlowingButtons is positioned in the OnShow wrapper,
+            --            after LoadOptions has created the alert checkboxes)
             --
-            --   RIGHT COLUMN (x = 320)
-            --     Utility buttons y=-280 .. y=-364
+            -- Fixed panel overlay (x=240, not scrollable):
+            --   y=-20:  Debug / Report / Responsive / AskDisable checkboxes
             --
-            -- Alert checkboxes are anchored to SpellAlertLabel (not sliders)
-            -- and stay in the far-right column (x≈332) up to y≈-204 (Mage,
-            -- 9 alert options).  GlowingButtons is fixed at y=-225, leaving
-            -- a 21 px clear gap regardless of class.
-            --
-            -- (1) Slider gap: -28 (was -32).  OptionsSliderTemplate positions
-            --     $parentText 13 px above the frame and $parentLow/High 2 px
-            --     below.  A gap of -28 leaves a 13 px margin between the low
-            --     label of one slider and the text label of the next, preventing
-            --     any slider-text overlap.  Initial y-offset: -20 (was -32).
-            --     Total height saved vs. original: 28 px.
-            --
-            -- (2) GlowingButtons is pinned to panel TOPLEFT + (16, -245) so it
-            --     always sits below the Sound slider's $parentLow label.
-            --     OptionsSliderTemplate $parentLow sits 2 px below the slider
-            --     frame bottom (SoundSlider frame bottom = y=-217) and is ~10 px
-            --     tall → label runs y=-219 to y=-229.  y=-245 gives a clear
-            --     16 px gap.  Original XML placed GlowingButtons 24 px below
-            --     the slider bottom (500 px panel); we preserve that intent.
-            --
-            -- (3) Utility buttons (Debug, Report, Responsive, AskDisableGameAlert)
-            --     are moved from BOTTOMLEFT of the panel to a fixed position in
-            --     the right column (x=320).  x=320 is to the right of the widest
-            --     glow-option text (~282 px) so there is no horizontal overlap
-            --     with the glow checkboxes in the left column.
-            --
-            -- (4) ClassInfo and BuildInfo are hidden.
-            --     On a 380-400 px panel these labels are anchored near the
-            --     bottom-right corner: BuildInfo BOTTOMRIGHT sits at y≈-368
-            --     after Init's -24 anchor drift, ClassInfo is just above it
-            --     at y≈-308...-332.  For classes with 4+ glow options (e.g.
-            --     Mage: 5 WotLK glow options), the glow checkboxes extend
-            --     into that y-range and visually overlap with both labels.
-            --     Both are cosmetic only (class icon/name and addon version);
-            --     FontString:Hide() is never reversed by a subsequent
-            --     SetText() call, so they stay hidden for the panel's lifetime.
+            -- ClassInfo and BuildInfo are hidden (cosmetic labels that overlap
+            -- the glow checkboxes in the original layout).
             -- -----------------------------------------------------------------
             do
-                -- (1) Compact slider y-positions.
-                -- Gap of -28 leaves enough margin for $parentText / $parentLow
-                -- labels; -20 was too tight and caused slider-text overlap.
+                -- ScrollFrame fills the visible panel area.
+                local scrollFrame = CreateFrame("ScrollFrame", prefix .. "Scroll", panel)
+                scrollFrame:SetAllPoints(panel)
+                scrollFrame:EnableMouseWheel(true)
+
+                -- Content child: taller than the panel so it can be scrolled.
+                local content = CreateFrame("Frame", prefix .. "Content", scrollFrame)
+                content:SetSize(460, 750)
+                scrollFrame:SetScrollChild(content)
+
+                scrollFrame:SetScript("OnMouseWheel", function(self, delta)
+                    local current   = self:GetVerticalScroll()
+                    local maxScroll = self:GetVerticalScrollRange()
+                    local new = current - delta * 20
+                    if new < 0 then new = 0 end
+                    if new > maxScroll then new = maxScroll end
+                    self:SetVerticalScroll(new)
+                end)
+
+                -- Move scrollable elements into the content frame.
+                -- FontStrings support Region:SetParent in 3.3.5a.
+                local toReparent = {
+                    "SpellAlertOpacitySlider", "SpellAlertScaleSlider",
+                    "SpellAlertOffsetSlider",  "SpellAlertTimerSlider",
+                    "SpellAlertSoundSlider",   "SpellAlertTestButton",
+                    "SpellAlertLabel",         "SpellAlertNone",
+                    "GlowingButtons",          "GlowingButtonNone",
+                }
+                for _, suffix in ipairs(toReparent) do
+                    local f = _G[prefix .. suffix]
+                    if f and f.SetParent then
+                        f:SetParent(content)
+                    end
+                end
+
+                -- Utility checkboxes stay in panel (fixed, always visible).
+                local utilBtns = {
+                    { "SpellAlertDebugButton",               240, -20  },
+                    { "SpellAlertReportButton",              240, -50  },
+                    { "SpellAlertResponsiveButton",          240, -80  },
+                    { "SpellAlertAskDisableGameAlertButton", 240, -110 },
+                }
+                for _, info in ipairs(utilBtns) do
+                    local f = _G[prefix .. info[1]]
+                    if f then
+                        f:ClearAllPoints()
+                        f:SetPoint("TOPLEFT", panel, "TOPLEFT", info[2], info[3])
+                    end
+                end
+
+                local disableBtn    = _G[prefix .. "DisableConditionButton"]
+                local responsiveBtn = _G[prefix .. "SpellAlertResponsiveButton"]
+                if disableBtn and responsiveBtn then
+                    disableBtn:ClearAllPoints()
+                    disableBtn:SetPoint("BOTTOMLEFT", responsiveBtn, "TOPLEFT", 0, 0)
+                end
+
+                -- Hide cosmetic labels (overlap glow checkboxes at original pos).
+                local buildInfo = _G[prefix .. "BuildInfo"]
+                local classInfo = _G[prefix .. "ClassInfo"]
+                if buildInfo then buildInfo:Hide() end
+                if classInfo then classInfo:Hide() end
+
+                -- Sliders: single left column in content, compact gap=-28.
                 local sliderSuffixes = {
-                    "SpellAlertOpacitySlider",
-                    "SpellAlertScaleSlider",
-                    "SpellAlertOffsetSlider",
-                    "SpellAlertTimerSlider",
+                    "SpellAlertOpacitySlider", "SpellAlertScaleSlider",
+                    "SpellAlertOffsetSlider",  "SpellAlertTimerSlider",
                     "SpellAlertSoundSlider",
                 }
                 local prevSlider = nil
@@ -696,7 +715,7 @@ do
                     if f then
                         f:ClearAllPoints()
                         if i == 1 then
-                            f:SetPoint("TOPLEFT", panel, "TOPLEFT", 40, -20)
+                            f:SetPoint("TOPLEFT", content, "TOPLEFT", 40, -20)
                         else
                             f:SetPoint("TOPLEFT", prevSlider, "BOTTOMLEFT", 0, -28)
                         end
@@ -704,46 +723,77 @@ do
                     end
                 end
 
-                -- (2) Pin GlowingButtons to a fixed panel-relative position.
-                -- SoundSlider $parentLow label ends at ~y=-229; y=-245 leaves
-                -- a clear 16 px gap below it.
+                -- TestButton: below last slider.
+                -- SoundSlider frame bottom y=-217; thumb extends ~8 px to y=-225.
+                -- Gap of -20 places TestButton at y=-237 (12 px below thumb).
+                local testBtn = _G[prefix .. "SpellAlertTestButton"]
+                if testBtn and prevSlider then
+                    testBtn:ClearAllPoints()
+                    testBtn:SetPoint("TOPLEFT", prevSlider, "BOTTOMLEFT", 0, -20)
+                end
+
+                -- SpellAlertLabel ("Spell Alerts" header): below TestButton.
+                -- Per-class alert checkboxes (created by LoadOptions) anchor
+                -- to this label's BOTTOMLEFT in classoptions.lua — they will
+                -- automatically follow it after being reparented to content.
+                local alertLabel = _G[prefix .. "SpellAlertLabel"]
+                if alertLabel and testBtn then
+                    alertLabel:ClearAllPoints()
+                    alertLabel:SetPoint("TOPLEFT", testBtn, "BOTTOMLEFT", 0, -12)
+                end
+
+                -- GlowingButtons: provisional position; replaced in OnShow
+                -- after we know how many alert checkboxes were created.
                 local glowCheckBtn = _G[prefix .. "GlowingButtons"]
                 if glowCheckBtn then
                     glowCheckBtn:ClearAllPoints()
-                    glowCheckBtn:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -245)
+                    glowCheckBtn:SetPoint("TOPLEFT", content, "TOPLEFT", 16, -400)
                 end
 
-                -- (3) Move utility buttons to the right column (x=320).
-                -- Shifted down 20 px vs. previous iteration to stay below
-                -- the glow section (GlowingButtons now at y=-245).
-                local utilBtns = {
-                    { "SpellAlertDebugButton",               -280 },
-                    { "SpellAlertReportButton",              -308 },
-                    { "SpellAlertResponsiveButton",          -336 },
-                    { "SpellAlertAskDisableGameAlertButton", -364 },
-                }
-                for _, info in ipairs(utilBtns) do
-                    local f = _G[prefix .. info[1]]
-                    if f then
-                        f:ClearAllPoints()
-                        f:SetPoint("TOPLEFT", panel, "TOPLEFT", 320, info[2])
+                -- OnShow wrapper: Init → LoadOptions → reparent checkboxes
+                -- → finalize GlowingButtons position.
+                local origOnShow = panel:GetScript("OnShow")
+                panel:SetScript("OnShow", function(self)
+                    if self.refresh then
+                        self.refresh(self)
                     end
-                end
+                    if origOnShow then
+                        origOnShow(self)
+                    end
 
-                -- DisableConditionButton was anchored relative to
-                -- ResponsiveButton; keep it there after the move.
-                local disableBtn    = _G[prefix .. "DisableConditionButton"]
-                local responsiveBtn = _G[prefix .. "SpellAlertResponsiveButton"]
-                if disableBtn and responsiveBtn then
-                    disableBtn:ClearAllPoints()
-                    disableBtn:SetPoint("BOTTOMLEFT", responsiveBtn, "TOPLEFT", 0, 0)
-                end
+                    -- Reparent per-class checkboxes (created as children of
+                    -- panel by LoadOptions) into the scroll content frame.
+                    local cbs = self.additionalCheckboxes
+                    if cbs then
+                        for _, optType in ipairs({ "alert", "glow" }) do
+                            local list = cbs[optType]
+                            if list then
+                                for _, cb in ipairs(list) do
+                                    if cb.SetParent and cb:GetParent() ~= content then
+                                        cb:SetParent(content)
+                                    end
+                                end
+                            end
+                        end
+                    end
 
-                -- (4) Hide ClassInfo and BuildInfo.
-                local buildInfo = _G[prefix .. "BuildInfo"]
-                local classInfo = _G[prefix .. "ClassInfo"]
-                if buildInfo then buildInfo:Hide() end
-                if classInfo then classInfo:Hide() end
+                    -- Position GlowingButtons below the last alert checkbox,
+                    -- or below SpellAlertNone when there are no alert options.
+                    local glowBtn = _G[prefix .. "GlowingButtons"]
+                    if glowBtn then
+                        local alertCbs   = cbs and cbs["alert"]
+                        local alertCount = alertCbs and #alertCbs or 0
+                        glowBtn:ClearAllPoints()
+                        if alertCount > 0 then
+                            glowBtn:SetPoint("TOPLEFT", alertCbs[alertCount], "BOTTOMLEFT", -16, -16)
+                        else
+                            local alertNone = _G[prefix .. "SpellAlertNone"]
+                            if alertNone then
+                                glowBtn:SetPoint("TOPLEFT", alertNone, "BOTTOMLEFT", -6, -16)
+                            end
+                        end
+                    end
+                end)
             end
         end
 
