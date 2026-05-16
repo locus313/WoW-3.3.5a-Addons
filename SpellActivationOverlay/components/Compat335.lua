@@ -1242,3 +1242,37 @@ do
     end
 end
 
+-- ==========================================================================
+-- 25. GetShapeshiftFormInfo spellID position
+--     On the original 3.3.5a client GetShapeshiftFormInfo returns five values:
+--       texture, name, active, castable, spellID
+--     WotLK Classic 2022 simplified the signature to four values:
+--       texture, name, active, spellID   (castable was dropped)
+--     SAO was written for the WotLK Classic 2022 API and reads position 4 as
+--     the spellID in two places:
+--       • variables/stance.lua  – local _,_,_,currentStanceSpellID = ...
+--       • components/glow.lua   – return select(4, GetShapeshiftFormInfo(...))
+--     On a 3.3.5a private server, position 4 is `castable` (boolean), so both
+--     reads return true/false instead of a numeric spell ID.  As a result,
+--     Priest shadowform stance-button glows and any stance-filtered bucket
+--     checks silently fail to match.
+--     Fix: wrap GetShapeshiftFormInfo to detect the 3.3.5a signature at
+--     runtime (position 4 is boolean) and drop `castable` so that spellID
+--     lands at position 4, matching what SAO expects.
+-- ==========================================================================
+do
+    local _orig_GetShapeshiftFormInfo = GetShapeshiftFormInfo
+    if _orig_GetShapeshiftFormInfo then
+        GetShapeshiftFormInfo = function(index)
+            local texture, name, active, v4, v5 = _orig_GetShapeshiftFormInfo(index)
+            -- 3.3.5a: v4 = castable (boolean), v5 = spellID (number|nil)
+            -- WotLK Classic 2022: v4 = spellID (number|nil), v5 = nil
+            if type(v4) == "boolean" then
+                -- Drop castable; promote spellID to position 4.
+                return texture, name, active, v5
+            end
+            return texture, name, active, v4, v5
+        end
+    end
+end
+
