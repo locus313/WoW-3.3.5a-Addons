@@ -893,7 +893,7 @@ function ATSWFrame_SetSelection(id,wasClicked)
 	end
 	if(skillName) then numAvailable=ATSW_GetNumItemsPossible(skillName); end
 	if(IsShiftKeyDown() and skillName~=nil and wasClicked~=nil) then
-		if(arg1=="LeftButton" and (ChatFrameEditBox:IsVisible() or WIM_EditBoxInFocus~=nil)) then
+		if(arg1=="LeftButton" and (ChatFrame1EditBox:IsVisible() or WIM_EditBoxInFocus~=nil)) then
 			ATSW_AddTradeSkillReagentLinksToChatFrame(skillName);
 		end
 	end
@@ -1728,11 +1728,11 @@ function ATSW_AddTradeSkillReagentLinksToChatFrame(skillName)
 		channel = "WHISPER";
 		chatnumber = WIM_EditBoxInFocus:GetParent().theUser;
 	else
-		channel = ChatFrameEditBox:GetAttribute("chatType");
+		channel = ChatFrame1EditBox:GetAttribute("chatType");
 		if channel=="WHISPER" then
-			chatnumber = ChatFrameEditBox:GetAttribute("tellTarget");
+			chatnumber = ChatFrame1EditBox:GetAttribute("tellTarget");
 		elseif channel=="CHANNEL" then
-			chatnumber = ChatFrameEditBox:GetAttribute("channelTarget");
+			chatnumber = ChatFrame1EditBox:GetAttribute("channelTarget");
 		end
 	end
 	local chatline;
