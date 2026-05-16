@@ -427,6 +427,7 @@ self.name=AddonName
 self.okay=okayFunc
 self.cancel=cancelFunc
 self.default=defaultFunc
+self.refresh=SpellActivationOverlayOptionsPanel_Init
 self.applyAll=applyAllFunc
 InterfaceOptions_AddCategory(self)
 SAO.OptionsPanel=self

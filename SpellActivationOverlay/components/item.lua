@@ -12,6 +12,11 @@ local itemText=self:GetItemText(itemID)
 if itemText then
 return itemText
 else
+-- The Item OOP API (Item:CreateFromItemID) was added after 3.3.5a.
+-- If absent, return nil so the label is blank rather than crashing.
+if not (Item and Item.CreateFromItemID) then
+return nil
+end
 local item=Item:CreateFromItemID(itemID)
 return function(callback)
 item:ContinueOnItemLoad(callback)

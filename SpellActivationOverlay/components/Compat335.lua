@@ -298,11 +298,13 @@ end
 --   CALENDAR_TOOLTIP_DATE_RANGE – "A – B" range (tr.lua:NbStacks)
 --   HEALTH_COST_PCT  – "%s%% Health"     (tr.lua:ExecuteBelow)
 --   FROM             – "From"            (tr.lua:FromClass)
+--   SPELL_ALERT_OPACITY – "Spell Alert Opacity" (InterfaceOptionsPanels.lua slider label)
 if not RACE_CLASS_ONLY              then RACE_CLASS_ONLY              = "%s only"        end
 if not STACKS                       then STACKS                       = "%d stacks"      end
 if not CALENDAR_TOOLTIP_DATE_RANGE  then CALENDAR_TOOLTIP_DATE_RANGE  = "%s \226\128\147 %s" end  -- "A – B"
 if not HEALTH_COST_PCT              then HEALTH_COST_PCT              = "%s%% Health"    end
 if not FROM                         then FROM                         = "From"           end
+if not SPELL_ALERT_OPACITY          then SPELL_ALERT_OPACITY          = "Spell Alert Opacity" end
 
 -- ==========================================================================
 -- 7.  GetClassColor 4th return value (hex string)
@@ -593,6 +595,16 @@ do
         -- The opacity slider OnValueChanged script calls :SetEnabled on the
         -- test button (a UIPanelButtonTemplate Button, not a CheckButton).
         _ensureSetEnabled(_G[prefix .. "SpellAlertTestButton"])
+
+        -- parentKey on FontString children does not register the key on the
+        -- parent frame table in 3.3.5a.  The panel FontStrings used as
+        -- "no option" labels are accessed as  panel.alertNone / panel.glowNone
+        -- in SpellActivationOverlayOptionsPanel_OnShow.  Patch them here.
+        local panel = _G[prefix]
+        if panel then
+            panel.alertNone = panel.alertNone or _G[prefix .. "SpellAlertNone"]
+            panel.glowNone  = panel.glowNone  or _G[prefix .. "GlowingButtonNone"]
+        end
 
         -- SetShown(bool) polyfill for XML-created frames (Cata+; 3.3.5a only has Show/Hide).
         -- SpellActivationOverlayContainerFrame is defined in XML, so the CreateFrame
@@ -1171,6 +1183,43 @@ if not IsSpellKnownOrOverridesKnown then
             end
         end
         return false
+    end
+end
+
+-- ==========================================================================
+-- 24. UnitRace numeric race ID (3rd return value)
+--     In 3.3.5a, UnitRace(unit) returns only (localizedName, raceFilename).
+--     Modern WoW added a 3rd numeric raceID return value.
+--     classes/warrior.lua uses select(3, UnitRace("player")) to look up the
+--     Bladestorm rotation direction in a race-indexed table.  Without the 3rd
+--     value, race is nil, a logged error fires, and every warrior falls back
+--     to race 2 (orc) rotation regardless of actual race.
+--     Wrap UnitRace to derive and append the numeric race ID from the
+--     raceFilename so select(3, UnitRace("player")) works correctly.
+-- ==========================================================================
+do
+    local _orig_UnitRace = UnitRace
+    if _orig_UnitRace then
+        local raceIDs = {
+            Human    = 1,
+            Orc      = 2,
+            Dwarf    = 3,
+            NightElf = 4,
+            Scourge  = 5,   -- Undead
+            Tauren   = 6,
+            Gnome    = 7,
+            Troll    = 8,
+            Goblin   = 9,
+            BloodElf = 10,
+            Draenei  = 11,
+            Worgen   = 22,
+            Pandaren = 24,
+        }
+        UnitRace = function(unit)
+            local localName, fileName = _orig_UnitRace(unit)
+            local raceID = raceIDs[fileName]
+            return localName, fileName, raceID
+        end
     end
 end
 
