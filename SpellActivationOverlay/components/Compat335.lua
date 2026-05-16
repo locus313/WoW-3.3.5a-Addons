@@ -627,22 +627,45 @@ do
             -- -----------------------------------------------------------------
             -- Compact the options panel layout for 3.3.5a.
             --
-            -- In 3.3.5a, InterfaceOptionsFramePanelContainer is significantly
-            -- shorter (~380-400 px) than the WotLK Classic 2022 panel that SAO
-            -- was designed for (~500 px).  The default layout causes all element
-            -- groups to overlap each other.
+            -- In 3.3.5a, InterfaceOptionsFramePanelContainer is ~380-400 px
+            -- tall, significantly shorter than the WotLK Classic 2022 panel
+            -- (~500 px) that SAO was designed for.  The default layout causes
+            -- all element groups to overlap each other.
             --
-            -- (1) Slider spacing: reduce initial y-offset and inter-slider gap
-            --     from -32 to -20 (saving ~60 px); tighten GlowingButtons gap
-            --     from -24 to -16.
+            -- Layout overview (all y values are negative offsets from TOPLEFT):
             --
-            -- (2) Utility buttons (Debug, Report, Responsive, AskDisableGameAlert)
+            --   LEFT COLUMN (x = 40)
+            --     Sliders y=-20 .. y=-217  (gap=-28, initial=-20)
+            --     GlowingButtons y=-225    (fixed; 21 px gap below alert bottom)
+            --     Glow checkboxes y≈-249+  (LoadOptions anchors to GlowingButtons)
+            --
+            --   RIGHT COLUMN (x = 320)
+            --     Utility buttons y=-260 .. y=-370
+            --
+            -- Alert checkboxes are anchored to SpellAlertLabel (not sliders) and
+            -- stay in the far-right column (x≈332) up to y≈-204 for the class
+            -- with the most spell-alert options (Mage, 9 options).  GlowingButtons
+            -- is fixed at y=-225, leaving 21 px of clear space below the last
+            -- alert checkbox regardless of class.
+            --
+            -- (1) Slider gap: -28 (was -32).  OptionsSliderTemplate positions
+            --     $parentText 13 px above the frame and $parentLow/High 2 px
+            --     below.  A gap of -28 leaves a 13 px margin between the low
+            --     label of one slider and the text label of the next, preventing
+            --     any slider-text overlap.  Initial y-offset: -20 (was -32).
+            --     Total height saved vs. original: 28 px.
+            --
+            -- (2) GlowingButtons is pinned to panel TOPLEFT + (16, -225) so it
+            --     always sits below the deepest possible alert-checkbox row
+            --     (y=-204 for Mage) regardless of slider compaction.
+            --
+            -- (3) Utility buttons (Debug, Report, Responsive, AskDisableGameAlert)
             --     are moved from BOTTOMLEFT of the panel to a fixed position in
-            --     the right column (x=280, below the slider section) so they do
-            --     not overlap with the glow checkboxes LoadOptions creates in the
-            --     left column (x≈32) below GlowingButtons.
+            --     the right column (x=320).  x=320 is to the right of the widest
+            --     glow-option text (~282 px) so there is no horizontal overlap
+            --     with the glow checkboxes in the left column.
             --
-            -- (3) BuildInfo anchor drift: Init offsets the BuildInfo FontString's
+            -- (4) BuildInfo anchor drift: Init offsets the BuildInfo FontString's
             --     y-anchor by -24 every call when AskDisableGameAlert is hidden
             --     (always true on 3.3.5a).  panel.refresh is wrapped to reset the
             --     anchor to its XML-defined value first, making the adjustment
@@ -650,6 +673,8 @@ do
             -- -----------------------------------------------------------------
             do
                 -- (1) Compact slider y-positions.
+                -- Gap of -28 leaves enough margin for $parentText / $parentLow
+                -- labels; -20 was too tight and caused slider-text overlap.
                 local sliderSuffixes = {
                     "SpellAlertOpacitySlider",
                     "SpellAlertScaleSlider",
@@ -665,31 +690,35 @@ do
                         if i == 1 then
                             f:SetPoint("TOPLEFT", panel, "TOPLEFT", 40, -20)
                         else
-                            f:SetPoint("TOPLEFT", prevSlider, "BOTTOMLEFT", 0, -20)
+                            f:SetPoint("TOPLEFT", prevSlider, "BOTTOMLEFT", 0, -28)
                         end
                         prevSlider = f
                     end
                 end
 
-                -- Tighten GlowingButtons gap from last slider.
+                -- (2) Pin GlowingButtons to a fixed panel-relative position so it
+                -- is always below the deepest alert checkbox (y=-204 for Mage).
+                -- y=-225 gives a 21 px gap after the last alert checkbox row.
                 local glowCheckBtn = _G[prefix .. "GlowingButtons"]
-                if glowCheckBtn and prevSlider then
+                if glowCheckBtn then
                     glowCheckBtn:ClearAllPoints()
-                    glowCheckBtn:SetPoint("TOPLEFT", prevSlider, "BOTTOMLEFT", -24, -16)
+                    glowCheckBtn:SetPoint("TOPLEFT", panel, "TOPLEFT", 16, -225)
                 end
 
-                -- (2) Move utility buttons to right column (x=280).
+                -- (3) Move utility buttons to the right column (x=320).
+                -- y values keep them below GlowingButtons (bottom ~y=-251) and
+                -- use a 9 px gap before the first button.
                 local utilBtns = {
-                    { "SpellAlertDebugButton",               -220 },
-                    { "SpellAlertReportButton",              -248 },
-                    { "SpellAlertResponsiveButton",          -276 },
-                    { "SpellAlertAskDisableGameAlertButton", -304 },
+                    { "SpellAlertDebugButton",               -260 },
+                    { "SpellAlertReportButton",              -288 },
+                    { "SpellAlertResponsiveButton",          -316 },
+                    { "SpellAlertAskDisableGameAlertButton", -344 },
                 }
                 for _, info in ipairs(utilBtns) do
                     local f = _G[prefix .. info[1]]
                     if f then
                         f:ClearAllPoints()
-                        f:SetPoint("TOPLEFT", panel, "TOPLEFT", 280, info[2])
+                        f:SetPoint("TOPLEFT", panel, "TOPLEFT", 320, info[2])
                     end
                 end
 
@@ -701,7 +730,7 @@ do
                     disableBtn:SetPoint("BOTTOMLEFT", responsiveBtn, "TOPLEFT", 0, 0)
                 end
 
-                -- (3) Fix BuildInfo anchor drift.
+                -- (4) Fix BuildInfo anchor drift.
                 local buildInfo = _G[prefix .. "BuildInfo"]
                 if buildInfo and panel.refresh then
                     local _origRefresh = panel.refresh
