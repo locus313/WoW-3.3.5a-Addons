@@ -640,13 +640,12 @@ do
             --     Glow checkboxes y≈-249+  (LoadOptions anchors to GlowingButtons)
             --
             --   RIGHT COLUMN (x = 320)
-            --     Utility buttons y=-260 .. y=-370
+            --     Utility buttons y=-260 .. y=-344
             --
-            -- Alert checkboxes are anchored to SpellAlertLabel (not sliders) and
-            -- stay in the far-right column (x≈332) up to y≈-204 for the class
-            -- with the most spell-alert options (Mage, 9 options).  GlowingButtons
-            -- is fixed at y=-225, leaving 21 px of clear space below the last
-            -- alert checkbox regardless of class.
+            -- Alert checkboxes are anchored to SpellAlertLabel (not sliders)
+            -- and stay in the far-right column (x≈332) up to y≈-204 (Mage,
+            -- 9 alert options).  GlowingButtons is fixed at y=-225, leaving
+            -- a 21 px clear gap regardless of class.
             --
             -- (1) Slider gap: -28 (was -32).  OptionsSliderTemplate positions
             --     $parentText 13 px above the frame and $parentLow/High 2 px
@@ -665,11 +664,16 @@ do
             --     glow-option text (~282 px) so there is no horizontal overlap
             --     with the glow checkboxes in the left column.
             --
-            -- (4) BuildInfo anchor drift: Init offsets the BuildInfo FontString's
-            --     y-anchor by -24 every call when AskDisableGameAlert is hidden
-            --     (always true on 3.3.5a).  panel.refresh is wrapped to reset the
-            --     anchor to its XML-defined value first, making the adjustment
-            --     idempotent (net result is always y = 56 - 24 = 32).
+            -- (4) ClassInfo and BuildInfo are hidden.
+            --     On a 380-400 px panel these labels are anchored near the
+            --     bottom-right corner: BuildInfo BOTTOMRIGHT sits at y≈-368
+            --     after Init's -24 anchor drift, ClassInfo is just above it
+            --     at y≈-308...-332.  For classes with 4+ glow options (e.g.
+            --     Mage: 5 WotLK glow options), the glow checkboxes extend
+            --     into that y-range and visually overlap with both labels.
+            --     Both are cosmetic only (class icon/name and addon version);
+            --     FontString:Hide() is never reversed by a subsequent
+            --     SetText() call, so they stay hidden for the panel's lifetime.
             -- -----------------------------------------------------------------
             do
                 -- (1) Compact slider y-positions.
@@ -696,9 +700,7 @@ do
                     end
                 end
 
-                -- (2) Pin GlowingButtons to a fixed panel-relative position so it
-                -- is always below the deepest alert checkbox (y=-204 for Mage).
-                -- y=-225 gives a 21 px gap after the last alert checkbox row.
+                -- (2) Pin GlowingButtons to a fixed panel-relative position.
                 local glowCheckBtn = _G[prefix .. "GlowingButtons"]
                 if glowCheckBtn then
                     glowCheckBtn:ClearAllPoints()
@@ -706,8 +708,6 @@ do
                 end
 
                 -- (3) Move utility buttons to the right column (x=320).
-                -- y values keep them below GlowingButtons (bottom ~y=-251) and
-                -- use a 9 px gap before the first button.
                 local utilBtns = {
                     { "SpellAlertDebugButton",               -260 },
                     { "SpellAlertReportButton",              -288 },
@@ -722,7 +722,8 @@ do
                     end
                 end
 
-                -- DisableConditionButton was anchored relative to ResponsiveButton.
+                -- DisableConditionButton was anchored relative to
+                -- ResponsiveButton; keep it there after the move.
                 local disableBtn    = _G[prefix .. "DisableConditionButton"]
                 local responsiveBtn = _G[prefix .. "SpellAlertResponsiveButton"]
                 if disableBtn and responsiveBtn then
@@ -730,16 +731,11 @@ do
                     disableBtn:SetPoint("BOTTOMLEFT", responsiveBtn, "TOPLEFT", 0, 0)
                 end
 
-                -- (4) Fix BuildInfo anchor drift.
+                -- (4) Hide ClassInfo and BuildInfo.
                 local buildInfo = _G[prefix .. "BuildInfo"]
-                if buildInfo and panel.refresh then
-                    local _origRefresh = panel.refresh
-                    panel.refresh = function(self)
-                        buildInfo:ClearAllPoints()
-                        buildInfo:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -16, 56)
-                        _origRefresh(self)
-                    end
-                end
+                local classInfo = _G[prefix .. "ClassInfo"]
+                if buildInfo then buildInfo:Hide() end
+                if classInfo then classInfo:Hide() end
             end
         end
 
