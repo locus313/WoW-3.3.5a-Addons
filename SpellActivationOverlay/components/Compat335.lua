@@ -305,6 +305,11 @@ if not CALENDAR_TOOLTIP_DATE_RANGE  then CALENDAR_TOOLTIP_DATE_RANGE  = "%s \226
 if not HEALTH_COST_PCT              then HEALTH_COST_PCT              = "%s%% Health"    end
 if not FROM                         then FROM                         = "From"           end
 if not SPELL_ALERT_OPACITY          then SPELL_ALERT_OPACITY          = "Spell Alert Opacity" end
+-- PET_BATTLE_COMBAT_LOG_DAMAGE_WEAK / _STRONG: MoP+ globals used by
+-- classes/mage.lua:lazyCreateClearcastingVariants to name texture variants
+-- ("Weak" / "Strong" after the gsub).  Not present on 3.3.5a.
+if not PET_BATTLE_COMBAT_LOG_DAMAGE_WEAK   then PET_BATTLE_COMBAT_LOG_DAMAGE_WEAK   = "(Weak)"   end
+if not PET_BATTLE_COMBAT_LOG_DAMAGE_STRONG then PET_BATTLE_COMBAT_LOG_DAMAGE_STRONG = "(Strong)" end
 
 -- ==========================================================================
 -- 7.  GetClassColor 4th return value (hex string)
@@ -876,18 +881,28 @@ do
             return frame
         end
 
-        -- Overlay template: patch SetShown onto the mask/combat Texture children
-        -- so that overlay.mask:SetShown(useTimer) works on 3.3.5a.
+        -- Overlay template: patch SetShown / SetScale onto the mask/combat
+        -- Texture children so that overlay.mask:SetShown(useTimer) and
+        -- overlay.mask:SetScale(n) work on 3.3.5a.
+        -- SetScale is normally a Frame method; Texture objects don't have it.
+        -- The mask timer countdown uses SetScale(0.01) / SetScale(1) to control
+        -- the shrink animation.  A no-op shim preserves call safety; the visual
+        -- countdown is already inactive (MaskTexture replaced with Texture).
         if isOverlay then
-            local function _addSetShown(obj)
-                if obj and not obj.SetShown then
-                    obj.SetShown = function(self, shown)
-                        if shown then self:Show() else self:Hide() end
+            local function _addTextureShims(obj)
+                if obj then
+                    if not obj.SetShown then
+                        obj.SetShown = function(self, shown)
+                            if shown then self:Show() else self:Hide() end
+                        end
+                    end
+                    if not obj.SetScale then
+                        obj.SetScale = function() end
                     end
                 end
             end
-            _addSetShown(frame.mask)
-            _addSetShown(frame.combat)
+            _addTextureShims(frame.mask)
+            _addTextureShims(frame.combat)
 
             -- Disable the looping pulse Scale animation on 3.3.5a.
             -- The looping Scale animation on the overlay frame causes a brief
