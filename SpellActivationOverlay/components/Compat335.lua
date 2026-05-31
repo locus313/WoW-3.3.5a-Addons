@@ -187,6 +187,11 @@ if not WARNING_FONT_COLOR then WARNING_FONT_COLOR = { r = 1.00, g = 0.77, b = 0.
 if not LIGHTBLUE_FONT_COLOR then LIGHTBLUE_FONT_COLOR = { r = 0.28, g = 0.90, b = 1.00 } end
 if not GREEN_FONT_COLOR then GREEN_FONT_COLOR = { r = 0.10, g = 1.00, b = 0.10 } end
 
+-- DevTools_Dump: Blizzard developer-only global absent on 3.3.5a.
+-- components/bucket.lua calls it when the /saodump slash command is invoked
+-- with the devDump argument.  Stub as a no-op so the command doesn't crash.
+if not DevTools_Dump then DevTools_Dump = function() end end
+
 -- ==========================================================================
 -- 4.  C_Timer  (not present on 3.3.5a)
 --     Provides NewTimer and NewTicker using a Frame OnUpdate driver.
@@ -247,6 +252,11 @@ if not C_Timer then
         return { Cancel = function() t.cancelled = true end }
     end
 
+    -- C_Timer.After: fire-and-forget one-shot (return value discarded by callers)
+    function C_Timer.After(delay, func)
+        C_Timer.NewTimer(delay, func)
+    end
+
     function C_Timer.NewTicker(interval, func, maxIterations)
         local t = {
             fireTime       = GetTime() + interval,
@@ -305,6 +315,17 @@ if not CALENDAR_TOOLTIP_DATE_RANGE  then CALENDAR_TOOLTIP_DATE_RANGE  = "%s \226
 if not HEALTH_COST_PCT              then HEALTH_COST_PCT              = "%s%% Health"    end
 if not FROM                         then FROM                         = "From"           end
 if not SPELL_ALERT_OPACITY          then SPELL_ALERT_OPACITY          = "Spell Alert Opacity" end
+-- NEAR / FAR: slider end-labels used by the Offset slider in InterfaceOptionsPanels.lua.
+-- Standard WotLK GlobalStrings but may be absent on stripped-down private-server builds.
+-- SetText(nil) would silently blank the labels; shimming avoids that.
+if not NEAR then NEAR = "Near" end
+if not FAR  then FAR  = "Far"  end
+-- COMBATLOG_HIGHLIGHT_ABILITY / ON_COOLDOWN / AVAILABLE: WotLK-era GlobalStrings used
+-- by options/variants.lua:CooldownVariantValue to label cooldown-state variant options
+-- (Rogue class only).  Shimmed defensively; string.format(nil, ...) crashes in Lua 5.1.
+if not COMBATLOG_HIGHLIGHT_ABILITY then COMBATLOG_HIGHLIGHT_ABILITY = "Ability"    end
+if not ON_COOLDOWN                 then ON_COOLDOWN                 = "On Cooldown" end
+if not AVAILABLE                   then AVAILABLE                   = "Available"   end
 -- PET_BATTLE_COMBAT_LOG_DAMAGE_WEAK / _STRONG: MoP+ globals used by
 -- classes/mage.lua:lazyCreateClearcastingVariants to name texture variants
 -- ("Weak" / "Strong" after the gsub).  Not present on 3.3.5a.
@@ -615,6 +636,15 @@ do
         if panel then
             panel.alertNone = panel.alertNone or _G[prefix .. "SpellAlertNone"]
             panel.glowNone  = panel.glowNone  or _G[prefix .. "GlowingButtonNone"]
+            -- globalOff.reason: FontString child of globalOff declared with
+            -- parentKey="reason" in InterfaceOptionsPanels.xml.  parentKey on
+            -- FontStrings is not processed by the 3.3.5a XML parser, so
+            -- panel.globalOff.reason is nil.  Used by Init only when
+            -- SAO.Shutdown:GetCategory().Reason is non-nil (edge case), but
+            -- patching it here is harmless and prevents a nil-index crash.
+            if panel.globalOff and not panel.globalOff.reason then
+                panel.globalOff.reason = _G[prefix .. "GlobalOffLabelReason"]
+            end
 
             -- On 3.3.5a, InterfaceOptions_AddCategory does NOT call panel.refresh
             -- when the panel is shown (that callback was added in Cataclysm).
@@ -873,6 +903,19 @@ do
             frame.SetEnabled = function(self, enabled)
                 if enabled then self:Enable() else self:Disable() end
             end
+        end
+
+        -- SetMouseClickEnabled(bool) polyfill for all Frame types.
+        -- Added in Cataclysm to allow a frame to receive OnEnter/OnLeave hover
+        -- events without intercepting mouse clicks.  classoptions.lua creates a
+        -- transparent hoverFrame over each checkbox label and calls
+        -- hoverFrame:SetMouseClickEnabled(false) so clicks pass through to the
+        -- checkbox widget.  On 3.3.5a there is no equivalent (EnableMouseMotion
+        -- was also added in Cataclysm).  A no-op shim avoids the crash; the
+        -- hover-frame will still intercept clicks over the label text, but the
+        -- checkbox square itself remains clickable.
+        if not frame.SetMouseClickEnabled then
+            frame.SetMouseClickEnabled = function() end
         end
 
         if not template or frame.Text then
