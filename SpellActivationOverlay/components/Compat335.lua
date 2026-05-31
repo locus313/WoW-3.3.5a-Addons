@@ -310,6 +310,12 @@ if not SPELL_ALERT_OPACITY          then SPELL_ALERT_OPACITY          = "Spell A
 -- ("Weak" / "Strong" after the gsub).  Not present on 3.3.5a.
 if not PET_BATTLE_COMBAT_LOG_DAMAGE_WEAK   then PET_BATTLE_COMBAT_LOG_DAMAGE_WEAK   = "(Weak)"   end
 if not PET_BATTLE_COMBAT_LOG_DAMAGE_STRONG then PET_BATTLE_COMBAT_LOG_DAMAGE_STRONG = "(Strong)" end
+-- ACTION_SPELL_AURA_APPLIED_DOSE / STATUS_TEXT_BOTH: WotLK-era GlobalStrings
+-- used by classes/mage.lua:loadOptions to build the Heating Up stacks label.
+-- Present on standard 3.3.5a servers but shimmed defensively in case a server
+-- has stripped its GlobalStrings table.
+if not ACTION_SPELL_AURA_APPLIED_DOSE then ACTION_SPELL_AURA_APPLIED_DOSE = "(stacks)" end
+if not STATUS_TEXT_BOTH               then STATUS_TEXT_BOTH               = "Both"    end
 
 -- ==========================================================================
 -- 7.  GetClassColor 4th return value (hex string)
