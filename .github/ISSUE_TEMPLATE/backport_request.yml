@@ -1,0 +1,54 @@
+name: Backport Request
+description: Request a new addon to be back-ported to WoW 3.3.5a
+labels: ["backport"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Request a new addon to be ported to the WoW 3.3.5a client. Please provide as much detail as possible.
+
+  - type: input
+    id: addon_name
+    attributes:
+      label: Addon name
+      placeholder: AddonName
+    validations:
+      required: true
+
+  - type: input
+    id: source_url
+    attributes:
+      label: Source URL
+      description: Link to the original addon (CurseForge, Wago.io, GitHub, etc.)
+      placeholder: "https://www.curseforge.com/wow/addons/..."
+    validations:
+      required: true
+
+  - type: input
+    id: source_version
+    attributes:
+      label: Version to backport
+      description: Which version of the addon should be ported?
+      placeholder: "1.2.3"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What does this addon do?
+      description: Brief description of the addon's purpose.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Why is this useful for 3.3.5a?
+      description: Explain why this addon would benefit players on WoW 3.3.5a servers.
+    validations:
+      required: true
+
+  - type: textarea
+    id: known_issues
+    attributes:
+      label: Known compatibility concerns
+      description: Any APIs or features you know may require shimming for 3.3.5a?
