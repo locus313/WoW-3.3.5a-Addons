@@ -1,7 +1,7 @@
 ## Title: Auc:Util:Scan Progress
 ## Notes: Auctioneer utility that displays information about the status of on-going Auction House scans.
 ##
-## Interface: 40000
+## Interface: 30300
 ## Dependancies: Auc-Advanced
 ##
 ## Version: 5.9.4960 (WhackyWallaby)

@@ -1,4 +1,4 @@
-## Interface: 20400
+## Interface: 30300
 ## Title: SpellReplay
 ## Author: Oldsalt (Smolderforge)
 ## Notes: Displays the spells you just casted and much more

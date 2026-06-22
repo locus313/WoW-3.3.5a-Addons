@@ -1,5 +1,5 @@
 ## Title: Auc:Util:Appraiser
-## Interface: 40000
+## Interface: 30300
 ## Dependencies: Stubby, Auc-Advanced
 ##
 ## Version: 5.9.4960 (WhackyWallaby)
