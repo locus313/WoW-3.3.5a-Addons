@@ -1,7 +1,7 @@
 ## Title: Auc:Util:SimpleAuction
 ## Notes: Creates a simplified "Post" frame within the main Auction House window for those who want a bit more utility and information when creating auctions.
 ##
-## Interface: 40000
+## Interface: 30300
 ## Dependancies: Auc-Advanced
 ##
 ## Version: 5.9.4960 (WhackyWallaby)

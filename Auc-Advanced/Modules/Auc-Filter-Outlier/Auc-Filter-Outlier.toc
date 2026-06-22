@@ -1,7 +1,7 @@
 ## Title: Auc:Filter:Outlier
 ## Notes: Allows automatic filtering of outlier auctions, so that their values are ignored when compiling the various statistics used within Auctioneer and its modules.
 ##
-## Interface: 40000
+## Interface: 30300
 ## LoadOnDemand: 0
 ## Disabled: 0
 ## Dependencies: Auc-Advanced

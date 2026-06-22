@@ -1,4 +1,4 @@
-## Interface: 20400
+## Interface: 30300
 ## Title: Chronos
 ## Notes: Embeddable Time Keeping and Scheduling System
 ## Notes-deDE: Sammlung nützlicher Funktionen zum Zeitmanagement, welche von einigen anderen AddOns verwendet werden.

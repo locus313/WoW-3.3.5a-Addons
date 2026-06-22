@@ -1,3 +1,4 @@
+## Interface: 30300
 ﻿## Interface: 30300
 ## DefaultState: disabled
 ## Title: Power Auras Classic

@@ -1,3 +1,4 @@
+## Interface: 30300
 ﻿## Interface: 30300
 ## X-Curse-Packaged-Version: 4.4.2-12-g94f3b58
 ## X-Curse-Project-Name: Bartender4

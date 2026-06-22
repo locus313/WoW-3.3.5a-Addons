@@ -1,7 +1,7 @@
 ## Title: Stubby |cff224477(lib)
 ## Notes: Allows AddOns to load automatically, when called, based upon simple event notification hooks. [5.9.4960] This AddOn is licensed under the GNU GPL, see GPL.txt for details.
 ##
-## Interface: 40000
+## Interface: 30300
 ## OptionalDeps: !nLog, DebugLib
 ## SavedVariables: StubbyConfig
 ##

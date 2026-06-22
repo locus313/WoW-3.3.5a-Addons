@@ -1,7 +1,7 @@
 ## Title: Auc:Util:Vendor Markup
 ## Notes: Vendor Markup for Auctioneer. Provides a default vendor markup value for items never seen on the auction house.
 ##
-## Interface: 40000
+## Interface: 30300
 ## LoadOnDemand: 0
 ## Disabled: 0
 ## Dependencies: Auc-Advanced

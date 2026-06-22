@@ -1,5 +1,5 @@
 ## Title: Auc:Util:EasyBuyout
-## Interface: 40000
+## Interface: 30300
 ## Notes: Shift+right-click to easily buyout an auction with no confirmation box!
 ## Dependancies: Auc-Advanced
 ##

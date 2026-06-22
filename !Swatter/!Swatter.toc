@@ -1,7 +1,7 @@
 ## Title: Swatter
 ## Notes: Debugging tool for handling and displaying of error messages in a useful way.
 ##
-## Interface: 40000
+## Interface: 30300
 ## SavedVariables: SwatterData
 ##
 ## Version: 5.9.4960 (WhackyWallaby)

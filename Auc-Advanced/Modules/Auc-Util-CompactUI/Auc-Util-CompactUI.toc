@@ -1,7 +1,7 @@
 ## Title: Auc:Util:Compact UI
 ## Notes: Provides additional features and enhancement of the Auction House's "Browse" frame.
 ##
-## Interface: 40000
+## Interface: 30300
 ## Dependancies: Auc-Advanced
 ##
 ## Version: 5.9.4960 (WhackyWallaby)

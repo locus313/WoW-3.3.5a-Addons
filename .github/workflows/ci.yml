@@ -29,6 +29,14 @@ jobs:
         run: |
           ERRORS=0
           while IFS= read -r -d '' toc; do
+            # Skip files inside libs/ or Libs/ subdirectories (third-party libraries)
+            if echo "$toc" | grep -qiE "/[Ll]ibs?/"; then
+              continue
+            fi
+            # Skip multi-version variant toc files (designed for other WoW clients)
+            if echo "$toc" | grep -qiE "(_Vanilla|_Classic|_BCC|_TBC|_Wrath|_WOTLK|_Cata|_MOP|_WOD|_Legion|_BFA|_SL|_DF)\.toc$"; then
+              continue
+            fi
             if ! grep -q "^## Interface: 30300" "$toc"; then
               echo "❌ $toc — missing or wrong '## Interface: 30300'"
               ERRORS=$((ERRORS + 1))
@@ -37,7 +45,7 @@ jobs:
           if [ "$ERRORS" -gt 0 ]; then
             echo ""
             echo "Found $ERRORS .toc file(s) with incorrect or missing Interface version."
-            echo "All .toc files in this repo must declare: ## Interface: 30300"
+            echo "All addon .toc files in this repo must declare: ## Interface: 30300"
             exit 1
           fi
           echo "✅ All .toc files declare ## Interface: 30300"

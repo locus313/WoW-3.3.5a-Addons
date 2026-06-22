@@ -1,7 +1,7 @@
 ## Title: EnchantrixBarker
 ## Notes: Sends a price list of Enchants that a user has available for sale to the Trade channel. [5.9.4960] This AddOn is licensed under the GNU GPL, see GPL.txt for details.
 ##
-## Interface: 40000
+## Interface: 30300
 ## Dependencies: Stubby
 ## OptionalDeps: Enchantrix, !nLog, DebugLib, Babylonian, LibExtraTip, TipHelper
 ## SavedVariables: EnchantrixBarkerConfig

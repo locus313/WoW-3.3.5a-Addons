@@ -1,5 +1,5 @@
 ## Title: Auc:Util:Scan Finish
-## Interface: 40000
+## Interface: 30300
 ## Dependancies: Auc-Advanced
 ##
 ## Version: 5.9.4960 (WhackyWallaby)

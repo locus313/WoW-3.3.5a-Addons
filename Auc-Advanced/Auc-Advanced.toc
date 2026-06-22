@@ -1,7 +1,7 @@
 ## Title: Auc-Auctioneer |cff774422(core)
 ## Notes: Auctioneer assists players to track item values; whether buying or selling. You must enable at least one statistics extension (like Auc:Stats:Simple) to begin.  Combines with other modules to form the powerful, fully configurable Auctioneer Suite.
 ##
-## Interface: 40000
+## Interface: 30300
 ## LoadOnDemand: 0
 ## Dependencies: Stubby
 ## OptionalDependencies: !nLog, SlideBar, Configator, Babylonian, DebugLib, TipHelper, LibExtraTip, LibDataBroker

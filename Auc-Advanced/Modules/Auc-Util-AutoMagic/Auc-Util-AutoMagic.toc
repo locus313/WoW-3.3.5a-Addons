@@ -1,5 +1,5 @@
 ## Title: Auc:Util:AutoMagic
-## Interface: 40000
+## Interface: 30300
 ## Dependancies: Auc-Advanced
 ## OptionalDependencies: Auc-Util-Appraiser, Enchantrix, Auc-Util-ItemSuggest, LibDataBroker
 ##

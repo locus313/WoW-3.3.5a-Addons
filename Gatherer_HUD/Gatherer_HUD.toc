@@ -1,4 +1,4 @@
-## Interface: 40000
+## Interface: 30300
 ## 
 ## Title: Gatherer Heads-Up Display Plugin
 ## Title-frFR: Gatherer Heads-Up Display Plugin

@@ -1,7 +1,7 @@
 ## Title: Auc:Stat:iLevel
 ## Notes: Statistics extension for Auctioneer that uses the variance to detect outliers, grouping data upon the item quality, type and item level.
 ##
-## Interface: 40000
+## Interface: 30300
 ## LoadOnDemand: 0
 ## Disabled: 1
 ## Dependencies: Auc-Advanced
