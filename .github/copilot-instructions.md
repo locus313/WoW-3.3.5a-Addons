@@ -131,3 +131,19 @@ Each back-ported addon's `README.md` should include:
 - A **Files Changed** table listing every modified/created file and the change type.
 - A section per changed file describing **each individual fix**: the root cause, the before/after code, and why the change was necessary.
 - A **Known Limitations** or **Known Issues** section if applicable.
+
+---
+
+## Maintenance Matrix
+
+When you change one thing, always update everything in the same row.
+
+| When you change… | Also update… |
+|---|---|
+| `<Addon>/<Addon>.toc` — bumps `## Version:` | Root `README.md` version column for that addon |
+| `<Addon>/compat_335.lua` — adds or removes a shim | `<Addon>/README.md` — Files Changed table + the shim's own section (root cause / before / after / why) |
+| Any `.lua` or `.xml` file in a back-ported addon | `<Addon>/README.md` — add or update the per-fix section for that file |
+| Root `README.md` addon tables | Verify the listed version matches `## Version:` in the addon's `.toc` |
+| `.github/copilot-instructions.md` API shim table | `AGENTS.md` Common Pitfalls if the change introduces a new footgun |
+| Release tag `<Addon>-release` pushed | `## Version:` in `<Addon>/<Addon>.toc` must be bumped **before** the tag is pushed |
+| Suite addon (e.g. `HidingBar`) modified | Check companion folders (e.g. `HidingBar_Options`) — the release workflow packages all matching prefixes together |

@@ -1,0 +1,71 @@
+name: Bug Report
+description: Report a bug or error in an addon
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Please fill out the fields below so the issue can be reproduced and fixed.
+
+  - type: input
+    id: addon
+    attributes:
+      label: Addon name
+      description: Which addon is affected? (e.g. HidingBar, SpellActivationOverlay)
+      placeholder: AddonName
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Addon version
+      description: Found in the addon's `.toc` file under `## Version:`
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: backported
+    attributes:
+      label: Is this a back-ported addon?
+      description: Was this addon ported from a newer WoW client?
+      options:
+        - "Yes"
+        - "No"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: What happened? What did you expect to happen?
+      placeholder: Describe the bug clearly and concisely.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the addon
+        2. Click on ...
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Lua error (if any)
+      description: Paste the full Lua error from !Swatter or the error frame.
+      render: lua
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Any other relevant info — server type, other addons loaded, etc.

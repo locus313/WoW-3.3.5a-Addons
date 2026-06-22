@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
+      - 'CHANGELOG.md'
+      - 'AGENTS.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+  push:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
+      - 'CHANGELOG.md'
+      - 'AGENTS.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+
+jobs:
+  validate-toc:
+    name: Validate TOC files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Interface version in all .toc files
+        run: |
+          ERRORS=0
+          while IFS= read -r -d '' toc; do
+            if ! grep -q "^## Interface: 30300" "$toc"; then
+              echo "❌ $toc — missing or wrong '## Interface: 30300'"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done < <(find . -name "*.toc" -not -path "./.git/*" -print0)
+          if [ "$ERRORS" -gt 0 ]; then
+            echo ""
+            echo "Found $ERRORS .toc file(s) with incorrect or missing Interface version."
+            echo "All .toc files in this repo must declare: ## Interface: 30300"
+            exit 1
+          fi
+          echo "✅ All .toc files declare ## Interface: 30300"
+
+      - name: Check back-ported addons have compat_335.lua listed first
+        run: |
+          ERRORS=0
+          while IFS= read -r -d '' compat; do
+            ADDON_DIR=$(dirname "$compat")
+            ADDON_NAME=$(basename "$ADDON_DIR")
+            TOC="$ADDON_DIR/$ADDON_NAME.toc"
+            if [ ! -f "$TOC" ]; then
+              continue
+            fi
+            # Get the first non-comment, non-blank file entry in the TOC
+            FIRST_FILE=$(grep -v "^#" "$TOC" | grep -v "^$" | grep -v "^##" | head -1 | tr -d '\r')
+            if [ "$FIRST_FILE" != "compat_335.lua" ]; then
+              echo "❌ $TOC — compat_335.lua must be the first file listed (got: '$FIRST_FILE')"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done < <(find . -name "compat_335.lua" -not -path "./.git/*" -print0)
+          if [ "$ERRORS" -gt 0 ]; then
+            exit 1
+          fi
+          echo "✅ All compat_335.lua files are listed first in their TOC"

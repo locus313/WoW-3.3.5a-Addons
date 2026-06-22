@@ -1,5 +1,7 @@
 # WoW 3.3.5a Addons
 
+[![AI Ready](https://img.shields.io/badge/AI--Ready-yes-brightgreen?style=flat)](https://github.com/johnpapa/ai-ready)
+
 A collection of World of Warcraft addons for the **Wrath of the Lich King 3.3.5a** client. Some of these addons have been back-ported from newer versions to ensure compatibility with the 3.3.5a client.
 
 ## Addons
