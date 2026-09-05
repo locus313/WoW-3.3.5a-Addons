@@ -1,0 +1,103 @@
+name: Release All Addons
+
+# Bulk release: on every push to main, packages every addon in the repo and
+# creates a GitHub Release per addon, tagged "<Addon>-<Version>". Addons whose
+# ## Version: hasn't changed since their last release are skipped, so only
+# addons bumped in that push actually get published. Companion folders (e.g.
+# Bagnon_Config, HidingBar_Options) are packaged together with their primary
+# addon instead of getting their own release.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'List what would be released without publishing'
+        type: boolean
+        default: false
+
+jobs:
+  release-all:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history needed so we can derive a fallback version (below)
+          # from the last commit that touched a given addon folder.
+          fetch-depth: 0
+
+      - name: Package and release every addon
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -euo pipefail
+
+          # Collect all top-level folders that own a matching .toc file.
+          mapfile -t ALL_DIRS < <(find . -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
+
+          # A folder is a "companion" (packaged with, not released as, another
+          # addon) if its name is prefixed by another addon's own folder name
+          # (e.g. TitanAmmo/Bagnon_Config/DataStore_Inventory are all prefixed
+          # by Titan/Bagnon/DataStore respectively) - this must match the same
+          # "${ADDON}*" glob used below to decide what gets zipped together.
+          is_companion_of_existing_addon() {
+            local dir="$1"
+            for other in "${ALL_DIRS[@]}"; do
+              [ "$other" = "$dir" ] && continue
+              if [[ "$dir" == "${other}"* && -f "${other}/${other}.toc" ]]; then
+                return 0
+              fi
+            done
+            return 1
+          }
+
+          for dir in "${ALL_DIRS[@]}"; do
+            TOC_FILE="${dir}/${dir}.toc"
+            [ -f "$TOC_FILE" ] || continue
+            is_companion_of_existing_addon "$dir" && continue
+
+            ADDON="$dir"
+            mapfile -t FOLDERS < <(find . -maxdepth 1 -type d -name "${ADDON}*" -printf "%f\n")
+
+            VERSION=$(grep -i "^## Version:" "$TOC_FILE" | sed 's/^## Version:[[:space:]]*//' | tr -d '\r')
+            if [ -z "$VERSION" ]; then
+              # No ## Version: field (e.g. DBM-* modules) - fall back to a
+              # synthetic version tied to the last commit touching any of this
+              # addon's bundled folders, so a release is only cut when the
+              # packaged content actually changes.
+              SHA=$(git log -1 --format=%h -- "${FOLDERS[@]}" | tr -d '\r')
+              if [ -z "$SHA" ]; then
+                echo "::warning::Skipping ${ADDON} - no ## Version: and no git history found"
+                continue
+              fi
+              VERSION="git-${SHA}"
+              echo "::notice::${ADDON} has no ## Version:, using fallback version ${VERSION}"
+            fi
+
+            # Git tags can't contain whitespace (e.g. Titan's
+            # "4.3.8.30300 - Revision 386"), so slugify for the tag/filename
+            # while keeping the original VERSION string in the release title.
+            TAG_VERSION=$(echo "$VERSION" | tr -c '[:alnum:].' '-' | sed 's/-\+/-/g; s/^-//; s/-$//')
+            TAG="${ADDON}-${TAG_VERSION}"
+            ZIP="${ADDON}-${TAG_VERSION}.zip"
+
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              echo "Release ${TAG} already exists, skipping ${ADDON}"
+              continue
+            fi
+
+            echo "Packaging ${ADDON} ${VERSION}: ${FOLDERS[*]}"
+
+            if [ "$DRY_RUN" = "true" ]; then
+              continue
+            fi
+
+            rm -f "$ZIP"
+            zip -rq "$ZIP" "${FOLDERS[@]}"
+            gh release create "$TAG" "$ZIP" \
+              --title "${ADDON} ${VERSION}" \
+              --generate-notes
+          done
