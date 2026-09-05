@@ -1,11 +1,10 @@
 name: Release All Addons
 
-# Bulk release: on every push to main, packages every addon in the repo and
-# creates a GitHub Release per addon, tagged "<Addon>-<Version>". Addons whose
-# ## Version: hasn't changed since their last release are skipped, so only
-# addons bumped in that push actually get published. Companion folders (e.g.
-# Bagnon_Config, HidingBar_Options) are packaged together with their primary
-# addon instead of getting their own release.
+# On every push to main, packages every addon in the repo into its own zip
+# (named "<Addon>-<Version>.zip") and publishes them all as assets on a
+# single dated release for that push, tagged "addons-<date>-<short-sha>".
+# Companion folders (e.g. Bagnon_Config, HidingBar_Options) are packaged
+# together with their primary addon instead of getting their own asset.
 on:
   push:
     branches: [main]
@@ -28,12 +27,13 @@ jobs:
           # from the last commit that touched a given addon folder.
           fetch-depth: 0
 
-      - name: Package and release every addon
+      - name: Package every addon
         env:
-          GH_TOKEN: ${{ github.token }}
           DRY_RUN: ${{ github.event.inputs.dry_run }}
         run: |
           set -euo pipefail
+
+          mkdir -p dist
 
           # Collect all top-level folders that own a matching .toc file.
           mapfile -t ALL_DIRS < <(find . -mindepth 1 -maxdepth 1 -type d -printf "%f\n" | sort)
@@ -68,38 +68,40 @@ jobs:
             if [ -z "$VERSION" ]; then
               # No ## Version: field (e.g. DBM-* modules) - fall back to a
               # synthetic version tied to the last commit touching any of this
-              # addon's bundled folders, so a release is only cut when the
-              # packaged content actually changes.
+              # addon's bundled folders, so the asset name only changes when
+              # the packaged content actually changes.
               SHA=$(git log -1 --format=%h -- "${FOLDERS[@]}" | tr -d '\r')
-              if [ -z "$SHA" ]; then
-                echo "::warning::Skipping ${ADDON} - no ## Version: and no git history found"
-                continue
-              fi
-              VERSION="git-${SHA}"
+              VERSION="git-${SHA:-unknown}"
               echo "::notice::${ADDON} has no ## Version:, using fallback version ${VERSION}"
             fi
 
-            # Git tags can't contain whitespace (e.g. Titan's
-            # "4.3.8.30300 - Revision 386"), so slugify for the tag/filename
-            # while keeping the original VERSION string in the release title.
-            TAG_VERSION=$(echo "$VERSION" | tr -c '[:alnum:].' '-' | sed 's/-\+/-/g; s/^-//; s/-$//')
-            TAG="${ADDON}-${TAG_VERSION}"
-            ZIP="${ADDON}-${TAG_VERSION}.zip"
-
-            if gh release view "$TAG" >/dev/null 2>&1; then
-              echo "Release ${TAG} already exists, skipping ${ADDON}"
-              continue
-            fi
+            # Zip/asset names can't contain whitespace (e.g. Titan's
+            # "4.3.8.30300 - Revision 386"), so slugify it.
+            SAFE_VERSION=$(echo "$VERSION" | tr -c '[:alnum:].' '-' | sed 's/-\+/-/g; s/^-//; s/-$//')
+            ZIP="dist/${ADDON}-${SAFE_VERSION}.zip"
 
             echo "Packaging ${ADDON} ${VERSION}: ${FOLDERS[*]}"
-
-            if [ "$DRY_RUN" = "true" ]; then
-              continue
-            fi
-
             rm -f "$ZIP"
             zip -rq "$ZIP" "${FOLDERS[@]}"
-            gh release create "$TAG" "$ZIP" \
-              --title "${ADDON} ${VERSION}" \
-              --generate-notes
           done
+
+          echo "Packaged $(find dist -name '*.zip' | wc -l) addon(s) into dist/"
+
+      - name: Create dated release with all addon assets
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="addons-$(date -u +%Y-%m-%d)-${GITHUB_SHA:0:7}"
+
+          # Re-running the workflow on the same commit would collide on the
+          # same tag - replace the prior release/tag so re-runs stay clean.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" --yes --cleanup-tag
+          fi
+
+          gh release create "$TAG" dist/*.zip \
+            --title "Addons $(date -u +%Y-%m-%d) (${GITHUB_SHA:0:7})" \
+            --generate-notes
+
