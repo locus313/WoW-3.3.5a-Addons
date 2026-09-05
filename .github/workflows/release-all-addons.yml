@@ -8,6 +8,10 @@ name: Release All Addons
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '.github/workflows/**'
+      - '.github/dependabot.yml'
+      - '*.md'
   workflow_dispatch:
     inputs:
       dry_run:
