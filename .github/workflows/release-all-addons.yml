@@ -8,6 +8,10 @@ name: Release All Addons
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '.github/workflows/**'
+      - '.github/dependabot.yml'
+      - '*.md'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -21,7 +25,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history needed so we can derive a fallback version (below)
           # from the last commit that touched a given addon folder.
