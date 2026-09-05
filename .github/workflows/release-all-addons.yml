@@ -62,7 +62,9 @@ jobs:
             ADDON="$dir"
             mapfile -t FOLDERS < <(find . -maxdepth 1 -type d -name "${ADDON}*" -printf "%f\n")
 
-            VERSION=$(grep -i "^## Version:" "$TOC_FILE" | sed 's/^## Version:[[:space:]]*//' | tr -d '\r')
+            # "|| true" prevents grep's exit-1-on-no-match from tripping
+            # pipefail/set -e when a .toc has no ## Version: line at all.
+            VERSION=$( (grep -i "^## Version:" "$TOC_FILE" || true) | sed 's/^## Version:[[:space:]]*//' | tr -d '\r')
             if [ -z "$VERSION" ]; then
               # No ## Version: field (e.g. DBM-* modules) - fall back to a
               # synthetic version tied to the last commit touching any of this
