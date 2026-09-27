@@ -8,6 +8,7 @@
 ## Notes-esES: A?ade un panel de Accesorios en el juego mediante el men? 'Accesorios'. Soporte especial para accesorios multi-parte. Basado en rMCP de Rophy.
 ## Notes-zhCN: 在系统选项按「插件管理」按钮管理插件。ACP 以 rMCP（MCP，由 Rophy 修改）为基础。
 ## Version: 3.2.0.118 
+## OptionalDeps: ElvUI
 ## SavedVariables: ACP_Data
 ## X-Curse-Packaged-Version: 3.3.0
 ## X-Curse-Project-Name: Addon Control Panel
@@ -28,3 +29,4 @@ localization-frFR.lua
 localization-esES.lua
 localization-ruRU.lua
 ACP.xml
+ElvUISkin.lua

@@ -10,7 +10,7 @@ A collection of World of Warcraft addons for the **Wrath of the Lich King 3.3.5a
 
 | Addon | Version | Description |
 |-------|---------|-------------|
-| [ACP](ACP/) | 3.2.0.118 | Addon Control Panel — adds an in-game addon manager via the Addons menu |
+| [ACP](ACP/) | 3.2.0.118 | Addon Control Panel — adds an in-game addon manager via the Addons menu; matches ElvUI's style when ElvUI is loaded ([details](ACP/README.md)) |
 | [AdvancedTradeSkillWindow](AdvancedTradeSkillWindow/) | 0.7.8 | An improved trade skill window with filtering and sorting |
 | [AuctionHouseDepositFixer](AuctionHouseDepositFixer/) | — | Corrects the deposit cost shown for items in the Auction House |
 | [Bartender4](Bartender4/) | 4.4.2 | Fully customizable action bar addon |
