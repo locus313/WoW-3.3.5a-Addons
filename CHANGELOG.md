@@ -8,6 +8,14 @@ Per-addon changelogs (where they exist) live in each addon's own folder (e.g. `E
 
 ## [Unreleased]
 
+### Added
+
+- ACP: optional ElvUI skin (`ACP/ElvUISkin.lua`) that restyles the Addon Control Panel window and its Escape-menu "AddOns" button to match ElvUI; it only runs when ElvUI is loaded
+
+### Fixed
+
+- ACP: when ElvUI is loaded, the window now uses the same UI scale as other skinned windows (it was drawn about 1.47x larger because its frame had no parent)
+
 ## [SpellActivationOverlay 2.7.2-3.3.5a]
 
 ### Added
